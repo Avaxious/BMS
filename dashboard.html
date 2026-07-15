@@ -826,7 +826,6 @@ function processArrayBuffer(buf,filename){
     initFilters();
     contPage=1;
     refreshDashboard();
-    document.getElementById('liveDot').classList.remove('stale');
     showToast('✅ داشبورد از «'+filename+'» به‌روزرسانی شد ('+rawRecords.length.toLocaleString()+' رکورد)',false);
   }catch(err){
     console.error(err);
@@ -928,7 +927,6 @@ async function tryAutoFetch(){
     rawRecords=gsRecords;
     currentMeta={time:new Date().toLocaleString('fa-IR')};
     initFilters();contPage=1;refreshDashboard();
-    document.getElementById('liveDot').classList.remove('stale');
     showToast('✅ دیتا از Google Sheets بارگذاری شد ('+gsRecords.length.toLocaleString()+' رکورد)',false);
     return;
   }
@@ -963,14 +961,12 @@ function showBanner(msg){var b=document.getElementById('libBanner');if(msg)b.que
 (async function boot(){
   var safeTimer=setTimeout(function(){
     document.getElementById('libLoading').classList.add('hide');
-    document.getElementById('sourceLabel').textContent='⚠️ دمو (کتابخانه‌ها بارگذاری نشد)';
     showBanner('<b>⚠️ کتابخانه‌های مورد نیاز از اینترنت بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5).');
   },28000);
   var chartUrl=await window.__chartReady;
   var xlsxUrl=await window.__xlsxReady;
   var leafletUrl=await window.__leafletReady;
   clearTimeout(safeTimer);
-  document.getElementById('liveDot').classList.toggle('stale',!chartUrl);
   document.getElementById('libLoading').classList.add('hide');
   if(chartUrl){setupChartDefaults();renderAll(DEFAULT_DATA,{filename:null,time:null});initFilters();}else{showBanner('<b>⚠️ کتابخانه‌های مورد نیاز از اینترنت بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5). ۲) فایل اکسل را بفرستید تا نسخهٔ آفلاین بسازم.');}
   if(!leafletUrl&&!chartUrl&&!xlsxUrl){showBanner('<b>⚠️ Leaflet.js (نقشه) بارگذاری نشد.</b><br>نقشه در دسترس نیست، بقیه داشبورد کار می‌کند.');}
