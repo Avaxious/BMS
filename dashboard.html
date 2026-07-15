@@ -162,7 +162,6 @@
       </div>
     </div>
     <div class="header-status">
-      <div class="status-chip"><span class="dot" id="liveDot"></span> <span id="sourceLabel">نمونهٔ اولیه (Demo Snapshot)</span></div>
       <div class="status-chip">آخرین بارگذاری: <span class="ltr" id="lastLoaded">—</span></div>
     </div>
   </div>
@@ -557,7 +556,6 @@ function renderAll(v, meta){
   renderContainerList(v.all_records);
 
   if(meta){
-    document.getElementById('sourceLabel').textContent=meta.filename||'نمونهٔ اولیه (Demo Snapshot)';
     document.getElementById('lastLoaded').textContent=meta.time||'\u2014';
     document.getElementById('footerNote').textContent='SOURCE: '+(meta.filename||'Demo snapshot')+' \u00b7 Vessel Checking sheet';
   }
