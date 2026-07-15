@@ -149,7 +149,24 @@
 <div id="dropOverlay"><div class="box">📄 فایل اکسل را همین‌جا رها کنید<small>Vessel Checking sheet به‌طور خودکار خوانده و تحلیل می‌شود</small></div></div>
 <div id="toast"></div>
 <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls" style="display:none">
-<!-- Header buttons removed: manual upload & auto-refresh no longer needed -->
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-mark">
+        <img src="BMS.jpg">
+      </div>
+      <div class="brand-text">
+        <div class="t1"><span class="accent">B</span>lue <span class="accent">C</span>alm <span class="accent">M</span>arine · داشبورد عملیات دریایی</div>
+        <div class="t2 ltr">VESSEL CHECKING INTELLIGENCE · LIVE</div>
+      </div>
+    </div>
+    <div class="header-status">
+      <div class="status-chip"><span class="dot" id="liveDot"></span> <span id="sourceLabel">نمونهٔ اولیه (Demo Snapshot)</span></div>
+      <div class="status-chip">آخرین بارگذاری: <span class="ltr" id="lastLoaded">—</span></div>
+    </div>
+  </div>
+</header>
 
 <div id="libLoading"><span class="spinner"></span> در حال بارگذاری کتابخانه‌ها…</div>
 <div id="libBanner">
@@ -946,15 +963,19 @@ function showBanner(msg){var b=document.getElementById('libBanner');if(msg)b.que
 
 
 (async function boot(){
+  var safeTimer=setTimeout(function(){
+    document.getElementById('libLoading').classList.add('hide');
+    document.getElementById('sourceLabel').textContent='⚠️ دمو (کتابخانه‌ها بارگذاری نشد)';
+    showBanner('<b>⚠️ کتابخانه‌های مورد نیاز از اینترنت بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5).');
+  },28000);
   var chartUrl=await window.__chartReady;
   var xlsxUrl=await window.__xlsxReady;
   var leafletUrl=await window.__leafletReady;
+  clearTimeout(safeTimer);
   document.getElementById('liveDot').classList.toggle('stale',!chartUrl);
   document.getElementById('libLoading').classList.add('hide');
-  if(chartUrl){setupChartDefaults();renderAll(DEFAULT_DATA,{filename:null,time:null});initFilters();}else{showBanner('<b>⚠️ Chart.js بارگذاری نشد.</b><br>VPN روشن کنید و رفرش (F5).');}
-  // Excel library check removed — no longer needed for upload
+  if(chartUrl){setupChartDefaults();renderAll(DEFAULT_DATA,{filename:null,time:null});initFilters();}else{showBanner('<b>⚠️ کتابخانه‌های مورد نیاز از اینترنت بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5). ۲) فایل اکسل را بفرستید تا نسخهٔ آفلاین بسازم.');}
   if(!leafletUrl&&!chartUrl&&!xlsxUrl){showBanner('<b>⚠️ Leaflet.js (نقشه) بارگذاری نشد.</b><br>نقشه در دسترس نیست، بقیه داشبورد کار می‌کند.');}
-  // Try auto-load via HTTP server
   if(chartUrl&&xlsxUrl)tryAutoFetch();
 })();
 </script>
