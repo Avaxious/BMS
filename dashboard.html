@@ -928,7 +928,7 @@ async function tryAutoFetch(){
   var gsRecords=await fetchGoogleSheet();
   if(gsRecords&&gsRecords.length){
     rawRecords=gsRecords;
-    currentMeta={filename:'Google Sheets',time:new Date().toLocaleString('fa-IR')};
+    currentMeta={time:new Date().toLocaleString('fa-IR')};
     initFilters();contPage=1;refreshDashboard();
     document.getElementById('liveDot').classList.remove('stale');
     showToast('✅ دیتا از Google Sheets بارگذاری شد ('+gsRecords.length.toLocaleString()+' رکورد)',false);
