@@ -158,6 +158,25 @@
   #splash .btn:hover{filter:brightness(1.1);transform:scale(1.02);}
   #splash .btn.loading{opacity:.6;pointer-events:none;}
   #splash .footer{font-size:10px;color:var(--text-faint);margin-top:20px;font-family:var(--mono);}
+  body.light{--navy-deep:#eef2f6;--navy:#dce3ec;--panel:#ffffff;--panel-2:#f5f8fb;--panel-border:rgba(0,0,0,.08);--grid-line:rgba(0,0,0,.04);--teal:#0d9488;--gold:#b8860b;--red:#c0392b;--text:#1a202c;--text-dim:#4a5568;--text-faint:#a0aec0;}
+  body.light .brand-mark{background:#fff;}
+  body.light .kpi{background:#fff;}
+  body.light .card{background:#fff;border-color:rgba(0,0,0,.08);}
+  body.light .board{background:#fff;}
+  body.light .fbar{background:#fff;}
+  body.light .fg input,body.light .fg select{background:#fff;}
+  body.light header{background:rgba(255,255,255,.95);border-bottom-color:rgba(0,0,0,.08);}
+  body.light #splash{background:rgba(238,242,246,.92);}
+  body.light #splash .card{background:#fff;}
+  body.light .board-scroll::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);}
+  #timer{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);direction:ltr;display:inline-flex;align-items:center;gap:4px;}
+  #timer .ico{opacity:.5;}
+  #welcomeUser{font-size:11.5px;color:var(--text-dim);font-family:var(--sans);}
+  #welcomeUser .un{color:var(--teal);font-weight:600;}
+  #themeBtn{background:none;border:1px solid var(--panel-border);color:var(--text-dim);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px;display:inline-flex;align-items:center;justify-content:center;transition:.2s;padding:0;line-height:1;}
+  #themeBtn:hover{border-color:var(--gold);color:var(--gold);}
+  #logoutBtn{background:none;border:1px solid var(--panel-border);color:var(--text-dim);padding:4px 12px;border-radius:100px;cursor:pointer;font-family:var(--sans);font-size:10.5px;transition:.2s;}
+  #logoutBtn:hover{border-color:var(--red);color:var(--red);}
 </style>
 </head>
 <body>
@@ -193,6 +212,9 @@
     </div>
     <div class="header-status">
       <div class="status-chip">آخرین بارگذاری: <span class="ltr" id="lastLoaded">—</span></div>
+      <span id="timer" style="display:none"><span class="ico">⏱</span> <span id="timerDisplay">30:00</span></span>
+      <span id="welcomeUser" style="display:none">خوش آمدید، <span class="un" id="userDisplay"></span></span>
+      <button id="themeBtn" onclick="toggleTheme()" title="تغییر تم">🌙</button>
     </div>
   </div>
 </header>
@@ -301,7 +323,7 @@
   </div>
 
   <footer>
-    <div>Blue Calm Marine — Vessel Checking Intelligence Dashboard (Live)</div>
+    <div>Blue Calm Marine — Vessel Checking Intelligence Dashboard (Live) <button id="logoutBtn" onclick="logout()">🚪 خروج</button></div>
     <div class="ltr" id="footerNote">SOURCE: Vessel Checking sheet only</div>
   </footer>
 </div>
@@ -1002,7 +1024,7 @@ function showBanner(msg){var b=document.getElementById('libBanner');if(msg)b.que
   if(chartUrl){setupChartDefaults();renderAll(DEFAULT_DATA,{filename:null,time:null});initFilters();}else{showBanner('<b>⚠️ کتابخانه‌های مورد نیاز از اینترنت بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5). ۲) فایل اکسل را بفرستید تا نسخهٔ آفلاین بسازم.');}
   if(!leafletUrl&&!chartUrl&&!xlsxUrl){showBanner('<b>⚠️ Leaflet.js (نقشه) بارگذاری نشد.</b><br>نقشه در دسترس نیست، بقیه داشبورد کار می‌کند.');}
   if(chartUrl&&xlsxUrl)tryAutoFetch();
-  setInterval(function(){var t=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))>18e5){localStorage.removeItem('bms_token');document.getElementById('splash').classList.add('show');document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';document.getElementById('loginErr').style.display='none';var btn=document.getElementById('loginBtn');btn.classList.remove('loading');btn.textContent='ورود به داشبورد ←';}},15000);
+  setInterval(function(){var t=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))>18e5){localStorage.removeItem('bms_token');localStorage.removeItem('bms_username');document.getElementById('splash').classList.add('show');document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';document.getElementById('loginErr').style.display='none';var btn=document.getElementById('loginBtn');btn.classList.remove('loading');btn.textContent='ورود به داشبورد ←';document.getElementById('welcomeUser').style.display='none';document.getElementById('timer').style.display='none';if(_timerInterval){clearInterval(_timerInterval);_timerInterval=null;}}},15000);
 })();
 async function doLogin(){
   var user=document.getElementById('loginUser').value.trim();
@@ -1015,6 +1037,11 @@ async function doLogin(){
     var data=await resp.json();
     if(data.ok){
       localStorage.setItem('bms_token',Date.now().toString());
+      localStorage.setItem('bms_username',user);
+      document.getElementById('userDisplay').textContent=user;
+      document.getElementById('welcomeUser').style.display='';
+      document.getElementById('timer').style.display='';
+      updateTimer();
       document.getElementById('splash').classList.remove('show');
     }else{
       document.getElementById('loginErr').textContent='❌ نام کاربری یا رمز عبور اشتباه است';
@@ -1027,6 +1054,40 @@ async function doLogin(){
     btn.classList.remove('loading');btn.textContent='ورود به داشبورد ←';
   }
 }
-</script>
+var _timerInterval=null;
+function updateTimer(){
+  var t=localStorage.getItem('bms_token');
+  if(!t)return;
+  var el=document.getElementById('timerDisplay');
+  var remaining=Math.max(0,18e5-(Date.now()-parseInt(t)));
+  var m=Math.floor(remaining/60000),s=Math.floor((remaining%60000)/1000);
+  el.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+function logout(){
+  localStorage.removeItem('bms_token');localStorage.removeItem('bms_username');
+  document.getElementById('splash').classList.add('show');
+  document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';
+  document.getElementById('loginErr').style.display='none';
+  var btn=document.getElementById('loginBtn');btn.classList.remove('loading');btn.textContent='ورود به داشبورد ←';
+  document.getElementById('welcomeUser').style.display='none';
+  document.getElementById('timer').style.display='none';
+  if(_timerInterval){clearInterval(_timerInterval);_timerInterval=null;}
+}
+function toggleTheme(){
+  var b=document.body;b.classList.toggle('light');
+  var btn=document.getElementById('themeBtn');
+  btn.textContent=b.classList.contains('light')?'☀️':'🌙';
+  localStorage.setItem('bms_theme',b.classList.contains('light')?'light':'dark');
+}
+(function(){
+  if(localStorage.getItem('bms_theme')==='light'){document.body.classList.add('light');document.getElementById('themeBtn').textContent='☀️';}
+  var t=localStorage.getItem('bms_token');
+  if(t&&(Date.now()-parseInt(t))<18e5){
+    var u=localStorage.getItem('bms_username');
+    if(u){document.getElementById('userDisplay').textContent=u;document.getElementById('welcomeUser').style.display='';}
+    document.getElementById('timer').style.display='';
+    updateTimer();_timerInterval=setInterval(updateTimer,1000);
+  }
+})();
 </body>
 </html>
