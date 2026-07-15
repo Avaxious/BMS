@@ -175,7 +175,7 @@
     <div class="footer">Blue Calm Marine — Vessel Checking</div>
   </div>
 </div>
-<script>(function(){if(localStorage.getItem('bms_token'))document.getElementById('splash').classList.remove('show');else document.getElementById('splash').classList.add('show');document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});})();</script>
+<script>(function(){var t=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))<18e5)document.getElementById('splash').classList.remove('show');else{localStorage.removeItem('bms_token');document.getElementById('splash').classList.add('show');}document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});})();</script>
 <div id="dropOverlay"><div class="box">📄 فایل اکسل را همین‌جا رها کنید<small>Vessel Checking sheet به‌طور خودکار خوانده و تحلیل می‌شود</small></div></div>
 <div id="toast"></div>
 <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls" style="display:none">
@@ -1002,6 +1002,7 @@ function showBanner(msg){var b=document.getElementById('libBanner');if(msg)b.que
   if(chartUrl){setupChartDefaults();renderAll(DEFAULT_DATA,{filename:null,time:null});initFilters();}else{showBanner('<b>⚠️ کتابخانه‌های مورد نیاز از اینترنت بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5). ۲) فایل اکسل را بفرستید تا نسخهٔ آفلاین بسازم.');}
   if(!leafletUrl&&!chartUrl&&!xlsxUrl){showBanner('<b>⚠️ Leaflet.js (نقشه) بارگذاری نشد.</b><br>نقشه در دسترس نیست، بقیه داشبورد کار می‌کند.');}
   if(chartUrl&&xlsxUrl)tryAutoFetch();
+  setInterval(function(){var t=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))>18e5){localStorage.removeItem('bms_token');document.getElementById('splash').classList.add('show');document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';document.getElementById('loginErr').style.display='none';var btn=document.getElementById('loginBtn');btn.classList.remove('loading');btn.textContent='ورود به داشبورد ←';}},15000);
 })();
 async function doLogin(){
   var user=document.getElementById('loginUser').value.trim();
@@ -1013,7 +1014,7 @@ async function doLogin(){
     var resp=await fetch(url,{signal:AbortSignal.timeout(10000)});
     var data=await resp.json();
     if(data.ok){
-      localStorage.setItem('bms_token','1');
+      localStorage.setItem('bms_token',Date.now().toString());
       document.getElementById('splash').classList.remove('show');
     }else{
       document.getElementById('loginErr').textContent='❌ نام کاربری یا رمز عبور اشتباه است';
