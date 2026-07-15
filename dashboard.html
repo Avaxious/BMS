@@ -287,7 +287,7 @@ var activeFilters = {fwd:[], pol:[], line:[], agent:[]};
 var currentMeta = null;
 var contPage = 1, contPerPage = 200;
 var contSort = {key:null, asc:true};
-var GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRCLDl4ZwNXRSNOOorC5kCKepd_O5KtlxvQ7FgTP6rnJdqZBzD4VkKdFDZDsSWtNg/pub?gid=1780324550&single=true&output=csv'; // Paste your "Publish to web" CSV URL here
+var GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRCLDl4ZwNXRSNOOorC5kCKepd_O5KtlxvQ7FgTP6rnJdqZBzD4VkKdFDZDsSWtNg/pub?gid=1780324550&single=true&output=csv';
 
 /* ============================================================
    1) DEFAULT SNAPSHOT
@@ -906,19 +906,24 @@ async function fetchGoogleSheet(){
     var resp=await fetch(GOOGLE_SHEET_CSV_URL);
     if(!resp.ok)return null;
     var csv=await resp.text();
-    var rows=csv.split('\n').map(function(l){return l.split(',');});
+    var wb=XLSX.read(csv,{type:'string'});
+    var ws=wb.Sheets[wb.SheetNames[0]];
+    var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});
     if(rows.length<2)return null;
-    var lastVessel=null,records=[];
+    // Column layout: B=Caravan, C=Vessel, E=Qty, F=Container, G=Size, J=Forwarder, K=POL, L=Line, M=Agent, O=Arrv Date
+    var lastCaravan=null,lastVessel=null,records=[];
     for(var r=1;r<rows.length;r++){
       var row=rows[r]||[];
-      var qtyRaw=row[3];var qty=0;
+      var caravan=row[1],vsl=row[2];
+      var qtyRaw=row[4];var qty=0;
       if(qtyRaw!=null){var qs=String(qtyRaw).trim();try{qty=qs.split('+').reduce(function(s,x){return s+parseInt(x)||0;},0);}catch(e){qty=0;}}
-      var container=row[4],size=row[5],forwarder=row[8],pol=row[9],line=row[10],agent=row[11];
-      var arrvDate=row[13]?toDate(new Date(row[13])):null;
-      if(row[1]!=null&&row[1]!=='')lastVessel=String(row[1]).trim();
-      if((container==null||container==='')&&(row[6]==null||row[6]===''))continue;
+      var container=row[5],size=row[6],forwarder=row[9],pol=row[10],line=row[11],agent=row[12];
+      var arrvDate=row[14]?toDate(new Date(row[14])):null;
+      if(caravan!=null&&caravan!=='')lastCaravan=caravan;
+      if(vsl!=null&&vsl!=='')lastVessel=String(vsl).trim();
+      if((container==null||container==='')&&(row[7]==null||row[7]===''))continue;
       records.push({
-        caravan:row[0]||null,vessel:lastVessel,
+        caravan:lastCaravan,vessel:lastVessel,
         container:container!=null?String(container).trim():null,
         size:size!=null?String(size).trim():null,qty:qty,
         pol_forwarder:forwarder!=null&&String(forwarder).trim()!==''?String(forwarder).trim():null,
