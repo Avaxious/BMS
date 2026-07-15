@@ -200,7 +200,7 @@
     <div class="header-status">
       <div class="status-chip">آخرین بارگذاری: <span class="ltr" id="lastLoaded">—</span></div>
       <span id="timer" style="display:none"><span class="ico">⏱</span> <span id="timerDisplay">30:00</span></span>
-      <span id="welcomeUser" style="display:none">خوش آمدید، <span class="un" id="userDisplay"></span> <button id="logoutBtn" onclick="logout()" title="خروج">🚪</button></span>
+      <span id="welcomeUser" style="display:none">خوش آمدید، <span class="un" id="userDisplay"></span> <button id="logoutBtn" onclick="logout()">🚪 خروج</button></span>
     </div>
   </div>
 </header>
@@ -219,8 +219,8 @@
   <!-- Filter Bar -->
   <div class="fbar">
     <div class="frow">
-      <div class="fg"><label>از تاریخ (Arrv Date)</label><input type="date" id="fltFrom" onchange="refreshDashboard()"></div>
-      <div class="fg"><label>تا تاریخ</label><input type="date" id="fltTo" onchange="refreshDashboard()"></div>
+      <div class="fg"><label>از تاریخ (Arrv Date)</label><input type="date" id="fltFrom" onchange="onDateChange()"></div>
+      <div class="fg"><label>تا تاریخ</label><input type="date" id="fltTo" onchange="onDateChange()"></div>
       <div class="fg"><label>POL FORWARDER</label><select id="cb-fwd" onchange="filterSelect(0)"><option value="">همه</option></select></div>
       <div class="fg"><label>POL</label><select id="cb-pol" onchange="filterSelect(1)"><option value="">همه</option></select></div>
       <div class="fg"><label>LINE</label><select id="cb-line" onchange="filterSelect(2)"><option value="">همه</option></select></div>
@@ -309,8 +309,7 @@
   </div>
 
   <footer>
-    <div>Blue Calm Marine — Vessel Checking Intelligence Dashboard (Live)</div>
-    <div class="ltr" id="footerNote">SOURCE: Vessel Checking sheet only</div>
+    <div class="ltr">© 2026 Mohammad Hassani</div>
   </footer>
 </div>
 
@@ -596,7 +595,6 @@ function renderAll(v, meta){
 
   if(meta){
     document.getElementById('lastLoaded').textContent=meta.time||'\u2014';
-    document.getElementById('footerNote').textContent='SOURCE: '+(meta.filename||'Demo snapshot')+' \u00b7 Vessel Checking sheet';
   }
 }
 
@@ -716,6 +714,7 @@ function initFilters(){
     sel.innerHTML='<option value="">همه</option>';
     vals.forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
   });
+  updateFilterOptions();
   var y=String(today.slice(0,4));var m=today.slice(5,7);
   document.getElementById('c1s').value=firstOfMonth;
   document.getElementById('c1e').value=today;
@@ -729,7 +728,34 @@ function resetFilters(){
   var now=new Date();var today=fmtDate(now);var firstOfMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
   document.getElementById('fltFrom').value=firstOfMonth;
   document.getElementById('fltTo').value=today;
+  updateFilterOptions();
   refreshDashboard();
+}
+
+function onDateChange(){updateFilterOptions();refreshDashboard();}
+
+function updateFilterOptions(){
+  var from=document.getElementById('fltFrom').value;
+  var to=document.getElementById('fltTo').value;
+  var dateFiltered=rawRecords;
+  if(from||to){
+    dateFiltered=rawRecords.filter(function(r){
+      if(!r.arrv_date)return false;
+      var d=fmtDate(r.arrv_date);
+      if(from && d<from)return false;
+      if(to && d>to)return false;
+      return true;
+    });
+  }
+  ['pol_forwarder','pol','line','iran_agent'].forEach(function(key,i){
+    var s=new Set();dateFiltered.forEach(function(r){if(r[key])s.add(r[key]);});
+    var vals=Array.from(s).sort();
+    var sel=document.getElementById(filterIds[i]);
+    var curVal=sel.value;
+    sel.innerHTML='<option value="">همه</option>';
+    vals.forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
+    if(curVal&&vals.indexOf(curVal)!==-1)sel.value=curVal;
+  });
 }
 
 /* ============================================================
