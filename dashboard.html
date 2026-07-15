@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./leaflet.css" />
 <script>
-  function loadScript(u){return new Promise((rs,rj)=>{var s=document.createElement('script');s.src=u;s.async=true;s.onload=()=>rs(u);s.onerror=()=>rj(u);document.head.appendChild(s);});}
+  function loadScript(u,t){t=t||18000;return new Promise(function(rs,rj){var s=document.createElement('script');var to=setTimeout(function(){s.parentNode&&s.parentNode.removeChild(s);rj(u+' timeout');},t);s.onload=function(){clearTimeout(to);rs(u);};s.onerror=function(){clearTimeout(to);rj(u);};s.src=u;s.async=true;document.head.appendChild(s);});}
   async function loadFirstAvailable(urls){var last;for(var u of urls){try{return await loadScript(u);}catch(e){last=e;}}throw last;}
   var _c='https://cdnjs.cloudflare.com/ajax/libs/',_j='https://cdn.jsdelivr.net/npm/',_u='https://unpkg.com/',_g='https://gcore.jsdelivr.net/npm/',_l='https://cdn.statically.io/gh/';
   window.__chartReady=loadFirstAvailable(['./chart.umd.min.js',_c+'Chart.js/4.4.4/chart.umd.min.js',_j+'chart.js@4.4.4/dist/chart.umd.min.js',_u+'chart.js@4.4.4/dist/chart.umd.min.js',_g+'chart.js@4.4.4/dist/chart.umd.min.js',_l+'chartjs/Chart.js/v4.4.4/dist/chart.umd.min.js']).catch(e=>null);
