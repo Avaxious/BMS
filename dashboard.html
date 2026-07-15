@@ -573,17 +573,20 @@ function renderMap(v){
   if(!window.L||!v.pol_coords||!v.pol_coords.length)return;
   _mapInstance=L.map('mapC',{zoomControl:false,attributionControl:false}).setView([27.5,64],4);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(_mapInstance);
-  var icanIcon=L.divIcon({html:'<div class="map-marker"><svg width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#FF4757" opacity=".25"/><circle cx="16" cy="16" r="10" fill="#FF4757" opacity=".6"/><circle cx="16" cy="16" r="5" fill="#FF4757"/></svg></div>',iconSize:[32,32],iconAnchor:[16,16],className:''});
+  _mapInstance.getContainer().querySelector('.leaflet-tile-pane').style.filter='brightness(.75) contrast(1.2) saturate(.6)';
+  var icanIcon=L.divIcon({html:'<div class="map-marker"><svg width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="#FF4757" opacity=".2"/><circle cx="18" cy="18" r="11" fill="#FF4757" opacity=".55"/><circle cx="18" cy="18" r="6" fill="#FF4757"/></svg></div>',iconSize:[36,36],iconAnchor:[18,18],className:''});
   L.marker([27.18,56.27],{icon:icanIcon}).addTo(_mapInstance).bindTooltip('Bandar Abbas<small>مقصد (ایران)</small>',{direction:'top',className:'map-label dest'});
   var polColorMap={};
   v.top_pol.forEach(function(t,i){polColorMap[t.label]=COLORS.palette[i%COLORS.palette.length];});
   var maxCount=Math.max.apply(null,v.pol_coords.map(function(p){return p.count;}));
   v.pol_coords.forEach(function(p){
     var c=polColorMap[p.name]||COLORS.teal;
-    L.polyline([[p.lat,p.lng],[27.18,56.27]],{color:c,weight:1.2,opacity:.35,dashArray:'5,7'}).addTo(_mapInstance);
-    L.polyline([[p.lat,p.lng],[p.lat,56.27],[27.18,56.27]],{color:c,weight:.5,opacity:.12,dashArray:'2,4'}).addTo(_mapInstance);
-    var r=Math.max(6,Math.sqrt(p.count/maxCount)*26);
-    var portIcon=L.divIcon({html:'<div class="map-marker"><svg width="'+(r*2+4)+'" height="'+(r*2+4)+'" viewBox="0 0 '+(r*2+4)+' '+(r*2+4)+'"><circle cx="'+(r+2)+'" cy="'+(r+2)+'" r="'+r+'" fill="'+c+'" opacity=".55"/><circle cx="'+(r+2)+'" cy="'+(r+2)+'" r="'+(r*0.35)+'" fill="'+c+'"/></svg></div>',iconSize:[r*2+4,r*2+4],iconAnchor:[r+2,r+2],className:''});
+    // Shadow line (white outline)
+    L.polyline([[p.lat,p.lng],[27.18,56.27]],{color:'#fff',weight:4,opacity:.5}).addTo(_mapInstance);
+    // Main line
+    L.polyline([[p.lat,p.lng],[27.18,56.27]],{color:c,weight:2.5,opacity:.85}).addTo(_mapInstance);
+    var r=Math.max(8,Math.sqrt(p.count/maxCount)*28);
+    var portIcon=L.divIcon({html:'<div class="map-marker"><svg width="'+(r*2+4)+'" height="'+(r*2+4)+'" viewBox="0 0 '+(r*2+4)+' '+(r*2+4)+'"><circle cx="'+(r+2)+'" cy="'+(r+2)+'" r="'+r+'" fill="'+c+'" opacity=".7"/><circle cx="'+(r+2)+'" cy="'+(r+2)+'" r="'+(r*0.45)+'" fill="'+c+'"/></svg></div>',iconSize:[r*2+4,r*2+4],iconAnchor:[r+2,r+2],className:''});
     L.marker([p.lat,p.lng],{icon:portIcon}).addTo(_mapInstance).bindTooltip(p.name+'<small>'+fmtInt(p.count)+' کانتینر</small>',{direction:'top',className:'map-label port'});
   });
   setTimeout(function(){_mapInstance.invalidateSize();},150);
