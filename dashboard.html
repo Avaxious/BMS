@@ -572,7 +572,7 @@ function renderMap(v){
   if(_mapInstance){_mapInstance.remove();_mapInstance=null;}
   if(!window.L||!v.pol_coords||!v.pol_coords.length)return;
   _mapInstance=L.map('mapC',{zoomControl:false,attributionControl:false}).setView([27.5,64],4);
-  var tl=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:18}).addTo(_mapInstance);tl.on('tileerror',function(){tl.setUrl('https://tile.openstreetmap.org/{z}/{x}/{y}.png');});
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(_mapInstance);
   var icanIcon=L.divIcon({html:'<div class="map-marker"><svg width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#FF4757" opacity=".25"/><circle cx="16" cy="16" r="10" fill="#FF4757" opacity=".6"/><circle cx="16" cy="16" r="5" fill="#FF4757"/></svg></div>',iconSize:[32,32],iconAnchor:[16,16],className:''});
   L.marker([27.18,56.27],{icon:icanIcon}).addTo(_mapInstance).bindTooltip('Bandar Abbas<small>مقصد (ایران)</small>',{direction:'top',className:'map-label dest'});
   var polColorMap={};
