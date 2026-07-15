@@ -906,11 +906,10 @@ async function fetchGoogleSheet(){
     var resp=await fetch(GOOGLE_SHEET_CSV_URL);
     if(!resp.ok)return null;
     var csv=await resp.text();
-    var wb=XLSX.read(csv,{type:'string'});
+    var wb=XLSX.read(csv,{type:'string',raw:true});
     var ws=wb.Sheets[wb.SheetNames[0]];
-    var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});
+    var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
     if(rows.length<2)return null;
-    // Column layout: B=Caravan, C=Vessel, E=Qty, F=Container, G=Size, J=Forwarder, K=POL, L=Line, M=Agent, O=Arrv Date
     var lastCaravan=null,lastVessel=null,records=[];
     for(var r=1;r<rows.length;r++){
       var row=rows[r]||[];
@@ -918,7 +917,13 @@ async function fetchGoogleSheet(){
       var qtyRaw=row[4];var qty=0;
       if(qtyRaw!=null){var qs=String(qtyRaw).trim();try{qty=qs.split('+').reduce(function(s,x){return s+parseInt(x)||0;},0);}catch(e){qty=0;}}
       var container=row[5],size=row[6],forwarder=row[9],pol=row[10],line=row[11],agent=row[12];
-      var arrvDate=row[14]?toDate(new Date(row[14])):null;
+      var dateRaw=row[14];var arrvDate=null;
+      if(dateRaw!=null&&dateRaw!==''){
+        if(typeof dateRaw==='number')arrvDate=new Date((dateRaw-25569)*86400000);
+        else if(typeof dateRaw==='string')arrvDate=new Date(dateRaw);
+        else if(dateRaw instanceof Date)arrvDate=dateRaw;
+        if(arrvDate&&isNaN(arrvDate.getTime()))arrvDate=null;
+      }
       if(caravan!=null&&caravan!=='')lastCaravan=caravan;
       if(vsl!=null&&vsl!=='')lastVessel=String(vsl).trim();
       if((container==null||container==='')&&(row[7]==null||row[7]===''))continue;
@@ -934,7 +939,7 @@ async function fetchGoogleSheet(){
       });
     }
     return records;
-  }catch(e){console.log('Google Sheets CSV error',e);return null;}
+  }catch(e){console.log('Google Sheets error',e);return null;}
 }
 async function tryAutoFetch(){
   if(window.electronAPI){
