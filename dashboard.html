@@ -557,7 +557,7 @@ function renderAll(v, meta){
   renderContainerList(v.all_records);
 
   if(meta){
-    document.getElementById('sourceLabel').textContent=meta.filename?('منبع: '+meta.filename):'نمونهٔ اولیه (Demo Snapshot)';
+    document.getElementById('sourceLabel').textContent=meta.filename||'نمونهٔ اولیه (Demo Snapshot)';
     document.getElementById('lastLoaded').textContent=meta.time||'\u2014';
     document.getElementById('footerNote').textContent='SOURCE: '+(meta.filename||'Demo snapshot')+' \u00b7 Vessel Checking sheet';
   }
