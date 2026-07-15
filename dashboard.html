@@ -160,10 +160,20 @@
   #splash .footer{font-size:10px;color:var(--text-faint);margin-top:20px;font-family:var(--mono);}
   #timer{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);direction:ltr;display:inline-flex;align-items:center;gap:4px;}
   #timer .ico{opacity:.5;}
-  #timer .ico{opacity:.5;}
+  #autoRefLabel{font-family:var(--mono);font-size:9.5px;color:var(--text-faint);direction:ltr;opacity:.6;}
   #welcomeUser{font-size:11.5px;color:var(--text-dim);font-family:var(--sans);}
   #welcomeUser .un{color:var(--teal);font-weight:600;}
   #logoutBtn{background:none;border:1px solid var(--panel-border);color:var(--text-dim);padding:2px 8px;border-radius:100px;cursor:pointer;font-family:var(--sans);font-size:10.5px;transition:.2s;margin-right:6px;}
+  #logoutBtn:hover{border-color:var(--red);color:var(--red);}
+  td.miss{background:rgba(229,101,74,.08);color:var(--text-faint);font-style:italic;}
+  .advWrap{display:none;margin-top:6px;}
+  .advWrap.show{display:block;}
+  .advGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;margin-top:6px;}
+  .advGrid .fg{min-width:0;}
+  .progBar{height:3px;background:var(--panel-border);border-radius:2px;overflow:hidden;margin:6px 0;}
+  .progBar .fill{height:100%;width:0%;background:var(--teal);border-radius:2px;transition:width .3s;}
+  @media (max-width:900px){.grid-3{grid-template-columns:1fr 1fr;}.cmp-grid{grid-template-columns:1fr 1fr;}}
+  @media (max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.grid-2{grid-template-columns:1fr;}.grid-3{grid-template-columns:1fr;}.header-inner{padding:14px 16px;}.wrap{padding:20px 16px 0;}.frow{flex-direction:column;}.fg{min-width:100%;}.cmp-grid{grid-template-columns:1fr;}.board-search input{font-size:13px;}.board-scroll{overflow-x:auto;}.board-scroll table{font-size:9px;}table.contab{font-size:9px;}table.contab thead th,table.contab tbody td{padding:4px 5px;white-space:nowrap;}.header-status{gap:6px;}}
 </style>
 </head>
 <body>
@@ -200,6 +210,7 @@
     <div class="header-status">
       <div class="status-chip">آخرین بارگذاری: <span class="ltr" id="lastLoaded">—</span></div>
       <span id="timer" style="display:none"><span class="ico">⏱</span> <span id="timerDisplay">30:00</span></span>
+      <span id="autoRefLabel" style="display:none"></span>
       <span id="welcomeUser" style="display:none">خوش آمدید، <span class="un" id="userDisplay"></span> <button id="logoutBtn" onclick="logout()">خروج</button></span>
     </div>
   </div>
@@ -232,6 +243,7 @@
       <span style="font-size:10px;color:var(--text-faint);margin-right:auto;font-family:var(--mono);" id="filterInfo">بدون فیلتر</span>
     </div>
   </div>
+  <div class="progBar" id="progBar"><div class="fill" id="progFill"></div></div>
 
   <div class="kpi-grid" id="kpiGrid"></div>
 
@@ -298,7 +310,18 @@
       <h2>ALL RECORDS · CONTAINER REGISTRY</h2>
       <div class="board-summary">نمایش <span class="bcount" id="contShowCount">0</span> از <span class="bcount" id="contTotalCount">0</span></div>
     </div>
-    <div class="board-search"><input type="text" id="contSearch" placeholder="🔎 جستجو در کانتینر، کشتی، خط، فورواردر، POL، ایجنت..." oninput="renderContainerList()"></div>
+    <div class="board-search"><input type="text" id="contSearch" placeholder="🔎 جستجو در کانتینر، کشتی، خط، فورواردر، POL، ایجنت..." oninput="renderContainerList()"><button class="btn" onclick="toggleAdvSearch()" style="font-size:10px;margin-right:4px;">⬇ جستجوی پیشرفته</button></div>
+    <div class="advWrap" id="advWrap">
+      <div class="advGrid">
+        <div class="fg"><label>VESSEL</label><input type="text" id="advVessel" oninput="advSearchChange()" placeholder="نام کشتی"></div>
+        <div class="fg"><label>POL FORWARDER</label><select id="advFwd" onchange="advSearchChange()"><option value="">همه</option></select></div>
+        <div class="fg"><label>POL</label><select id="advPol" onchange="advSearchChange()"><option value="">همه</option></select></div>
+        <div class="fg"><label>LINE</label><select id="advLine" onchange="advSearchChange()"><option value="">همه</option></select></div>
+        <div class="fg"><label>IRAN AGENT</label><select id="advAgent" onchange="advSearchChange()"><option value="">همه</option></select></div>
+        <div class="fg"><label>SIZE</label><select id="advSize" onchange="advSearchChange()"><option value="">همه</option></select></div>
+        <div class="fg"><label>STATUS</label><select id="advStatus" onchange="advSearchChange()"><option value="">همه</option><option>Arrived</option><option>Pending</option></select></div>
+      </div>
+    </div>
     <div class="board-scroll">
       <table class="contab">
         <thead><tr><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='idx')k.asc=!k.asc;else{k.key='idx';k.asc=false;}renderContainerList()">#<span class="sortic" id="srt-idx"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='container')k.asc=!k.asc;else{k.key='container';k.asc=true;}renderContainerList()">کانتینر<span class="sortic" id="srt-container"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='vessel')k.asc=!k.asc;else{k.key='vessel';k.asc=true;}renderContainerList()">کشتی / سفر<span class="sortic" id="srt-vessel"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='size')k.asc=!k.asc;else{k.key='size';k.asc=true;}renderContainerList()">سایز<span class="sortic" id="srt-size"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='qty')k.asc=!k.asc;else{k.key='qty';k.asc=true;}renderContainerList()">تعداد<span class="sortic" id="srt-qty"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='pol_forwarder')k.asc=!k.asc;else{k.key='pol_forwarder';k.asc=true;}renderContainerList()">فورواردر POL<span class="sortic" id="srt-pol_forwarder"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='pol')k.asc=!k.asc;else{k.key='pol';k.asc=true;}renderContainerList()">بندر بارگیری<span class="sortic" id="srt-pol"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='line')k.asc=!k.asc;else{k.key='line';k.asc=true;}renderContainerList()">خط کشتیرانی<span class="sortic" id="srt-line"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='iran_agent')k.asc=!k.asc;else{k.key='iran_agent';k.asc=true;}renderContainerList()">نمایندهٔ ایران<span class="sortic" id="srt-iran_agent"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='date')k.asc=!k.asc;else{k.key='date';k.asc=false;}renderContainerList()">تاریخ<span class="sortic" id="srt-date"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='status')k.asc=!k.asc;else{k.key='status';k.asc=true;}renderContainerList()">وضعیت<span class="sortic" id="srt-status"></span></th></tr></thead>
@@ -636,10 +659,31 @@ function renderContainerList(records){
   if(records){_allRecordsCache=records;contPage=1;}
   var all=_allRecordsCache||[];
   var q=document.getElementById('contSearch').value.trim().toLowerCase();
-  var filtered=q?all.filter(function(r){
-    var searchStr=[r.container,r.vessel,r.line,r.pol_forwarder,r.pol,r.iran_agent,r.size,r.qty,r.date,r.status].join(' ').toLowerCase();
-    return searchStr.indexOf(q)!==-1;
-  }):all;
+  // Advanced search values
+  var advVessel=document.getElementById('advVessel').value.trim().toLowerCase();
+  var advFwd=document.getElementById('advFwd').value;
+  var advPol=document.getElementById('advPol').value;
+  var advLine=document.getElementById('advLine').value;
+  var advAgent=document.getElementById('advAgent').value;
+  var advSize=document.getElementById('advSize').value;
+  var advStatus=document.getElementById('advStatus').value;
+  var hasAdv=advVessel||advFwd||advPol||advLine||advAgent||advSize||advStatus;
+  var filtered=all.filter(function(r){
+    if(q){
+      var searchStr=[r.container,r.vessel,r.line,r.pol_forwarder,r.pol,r.iran_agent,r.size,r.qty,r.date,r.status].join(' ').toLowerCase();
+      if(searchStr.indexOf(q)===-1)return false;
+    }
+    if(hasAdv){
+      if(advVessel&&(r.vessel||'').toLowerCase().indexOf(advVessel)===-1)return false;
+      if(advFwd&&(r.pol_forwarder||'')!==advFwd)return false;
+      if(advPol&&(r.pol||'')!==advPol)return false;
+      if(advLine&&(r.line||'')!==advLine)return false;
+      if(advAgent&&(r.iran_agent||'')!==advAgent)return false;
+      if(advSize&&(r.size||'')!==advSize)return false;
+      if(advStatus&&(r.status||'')!==advStatus)return false;
+    }
+    return true;
+  });
   // Sort
   var sk=contSort.key;
   if(sk&&sk!=='idx'){
@@ -662,7 +706,9 @@ function renderContainerList(records){
   var html='';
   show.forEach(function(r,i){
     var cls=r.status==='Arrived'?'stat-arr':'stat-pen';
-    html+='<tr><td>'+(start+i+1)+'</td><td>'+(r.container||'\u2014')+'</td><td class="dim">'+(r.vessel||'\u2014')+'</td><td class="sz">'+(r.size?r.size+"'":'')+'</td><td>'+r.qty+'</td><td class="dim">'+(r.pol_forwarder||'\u2014')+'</td><td class="dim">'+(r.pol||'\u2014')+'</td><td class="dim">'+(r.line||'\u2014')+'</td><td class="dim">'+(r.iran_agent||'\u2014')+'</td><td class="dim">'+(r.date||'')+'</td><td class="'+cls+'">'+(r.status==='Arrived'?'Arrived':'Pending')+'</td></tr>';
+    function cel(v){return (v==null||v==='')?'<td class="miss">\u2014</td>':'<td>'+(v)+'</td>';}
+    function celSz(v){if(v==null||v==='')return '<td class="miss">\u2014</td>';return '<td class="sz">'+v+"'"+'</td>';}
+    html+='<tr><td>'+(start+i+1)+'</td>'+cel(r.container)+cel(r.vessel)+celSz(r.size)+'<td>'+r.qty+'</td>'+cel(r.pol_forwarder)+cel(r.pol)+cel(r.line)+cel(r.iran_agent)+cel(r.date)+'<td class="'+cls+'">'+(r.status==='Arrived'?'Arrived':'Pending')+'</td></tr>';
   });
   document.getElementById('contBody').innerHTML=html;
   var info=document.getElementById('contListInfo');
@@ -756,6 +802,18 @@ function updateFilterOptions(){
     vals.forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
     if(curVal&&vals.indexOf(curVal)!==-1)sel.value=curVal;
   });
+  // Populate advanced search selects too
+  var advKeys=['pol_forwarder','pol','line','iran_agent','size'];
+  var advIds=['advFwd','advPol','advLine','advAgent','advSize'];
+  advKeys.forEach(function(key,i){
+    var s=new Set();dateFiltered.forEach(function(r){if(r[key])s.add(r[key]);});
+    var vals=Array.from(s).sort();
+    var sel=document.getElementById(advIds[i]);
+    var cur=sel.value;
+    sel.innerHTML='<option value="">همه</option>';
+    vals.forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
+    if(cur&&vals.indexOf(cur)!==-1)sel.value=cur;
+  });
 }
 
 /* ============================================================
@@ -777,6 +835,18 @@ function exportCSV(){
   XLSX.utils.book_append_sheet(wb,ws,'Vessel Checking');
   XLSX.writeFile(wb,'Vessel_Checking_Export_'+fmtDate(new Date())+'.xlsx');
   showToast('✅ فایل Excel با '+records.length.toLocaleString()+' ردیف دانلود شد.',false);
+}
+
+/* ============================================================
+   7b) ADVANCED SEARCH
+   ============================================================ */
+function toggleAdvSearch(){
+  var w=document.getElementById('advWrap');
+  w.classList.toggle('show');
+}
+function advSearchChange(){
+  contPage=1;
+  renderContainerList();
 }
 
 /* ============================================================
@@ -936,13 +1006,19 @@ async function fetchGoogleSheet(){
   if (!url) url = GOOGLE_SHEET_CSV_URL;
   if (!url) return null;
   try{
+    var pb=document.getElementById('progFill');
+    if(pb)pb.style.width='30%';
+    document.getElementById('autoRefLabel').textContent='⏳ دریافت دیتا از سرور...';
     var resp=await fetch(url);
     if(!resp.ok)return null;
+    if(pb)pb.style.width='60%';
+    document.getElementById('autoRefLabel').textContent='⏳ پردازش دیتا...';
     var csv=await resp.text();
     var wb=XLSX.read(csv,{type:'string',raw:true});
     var ws=wb.Sheets[wb.SheetNames[0]];
     var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
     if(rows.length<2)return null;
+    if(pb)pb.style.width='90%';
     var lastCaravan=null,lastVessel=null,records=[];
     for(var r=1;r<rows.length;r++){
       var row=rows[r]||[];
@@ -971,8 +1047,10 @@ async function fetchGoogleSheet(){
         arrv_date:arrvDate,date:arrvDate,status:arrvDate?'Arrived':'Pending'
       });
     }
+    if(pb)pb.style.width='100%';
+    setTimeout(function(){if(pb)pb.style.width='0%';},600);
     return records;
-  }catch(e){console.log('Google Sheets error',e);return null;}
+  }catch(e){console.log('Google Sheets error',e);if(pb)pb.style.width='0%';return null;}
 }
 async function tryAutoFetch(){
   if(window.electronAPI){
@@ -993,8 +1071,10 @@ async function tryAutoFetch(){
     currentMeta={time:new Date().toLocaleString('fa-IR')};
     initFilters();contPage=1;refreshDashboard();
     showToast('✅ دیتا از Google Sheets بارگذاری شد ('+gsRecords.length.toLocaleString()+' رکورد)',false);
+    document.getElementById('autoRefLabel').textContent='✓ '+new Date().toLocaleTimeString('fa-IR');
     return;
   }
+  document.getElementById('autoRefLabel').textContent='✗ خطا در بروزرسانی';
   // 2) Try encrypted .enc file
   try{
     var resp=await fetch('data.enc');
@@ -1036,6 +1116,14 @@ function showBanner(msg){var b=document.getElementById('libBanner');if(msg)b.que
   if(chartUrl){setupChartDefaults();renderAll(DEFAULT_DATA,{filename:null,time:null});initFilters();}else{showBanner('<b>⚠️ کتابخانه‌های مورد نیاز از اینترنت بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5). ۲) فایل اکسل را بفرستید تا نسخهٔ آفلاین بسازم.');}
   if(!leafletUrl&&!chartUrl&&!xlsxUrl){showBanner('<b>⚠️ Leaflet.js (نقشه) بارگذاری نشد.</b><br>نقشه در دسترس نیست، بقیه داشبورد کار می‌کند.');}
   if(chartUrl&&xlsxUrl)tryAutoFetch();
+  // Auto-refresh every 5 minutes
+  setInterval(function(){
+    var loggedIn=localStorage.getItem('bms_token');
+    if(loggedIn&&(Date.now()-parseInt(loggedIn))<18e5&&chartUrl&&xlsxUrl){
+      document.getElementById('autoRefLabel').style.display='';document.getElementById('autoRefLabel').textContent='🔄 بروزرسانی...';
+      tryAutoFetch();
+    }
+  },300000);
   setInterval(function(){var t=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))>18e5){localStorage.removeItem('bms_token');localStorage.removeItem('bms_username');document.getElementById('splash').classList.add('show');document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';document.getElementById('loginErr').style.display='none';var btn=document.getElementById('loginBtn');btn.classList.remove('loading');btn.textContent='ورود به داشبورد ←';document.getElementById('welcomeUser').style.display='none';document.getElementById('timer').style.display='none';if(_timerInterval){clearInterval(_timerInterval);_timerInterval=null;}}},15000);
 })();
 async function doLogin(){
