@@ -17,12 +17,13 @@
 </script>
 <style>
   :root{--navy-deep:#071523;--navy:#0B2036;--panel:#0F2A45;--panel-2:#123350;--panel-border:rgba(140,182,219,.14);--grid-line:rgba(120,170,210,.08);--teal:#22C0AE;--teal-dim:rgba(34,192,174,.16);--gold:#E8AE52;--gold-dim:rgba(232,174,82,.16);--red:#E5654A;--red-dim:rgba(229,101,74,.16);--blue:#5B9BD5;--text:#EAF1F8;--text-dim:#93AAC4;--text-faint:#5D7893;--mono:'IBM Plex Mono',monospace;--sans:'Vazirmatn',sans-serif;}
+  [data-theme="light"]{--navy-deep:#fbfcfc;--navy:#fbfcfc;--panel:#e0e5e9;--panel-2:#d6dde1;--panel-border:#b2c9c5;--grid-line:rgba(178,201,197,.3);--teal:#1bd488;--teal-dim:rgba(27,212,136,.16);--gold:#D4952A;--gold-dim:rgba(212,149,42,.16);--red:#E5654A;--red-dim:rgba(229,101,74,.16);--blue:#3B82B0;--text:#055b65;--text-dim:#45828b;--text-faint:#7ba8a5;}
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{background:var(--navy-deep);color:var(--text);font-family:var(--sans);direction:rtl;}
   body{background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px),radial-gradient(ellipse 900px 500px at 85% -10%,rgba(34,192,174,.10),transparent 60%),radial-gradient(ellipse 700px 500px at 5% 10%,rgba(232,174,82,.06),transparent 60%);background-size:42px 42px,42px 42px,auto,auto;min-height:100vh;padding-bottom:60px;}
   .ltr{direction:ltr;unicode-bidi:isolate;font-family:var(--mono);}
   ::selection{background:var(--teal);color:var(--navy-deep);}
-  header{position:sticky;top:0;z-index:50;background:linear-gradient(180deg,rgba(7,21,35,.97),rgba(7,21,35,.90));backdrop-filter:blur(10px);border-bottom:1px solid var(--panel-border);}
+  header{position:sticky;top:0;z-index:50;background:var(--navy-deep);border-bottom:1px solid var(--panel-border);}
   .header-inner{max-width:1400px;margin:0 auto;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
   .brand{display:flex;align-items:center;gap:14px;}
   .brand-mark{width:64px;height:64px;border-radius:12px;background:var(--navy);border:1px solid var(--panel-border);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:5px;}
@@ -87,13 +88,13 @@
   .map-label small{font-size:8px;color:var(--text-dim);display:block;text-align:center;}
   .map-label::before{display:none !important;}
   .map-marker{display:flex;align-items:center;justify-content:center;}
-  .board{background:#050D16;border:1px solid var(--panel-border);border-radius:14px;padding:6px;overflow:hidden;}
+  .board{background:var(--navy);border:1px solid var(--panel-border);border-radius:14px;padding:6px;overflow:hidden;}
   .board-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;}
   .board-head h2{font-family:var(--mono);font-size:14px;color:var(--text);letter-spacing:1px;}
   .board-head .board-summary{font-family:var(--mono);font-size:10.5px;color:var(--text-dim);display:flex;align-items:center;gap:10px;}
   .board-head .board-summary .bcount{color:var(--teal);}
   table.contab{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
-  table.contab thead th{text-align:right;color:var(--text-faint);font-weight:500;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:7px 10px;border-bottom:1px solid var(--panel-border);white-space:nowrap;position:sticky;top:0;background:#050D16;z-index:2;}
+  table.contab thead th{text-align:right;color:var(--text-faint);font-weight:500;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:7px 10px;border-bottom:1px solid var(--panel-border);white-space:nowrap;position:sticky;top:0;background:var(--navy);z-index:2;}
   table.contab tbody td{padding:6px 10px;color:var(--text);border-bottom:1px solid rgba(255,255,255,.03);white-space:nowrap;font-size:10.5px;}
   table.contab tbody tr:hover{background:rgba(34,192,174,.04);}
   table.contab td.dim{color:var(--text-dim);}
@@ -158,9 +159,8 @@
   #splash .btn:hover{filter:brightness(1.1);transform:scale(1.02);}
   #splash .btn.loading{opacity:.6;pointer-events:none;}
   #splash .footer{font-size:10px;color:var(--text-faint);margin-top:20px;font-family:var(--mono);}
-  #timer{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);direction:ltr;display:inline-flex;align-items:center;gap:4px;}
-  #timer .ico{opacity:.5;}
-  #autoRefLabel{font-family:var(--mono);font-size:9.5px;color:var(--text-faint);direction:ltr;opacity:.6;}
+  #timerChip .ico{opacity:.5;}
+  #timerChip .sep{opacity:.3;font-size:9px;}
   #welcomeUser{font-size:11.5px;color:var(--text-dim);font-family:var(--sans);}
   #welcomeUser .un{color:var(--teal);font-weight:600;}
   #logoutBtn{background:none;border:1px solid var(--panel-border);color:var(--text-dim);padding:2px 8px;border-radius:100px;cursor:pointer;font-family:var(--sans);font-size:10.5px;transition:.2s;margin-right:6px;}
@@ -209,8 +209,8 @@
     </div>
     <div class="header-status">
       <div class="status-chip">آخرین بارگذاری: <span class="ltr" id="lastLoaded">—</span></div>
-      <span id="timer" style="display:none"><span class="ico">⏱</span> <span id="timerDisplay">30:00</span></span>
-      <span id="autoRefLabel" style="display:none"></span>
+      <div class="status-chip" id="timerChip" style="display:none"><span class="ico">⏱</span> <span id="timerDisplay">30:00</span><span class="sep">·</span><span id="autoRefLabel">—</span></div>
+      <button id="themeToggle" onclick="toggleTheme()" style="background:none;border:1px solid var(--panel-border);color:var(--text-dim);padding:4px 8px;border-radius:100px;cursor:pointer;font-size:13px;transition:.2s;line-height:1;" title="تغییر تم">🌙</button>
       <span id="welcomeUser" style="display:none">خوش آمدید، <span class="un" id="userDisplay"></span> <button id="logoutBtn" onclick="logout()">خروج</button></span>
     </div>
   </div>
@@ -1063,32 +1063,33 @@ async function tryAutoFetch(){
       }
     }catch(e){console.log('Electron error',e);}
   }
-  if(window.location.protocol==='file:')return;
-  // 1) Try Google Sheets
-  var gsRecords=await fetchGoogleSheet();
-  if(gsRecords&&gsRecords.length){
-    rawRecords=gsRecords;
-    currentMeta={time:new Date().toLocaleString('fa-IR')};
-    initFilters();contPage=1;refreshDashboard();
-    showToast('✅ دیتا از Google Sheets بارگذاری شد ('+gsRecords.length.toLocaleString()+' رکورد)',false);
-    document.getElementById('autoRefLabel').textContent='✓ '+new Date().toLocaleTimeString('fa-IR');
-    return;
-  }
-  document.getElementById('autoRefLabel').textContent='✗ خطا در بروزرسانی';
-  // 2) Try encrypted .enc file
-  try{
-    var resp=await fetch('data.enc');
-    if(resp.ok){
-      var buf=await resp.arrayBuffer();
-      var pw=await showPasswordModal();
-      if(pw){
-        var dec=await decryptData(buf,pw);
-        processArrayBuffer(dec,'data.xlsx (encrypted)');
-        return;
-      }
+  var isLocal=window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'||window.location.protocol==='file:';
+  if(!isLocal){
+    // 1) Try Google Sheets
+    var gsRecords=await fetchGoogleSheet();
+    if(gsRecords&&gsRecords.length){
+      rawRecords=gsRecords;
+      currentMeta={time:new Date().toLocaleString('fa-IR')};
+      initFilters();contPage=1;refreshDashboard();
+      showToast('✅ دیتا از Google Sheets بارگذاری شد ('+gsRecords.length.toLocaleString()+' رکورد)',false);
+      document.getElementById('autoRefLabel').textContent='\uD83D\uDD04 '+new Date().toLocaleTimeString('fa-IR');
+      return;
     }
-  }catch(e){}
-  // 3) Try regular Excel files
+    // 2) Try encrypted .enc file
+    try{
+      var resp=await fetch('data.enc');
+      if(resp.ok){
+        var buf=await resp.arrayBuffer();
+        var pw=await showPasswordModal();
+        if(pw){
+          var dec=await decryptData(buf,pw);
+          processArrayBuffer(dec,'data.xlsx (encrypted)');
+          return;
+        }
+      }
+    }catch(e){}
+  }
+  // 3) Try local Excel files (works on file:// in Firefox, or server)
   var filenames=['data.xlsx','data.xlsm','Copy of Vesel Checking & Pending(M.H).xlsm','Copy of Vesel Checking & Pending(M.H).xlsx','Vessel_Checking.xlsm','Vessel_Checking.xlsx','dashboard.xlsm','dashboard.xlsx'];
   for(var name of filenames){
     try{
@@ -1120,11 +1121,11 @@ function showBanner(msg){var b=document.getElementById('libBanner');if(msg)b.que
   setInterval(function(){
     var loggedIn=localStorage.getItem('bms_token');
     if(loggedIn&&(Date.now()-parseInt(loggedIn))<18e5&&chartUrl&&xlsxUrl){
-      document.getElementById('autoRefLabel').style.display='';document.getElementById('autoRefLabel').textContent='🔄 بروزرسانی...';
+      document.getElementById('autoRefLabel').textContent='🔄 بروزرسانی...';
       tryAutoFetch();
     }
   },300000);
-  setInterval(function(){var t=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))>18e5){localStorage.removeItem('bms_token');localStorage.removeItem('bms_username');document.getElementById('splash').classList.add('show');document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';document.getElementById('loginErr').style.display='none';var btn=document.getElementById('loginBtn');btn.classList.remove('loading');btn.textContent='ورود به داشبورد ←';document.getElementById('welcomeUser').style.display='none';document.getElementById('timer').style.display='none';if(_timerInterval){clearInterval(_timerInterval);_timerInterval=null;}}},15000);
+  setInterval(function(){var t=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))>18e5){localStorage.removeItem('bms_token');localStorage.removeItem('bms_username');document.getElementById('splash').classList.add('show');document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';document.getElementById('loginErr').style.display='none';var btn=document.getElementById('loginBtn');btn.classList.remove('loading');btn.textContent='ورود به داشبورد ←';document.getElementById('welcomeUser').style.display='none';document.getElementById('timerChip').style.display='none';if(_timerInterval){clearInterval(_timerInterval);_timerInterval=null;}}},15000);
 })();
 async function doLogin(){
   var user=document.getElementById('loginUser').value.trim();
@@ -1140,7 +1141,7 @@ async function doLogin(){
       localStorage.setItem('bms_username',user);
       document.getElementById('userDisplay').textContent=user;
       document.getElementById('welcomeUser').style.display='';
-      document.getElementById('timer').style.display='';
+      document.getElementById('timerChip').style.display='';
       updateTimer();
       document.getElementById('splash').classList.remove('show');
     }else{
@@ -1170,15 +1171,30 @@ function logout(){
   document.getElementById('loginErr').style.display='none';
   var btn=document.getElementById('loginBtn');btn.classList.remove('loading');btn.textContent='ورود به داشبورد ←';
   document.getElementById('welcomeUser').style.display='none';
-  document.getElementById('timer').style.display='none';
+  document.getElementById('timerChip').style.display='none';
   if(_timerInterval){clearInterval(_timerInterval);_timerInterval=null;}
 }
+function toggleTheme(){
+  var html=document.documentElement;
+  var cur=html.getAttribute('data-theme');
+  var next=cur==='light'?'dark':'light';
+  html.setAttribute('data-theme',next);
+  localStorage.setItem('bms_theme',next);
+  document.getElementById('themeToggle').textContent=next==='light'?'☀️':'🌙';
+}
+(function initTheme(){
+  var saved=localStorage.getItem('bms_theme');
+  if(saved==='light'){
+    document.documentElement.setAttribute('data-theme','light');
+    document.getElementById('themeToggle').textContent='☀️';
+  }
+})();
 (function(){
   var t=localStorage.getItem('bms_token');
   if(t&&(Date.now()-parseInt(t))<18e5){
     var u=localStorage.getItem('bms_username');
     if(u){document.getElementById('userDisplay').textContent=u;document.getElementById('welcomeUser').style.display='';}
-    document.getElementById('timer').style.display='';
+    document.getElementById('timerChip').style.display='';
     updateTimer();_timerInterval=setInterval(updateTimer,1000);
   }
 })();
