@@ -1,0 +1,4 @@
+.github_token
+*.enc
+data.xlsx
+data.xlsm
