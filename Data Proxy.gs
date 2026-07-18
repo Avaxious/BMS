@@ -1,6 +1,6 @@
 var DATA_SHEET_ID = '1rct6063UB1M3gXuuU6NmTYqqnvurn6pQ';
 var USERS_SHEET_ID = '16m9UdjL2QQIC5l-Nivi4Zfp8RueRyBZ1';
-var MAX_SESSION_MS = 8 * 60 * 60 * 1000;
+var MAX_SESSION_MS = 30 * 60 * 1000;
 
 function doPost(e) {
   try {
