@@ -191,7 +191,7 @@
     <div class="footer">Blue Calm Marine — Vessel Checking</div>
   </div>
 </div>
-<script>(function(){var t=localStorage.getItem('bms_logintime');var tok=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))<18e5&&tok){document.getElementById('splash').classList.remove('show');fetch('https://script.google.com/macros/s/AKfycbyy8kJzlE40HsR1FgTMZyPL1S9LfN-npV8v9qlrJFIGLwAfsWMay-1BD9868SgmBc0/exec?action=validate&token='+encodeURIComponent(tok),{signal:AbortSignal.timeout(5000)}).then(function(r){return r.json();}).then(function(d){if(!d.ok){localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');document.getElementById('splash').classList.add('show');}}).catch(function(){});}else{localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');localStorage.removeItem('bms_migrated');document.getElementById('splash').classList.add('show');}document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});})();</script>
+<script>(function(){var t=localStorage.getItem('bms_logintime');var tok=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))<18e5&&tok){document.getElementById('splash').classList.remove('show');fetch('https://script.google.com/macros/s/AKfycbzQVvoS5iIS7RXY7GTRy07Lnplt-QVLJylf1_0DuJz6GGzqI2jUqlt0rNRIMACcelU2/exec?action=validate&token='+encodeURIComponent(tok),{signal:AbortSignal.timeout(5000)}).then(function(r){return r.json();}).then(function(d){if(!d.ok){localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');document.getElementById('splash').classList.add('show');}}).catch(function(){});}else{localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');localStorage.removeItem('bms_migrated');document.getElementById('splash').classList.add('show');}document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});})();</script>
 <div id="dropOverlay"><div class="box">📄 فایل اکسل را همین‌جا رها کنید<small>Vessel Checking sheet به‌طور خودکار خوانده و تحلیل می‌شود</small></div></div>
 <div id="toast"></div>
 <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls" style="display:none">
@@ -347,7 +347,7 @@ var contPage = 1, contPerPage = 200;
 var contSort = {key:null, asc:true};
 var GOOGLE_SHEET_CSV_URL = ''; // Direct CSV (leave empty if using proxy)
 var PROXY_URL = 'https://script.google.com/macros/s/AKfycbzdS8txiGxEqTbqmsz0bToZiBiZUUtkinVuvK1WMpcbC0R0BhOsTVJ8FhH9Gjyl7PUU/exec';
-var LOGIN_PROXY_URL = 'https://script.google.com/macros/s/AKfycbyy8kJzlE40HsR1FgTMZyPL1S9LfN-npV8v9qlrJFIGLwAfsWMay-1BD9868SgmBc0/exec';
+var LOGIN_PROXY_URL = 'https://script.google.com/macros/s/AKfycbzQVvoS5iIS7RXY7GTRy07Lnplt-QVLJylf1_0DuJz6GGzqI2jUqlt0rNRIMACcelU2/exec';
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 async function sha256(str){var enc=new TextEncoder().encode(str);var buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
