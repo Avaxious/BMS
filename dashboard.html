@@ -191,7 +191,7 @@
     <div class="footer">Blue Calm Marine — Vessel Checking</div>
   </div>
 </div>
-<script>(function(){var t=localStorage.getItem('bms_logintime');var tok=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))<18e5&&tok){document.getElementById('splash').classList.remove('show');fetch('https://script.google.com/macros/s/AKfycbzQVvoS5iIS7RXY7GTRy07Lnplt-QVLJylf1_0DuJz6GGzqI2jUqlt0rNRIMACcelU2/exec?action=validate&token='+encodeURIComponent(tok),{signal:AbortSignal.timeout(5000)}).then(function(r){return r.json();}).then(function(d){if(!d.ok){localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');document.getElementById('splash').classList.add('show');}}).catch(function(){});}else{localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');localStorage.removeItem('bms_migrated');document.getElementById('splash').classList.add('show');}document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});})();</script>
+<script>(function(){var t=localStorage.getItem('bms_logintime');var tok=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))<18e5&&tok){document.getElementById('splash').classList.remove('show');fetch('https://script.google.com/macros/s/AKfycbygAEpxb_igwQ-_bneek08MGYoi60kCXt_vfPktWkQbcrA_4wI3vnK4YGPxZ0wWW4U3/exec?action=validate&token='+encodeURIComponent(tok),{signal:AbortSignal.timeout(5000)}).then(function(r){return r.json();}).then(function(d){if(!d.ok){localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');document.getElementById('splash').classList.add('show');}}).catch(function(){});}else{localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');localStorage.removeItem('bms_migrated');document.getElementById('splash').classList.add('show');}document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});})();</script>
 <div id="dropOverlay"><div class="box">📄 فایل اکسل را همین‌جا رها کنید<small>Vessel Checking sheet به‌طور خودکار خوانده و تحلیل می‌شود</small></div></div>
 <div id="toast"></div>
 <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls" style="display:none">
@@ -346,8 +346,8 @@ var currentMeta = null;
 var contPage = 1, contPerPage = 200;
 var contSort = {key:null, asc:true};
 var GOOGLE_SHEET_CSV_URL = ''; // Direct CSV (leave empty if using proxy)
-var PROXY_URL = 'https://script.google.com/macros/s/AKfycbxf96LzKOeobBAtgpua3vO0yhAYDA5aG5vpMApfJ3swNrHljHqEEf4O5bypffZ7jdw/exec';
-var LOGIN_PROXY_URL = 'https://script.google.com/macros/s/AKfycbzQVvoS5iIS7RXY7GTRy07Lnplt-QVLJylf1_0DuJz6GGzqI2jUqlt0rNRIMACcelU2/exec';
+var PROXY_URL = 'https://script.google.com/macros/s/AKfycbyhpPC78t9utPvZ0blWZ9k1ocKImNGXcGFitdM4zRx5tF2JL_UuJlY54qQ3F_a6u4xu/exec';
+var LOGIN_PROXY_URL = 'https://script.google.com/macros/s/AKfycbygAEpxb_igwQ-_bneek08MGYoi60kCXt_vfPktWkQbcrA_4wI3vnK4YGPxZ0wWW4U3/exec';
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 async function sha256(str){var enc=new TextEncoder().encode(str);var buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
@@ -613,7 +613,7 @@ function renderAll(v, meta){
     data:{labels:v.size_dist.map(function(d){return d.label+"'";}),datasets:[{data:v.size_dist.map(function(d){return d.value;}),backgroundColor:[COLORS.gold,COLORS.blue],borderColor:'#0F2A45',borderWidth:2}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.label+': '+fmtInt(c.parsed)+' کانتینر';}}}}}
   });
-  document.getElementById('sizeLegend').innerHTML=v.size_dist.map(function(d,i){return'<span><i style="background:'+(i===0?COLORS.gold:COLORS.blue)+'"></i> کانتینر '+d.label+"': "+fmtInt(d.value)+' ('+(v.total_containers?(d.value/v.total_containers*100).toFixed(1):0)+'%)</span>';}).join('');
+  document.getElementById('sizeLegend').innerHTML=v.size_dist.map(function(d,i){return'<span><i style="background:'+(i===0?COLORS.gold:COLORS.blue)+'"></i> کانتینر '+esc(d.label)+"': "+fmtInt(d.value)+' ('+(v.total_containers?(d.value/v.total_containers*100).toFixed(1):0)+'%)</span>';}).join('');
 
   // Container list
   renderContainerList(v.all_records);
@@ -672,7 +672,7 @@ function showPolResetBtn(polName){
   if(!mapC)return;
   _polResetEl=document.createElement('div');
   _polResetEl.style.cssText='position:absolute;top:10px;right:10px;z-index:1000;background:var(--panel);border:1px solid var(--teal);color:var(--text);padding:6px 14px;border-radius:100px;cursor:pointer;font-size:11px;font-family:var(--sans);box-shadow:0 4px 16px rgba(0,0,0,.5);white-space:nowrap;';
-  _polResetEl.innerHTML='✕ '+polName+' <span style="opacity:.65;">↺ بازنشانی</span>';
+  _polResetEl.innerHTML='✕ '+esc(polName)+' <span style="opacity:.65;">↺ بازنشانی</span>';
   _polResetEl.onclick=function(){
     var sel=document.getElementById('cb-pol');
     if(sel){sel.value='';activeFilters.pol=[];refreshDashboard();}
@@ -718,7 +718,7 @@ function renderMap(v){
     animPaths.push({pts:pts,color:lineColor});
     var r=Math.max(8,Math.sqrt(p.count/maxCount)*28);
     var portIcon=L.divIcon({html:'<div class="map-marker"><svg width="'+(r*2+4)+'" height="'+(r*2+4)+'" viewBox="0 0 '+(r*2+4)+' '+(r*2+4)+'"><circle cx="'+(r+2)+'" cy="'+(r+2)+'" r="'+r+'" fill="'+lineColor+'" opacity=".7"/><circle cx="'+(r+2)+'" cy="'+(r+2)+'" r="'+(r*0.45)+'" fill="'+lineColor+'"/></svg></div>',iconSize:[r*2+4,r*2+4],iconAnchor:[r+2,r+2],className:''});
-    L.marker([p.lat,p.lng],{icon:portIcon}).addTo(_mapInstance).bindTooltip(p.name+'<small>'+fmtInt(p.count)+' کانتینر</small>',{direction:'top',className:'map-label port'});
+    L.marker([p.lat,p.lng],{icon:portIcon}).addTo(_mapInstance).bindTooltip(esc(p.name)+'<small>'+fmtInt(p.count)+' کانتینر</small>',{direction:'top',className:'map-label port'});
   });
   // Animated dots
   if(animPaths.length){
@@ -796,9 +796,9 @@ function renderContainerList(records){
   var html='';
   show.forEach(function(r,i){
     var cls=r.status==='Arrived'?'stat-arr':'stat-pen';
-    function cel(v){return (v==null||v==='')?'<td class="miss">\u2014</td>':'<td>'+(v)+'</td>';}
-    function celSz(v){if(v==null||v==='')return '<td class="miss">\u2014</td>';return '<td class="sz">'+v+"'"+'</td>';}
-    html+='<tr><td>'+(start+i+1)+'</td>'+cel(r.container)+cel(r.vessel)+celSz(r.size)+'<td>'+r.qty+'</td>'+cel(r.pol_forwarder)+cel(r.pol)+cel(r.line)+cel(r.iran_agent)+cel(r.date)+'<td class="'+cls+'">'+(r.status==='Arrived'?'Arrived':'Pending')+'</td></tr>';
+    function cel(v){return (v==null||v==='')?'<td class="miss">\u2014</td>':'<td>'+esc(v)+'</td>';}
+    function celSz(v){if(v==null||v==='')return '<td class="miss">\u2014</td>';return '<td class="sz">'+esc(v)+"'"+'</td>';}
+    html+='<tr><td>'+(start+i+1)+'</td>'+cel(r.container)+cel(r.vessel)+celSz(r.size)+'<td>'+parseInt(r.qty||0)+'</td>'+cel(r.pol_forwarder)+cel(r.pol)+cel(r.line)+cel(r.iran_agent)+cel(r.date)+'<td class="'+cls+'">'+(r.status==='Arrived'?'Arrived':'Pending')+'</td></tr>';
   });
   document.getElementById('contBody').innerHTML=html;
   var info=document.getElementById('contListInfo');
@@ -1096,12 +1096,11 @@ async function fetchGoogleSheet(){
   // Try proxy first, then direct CSV
   var token=localStorage.getItem('bms_token');
   if(!token)return null;
-  var url=PROXY_URL+'?token='+encodeURIComponent(token);
   try{
     var pb=document.getElementById('progFill');
     if(pb)pb.style.width='30%';
     document.getElementById('autoRefLabel').textContent='⏳ دریافت دیتا از سرور...';
-    var resp=await fetch(url,{signal:AbortSignal.timeout(30000)});
+    var resp=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:token}),signal:AbortSignal.timeout(30000)});
     if(!resp.ok)return null;
     if(pb)pb.style.width='60%';
     document.getElementById('autoRefLabel').textContent='⏳ پردازش دیتا...';
@@ -1236,9 +1235,12 @@ async function doLogin(){
   var btn=document.getElementById('loginBtn');btn.classList.add('loading');btn.textContent='⏳ در حال بررسی…';
   try{
     var hash=await sha256(pass);
-    var migrated=localStorage.getItem('bms_migrated');
-    var url=LOGIN_PROXY_URL+'?action=login&user='+encodeURIComponent(user)+'&hash='+hash+'&pass='+encodeURIComponent(pass);
-    var resp=await fetch(url,{signal:AbortSignal.timeout(15000)});
+    var resp=await fetch(LOGIN_PROXY_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({action:'login',user:user,hash:hash,pass:pass}),
+      signal:AbortSignal.timeout(15000)
+    });
     var data=await resp.json();
     if(data.ok&&data.token){
       var now=Date.now().toString();
@@ -1273,13 +1275,12 @@ function updateTimer(){
   el.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   if(remaining<=0)logout();
 }
-var _timerInterval=null;
 var _autoRefreshInterval=null;
 var _fetchInProgress=false;
 function logout(){
   var token=localStorage.getItem('bms_token');
   if(token){
-    try{fetch(LOGIN_PROXY_URL+'?action=logout&token='+encodeURIComponent(token),{signal:AbortSignal.timeout(5000)});}catch(e){}
+    try{fetch(LOGIN_PROXY_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'logout',token:token}),signal:AbortSignal.timeout(5000)});}catch(e){}
   }
   localStorage.removeItem('bms_token');localStorage.removeItem('bms_username');localStorage.removeItem('bms_logintime');
   document.getElementById('splash').classList.add('show');
