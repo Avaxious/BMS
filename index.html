@@ -350,7 +350,7 @@ var PROXY_URL = 'https://script.google.com/macros/s/AKfycbzdS8txiGxEqTbqmsz0bToZ
 var LOGIN_PROXY_URL = 'https://script.google.com/macros/s/AKfycbyy8kJzlE40HsR1FgTMZyPL1S9LfN-npV8v9qlrJFIGLwAfsWMay-1BD9868SgmBc0/exec';
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-async function sha256(str){var enc=new TextEncoder().encode(str);var buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+async function sha256(str){var enc=new TextEncoder().encode(str);var buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
 
 /* ============================================================
    1) DEFAULT SNAPSHOT
