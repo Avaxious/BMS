@@ -191,7 +191,7 @@
     <div class="footer">Blue Calm Marine — Vessel Checking</div>
   </div>
 </div>
-<script>(function(){var t=localStorage.getItem('bms_logintime');if(t&&(Date.now()-parseInt(t))<18e5&&localStorage.getItem('bms_token'))document.getElementById('splash').classList.remove('show');else{localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');localStorage.removeItem('bms_migrated');document.getElementById('splash').classList.add('show');}document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});})();</script>
+<script>(function(){var t=localStorage.getItem('bms_logintime');var tok=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))<18e5&&tok){document.getElementById('splash').classList.remove('show');fetch('https://script.google.com/macros/s/AKfycbyy8kJzlE40HsR1FgTMZyPL1S9LfN-npV8v9qlrJFIGLwAfsWMay-1BD9868SgmBc0/exec',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'validate',token:tok}),signal:AbortSignal.timeout(5000)}).then(function(r){return r.json();}).then(function(d){if(!d.ok){localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');document.getElementById('splash').classList.add('show');}}).catch(function(){});}else{localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');localStorage.removeItem('bms_migrated');document.getElementById('splash').classList.add('show');}document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});})();</script>
 <div id="dropOverlay"><div class="box">📄 فایل اکسل را همین‌جا رها کنید<small>Vessel Checking sheet به‌طور خودکار خوانده و تحلیل می‌شود</small></div></div>
 <div id="toast"></div>
 <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls" style="display:none">
@@ -349,11 +349,8 @@ var GOOGLE_SHEET_CSV_URL = ''; // Direct CSV (leave empty if using proxy)
 var PROXY_URL = 'https://script.google.com/macros/s/AKfycbzdS8txiGxEqTbqmsz0bToZiBiZUUtkinVuvK1WMpcbC0R0BhOsTVJ8FhH9Gjyl7PUU/exec';
 var LOGIN_PROXY_URL = 'https://script.google.com/macros/s/AKfycbyy8kJzlE40HsR1FgTMZyPL1S9LfN-npV8v9qlrJFIGLwAfsWMay-1BD9868SgmBc0/exec';
 
-async function sha256(str){
-  var enc=new TextEncoder().encode(str);
-  var buf=await crypto.subtle.digest('SHA-256',enc);
-  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
-}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+async function sha256(str){var enc=new TextEncoder().encode(str);var buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
 
 /* ============================================================
    1) DEFAULT SNAPSHOT
@@ -1098,14 +1095,12 @@ function showPasswordModal(){return new Promise(function(rs){
 async function fetchGoogleSheet(){
   // Try proxy first, then direct CSV
   var token=localStorage.getItem('bms_token');
-  var url = PROXY_URL ? PROXY_URL + '?token=' + encodeURIComponent(token||'') : null;
-  if (!url) url = GOOGLE_SHEET_CSV_URL;
-  if (!url) return null;
+  if(!token)return null;
   try{
     var pb=document.getElementById('progFill');
     if(pb)pb.style.width='30%';
     document.getElementById('autoRefLabel').textContent='⏳ دریافت دیتا از سرور...';
-    var resp=await fetch(url);
+    var resp=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:token}),signal:AbortSignal.timeout(30000)});
     if(!resp.ok)return null;
     if(pb)pb.style.width='60%';
     document.getElementById('autoRefLabel').textContent='⏳ پردازش دیتا...';
@@ -1150,52 +1145,58 @@ async function fetchGoogleSheet(){
   }catch(e){console.log('Google Sheets error',e);if(pb)pb.style.width='0%';return null;}
 }
 async function tryAutoFetch(){
-  if(window.electronAPI){
-    try{
-      var result=await window.electronAPI.readExcelFile();
-      if(result&&result.success){
-        var binary=atob(result.data),len=binary.length,bytes=new Uint8Array(len);
-        for(var i=0;i<len;i++)bytes[i]=binary.charCodeAt(i);
-        processArrayBuffer(bytes.buffer,result.name);return;
-      }
-    }catch(e){console.log('Electron error',e);}
-  }
-  var isLocal=window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'||window.location.protocol==='file:';
-  if(!isLocal){
-    // 1) Try Google Sheets
-    var gsRecords=await fetchGoogleSheet();
-    if(gsRecords&&gsRecords.length){
-      rawRecords=gsRecords;
-      currentMeta={time:new Date().toLocaleString('fa-IR')};
-      initFilters();contPage=1;refreshDashboard();
-      showToast('✅ دیتا از Google Sheets بارگذاری شد ('+gsRecords.length.toLocaleString()+' رکورد)',false);
-      document.getElementById('autoRefLabel').textContent='\uD83D\uDD04 '+new Date().toLocaleTimeString('fa-IR');
-      return;
-    }
-    // 2) Try encrypted .enc file
-    try{
-      var resp=await fetch('data.enc');
-      if(resp.ok){
-        var buf=await resp.arrayBuffer();
-        var pw=await showPasswordModal();
-        if(pw){
-          var dec=await decryptData(buf,pw);
-          processArrayBuffer(dec,'data.xlsx (encrypted)');
-          return;
+  if(_fetchInProgress)return;
+  _fetchInProgress=true;
+  try{
+    if(window.electronAPI){
+      try{
+        var result=await window.electronAPI.readExcelFile();
+        if(result&&result.success){
+          var binary=atob(result.data),len=binary.length,bytes=new Uint8Array(len);
+          for(var i=0;i<len;i++)bytes[i]=binary.charCodeAt(i);
+          processArrayBuffer(bytes.buffer,result.name);return;
         }
+      }catch(e){console.log('Electron error',e);}
+    }
+    var isLocal=window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'||window.location.protocol==='file:';
+    if(!isLocal){
+      // 1) Try Google Sheets
+      var gsRecords=await fetchGoogleSheet();
+      if(gsRecords&&gsRecords.length){
+        rawRecords=gsRecords;
+        currentMeta={time:new Date().toLocaleString('fa-IR')};
+        initFilters();contPage=1;refreshDashboard();
+        showToast('✅ دیتا از Google Sheets بارگذاری شد ('+gsRecords.length.toLocaleString()+' رکورد)',false);
+        document.getElementById('autoRefLabel').textContent='\uD83D\uDD04 '+new Date().toLocaleTimeString('fa-IR');
+        return;
       }
-    }catch(e){}
-  }
-  // 3) Try local Excel files (works on file:// in Firefox, or server)
-  var filenames=['data.xlsx','data.xlsm','Copy of Vesel Checking & Pending(M.H).xlsm','Copy of Vesel Checking & Pending(M.H).xlsx','Vessel_Checking.xlsm','Vessel_Checking.xlsx','dashboard.xlsm','dashboard.xlsx'];
-  for(var name of filenames){
-    try{
-      var resp=await fetch(encodeURI(name));
-      if(!resp.ok)continue;
-      var buf=await resp.arrayBuffer();
-      processArrayBuffer(buf,name);
-      return;
-    }catch(e){}
+      // 2) Try encrypted .enc file
+      try{
+        var resp=await fetch('data.enc');
+        if(resp.ok){
+          var buf=await resp.arrayBuffer();
+          var pw=await showPasswordModal();
+          if(pw){
+            var dec=await decryptData(buf,pw);
+            processArrayBuffer(dec,'data.xlsx (encrypted)');
+            return;
+          }
+        }
+      }catch(e){}
+    }
+    // 3) Try local Excel files (works on file:// in Firefox, or server)
+    var filenames=['data.xlsx','data.xlsm','Copy of Vesel Checking & Pending(M.H).xlsm','Copy of Vesel Checking & Pending(M.H).xlsx','Vessel_Checking.xlsm','Vessel_Checking.xlsx','dashboard.xlsm','dashboard.xlsx'];
+    for(var name of filenames){
+      try{
+        var resp=await fetch(encodeURI(name));
+        if(!resp.ok)continue;
+        var buf=await resp.arrayBuffer();
+        processArrayBuffer(buf,name);
+        return;
+      }catch(e){}
+    }
+  }finally{
+    _fetchInProgress=false;
   }
 }
 function showBanner(msg){var b=document.getElementById('libBanner');if(msg)b.querySelector('div').innerHTML=msg;b.classList.add('show');}
@@ -1215,17 +1216,16 @@ function showBanner(msg){var b=document.getElementById('libBanner');if(msg)b.que
   if(!leafletUrl&&!chartUrl&&!xlsxUrl){showBanner('<b>⚠️ Leaflet.js (نقشه) بارگذاری نشد.</b><br>نقشه در دسترس نیست، بقیه داشبورد کار می‌کند.');}
   if(chartUrl&&xlsxUrl)tryAutoFetch();
   // Auto-refresh every 5 minutes
-  setInterval(function(){
+  _autoRefreshInterval=setInterval(function(){
     var loggedIn=localStorage.getItem('bms_logintime');
-    if(loggedIn&&(Date.now()-parseInt(loggedIn))<18e5&&chartUrl&&xlsxUrl){
+    if(loggedIn&&(Date.now()-parseInt(loggedIn))<18e5&&chartUrl&&xlsxUrl&&!_fetchInProgress){
       document.getElementById('autoRefLabel').textContent='🔄 بروزرسانی...';
       tryAutoFetch();
     }
   },300000);
-  setInterval(function(){
+  _timerInterval=setInterval(function(){
     var t=localStorage.getItem('bms_logintime');
     if(t&&(Date.now()-parseInt(t))>18e5){logout();}
-    // Also validate token with server periodically (every 5 min)
   },15000);
 })();
 async function doLogin(){
@@ -1236,9 +1236,9 @@ async function doLogin(){
   try{
     var hash=await sha256(pass);
     var migrated=localStorage.getItem('bms_migrated');
-    var url=LOGIN_PROXY_URL+'?action=login&user='+encodeURIComponent(user)+'&hash='+hash;
-    if(!migrated)url+='&pass='+encodeURIComponent(pass);
-    var resp=await fetch(url,{signal:AbortSignal.timeout(10000)});
+    var body={action:'login',user:user,hash:hash};
+    if(!migrated)body.pass=pass;
+    var resp=await fetch(LOGIN_PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(10000)});
     var data=await resp.json();
     if(data.ok&&data.token){
       var now=Date.now().toString();
@@ -1272,8 +1272,15 @@ function updateTimer(){
   el.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   if(remaining<=0)logout();
 }
+var _timerInterval=null;
+var _autoRefreshInterval=null;
+var _fetchInProgress=false;
 function logout(){
-  localStorage.removeItem('bms_token');localStorage.removeItem('bms_username');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_migrated');
+  var token=localStorage.getItem('bms_token');
+  if(token){
+    try{fetch(LOGIN_PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'logout',token:token}),signal:AbortSignal.timeout(5000)});}catch(e){}
+  }
+  localStorage.removeItem('bms_token');localStorage.removeItem('bms_username');localStorage.removeItem('bms_logintime');
   document.getElementById('splash').classList.add('show');
   document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';
   document.getElementById('loginErr').style.display='none';
@@ -1281,6 +1288,7 @@ function logout(){
   document.getElementById('welcomeUser').style.display='none';
   document.getElementById('timerChip').style.display='none';
   if(_timerInterval){clearInterval(_timerInterval);_timerInterval=null;}
+  if(_autoRefreshInterval){clearInterval(_autoRefreshInterval);_autoRefreshInterval=null;}
 }
 function toggleTheme(){
   var html=document.documentElement;
