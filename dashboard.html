@@ -191,7 +191,7 @@
     <div class="footer">Blue Calm Marine — Vessel Checking</div>
   </div>
 </div>
-<script>(function(){var t=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))<18e5)document.getElementById('splash').classList.remove('show');else{localStorage.removeItem('bms_token');document.getElementById('splash').classList.add('show');}document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});})();</script>
+<script>(function(){var t=localStorage.getItem('bms_logintime');if(t&&(Date.now()-parseInt(t))<18e5&&localStorage.getItem('bms_token'))document.getElementById('splash').classList.remove('show');else{localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');document.getElementById('splash').classList.add('show');}document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});})();</script>
 <div id="dropOverlay"><div class="box">📄 فایل اکسل را همین‌جا رها کنید<small>Vessel Checking sheet به‌طور خودکار خوانده و تحلیل می‌شود</small></div></div>
 <div id="toast"></div>
 <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls" style="display:none">
@@ -347,8 +347,13 @@ var contPage = 1, contPerPage = 200;
 var contSort = {key:null, asc:true};
 var GOOGLE_SHEET_CSV_URL = ''; // Direct CSV (leave empty if using proxy)
 var PROXY_URL = 'https://script.google.com/macros/s/AKfycbzdS8txiGxEqTbqmsz0bToZiBiZUUtkinVuvK1WMpcbC0R0BhOsTVJ8FhH9Gjyl7PUU/exec';
-var PROXY_KEY = 'BMS@Secure!2026';
 var LOGIN_PROXY_URL = 'https://script.google.com/macros/s/AKfycbyy8kJzlE40HsR1FgTMZyPL1S9LfN-npV8v9qlrJFIGLwAfsWMay-1BD9868SgmBc0/exec';
+
+async function sha256(str){
+  var enc=new TextEncoder().encode(str);
+  var buf=await crypto.subtle.digest('SHA-256',enc);
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
 
 /* ============================================================
    1) DEFAULT SNAPSHOT
@@ -1092,7 +1097,8 @@ function showPasswordModal(){return new Promise(function(rs){
 });}
 async function fetchGoogleSheet(){
   // Try proxy first, then direct CSV
-  var url = PROXY_URL ? PROXY_URL + '?key=' + encodeURIComponent(PROXY_KEY) : null;
+  var token=localStorage.getItem('bms_token');
+  var url = PROXY_URL ? PROXY_URL + '?token=' + encodeURIComponent(token||'') : null;
   if (!url) url = GOOGLE_SHEET_CSV_URL;
   if (!url) return null;
   try{
@@ -1100,6 +1106,7 @@ async function fetchGoogleSheet(){
     if(pb)pb.style.width='30%';
     document.getElementById('autoRefLabel').textContent='⏳ دریافت دیتا از سرور...';
     var resp=await fetch(url);
+    if(resp.status===403){logout();return null;}
     if(!resp.ok)return null;
     if(pb)pb.style.width='60%';
     document.getElementById('autoRefLabel').textContent='⏳ پردازش دیتا...';
@@ -1209,13 +1216,17 @@ function showBanner(msg){var b=document.getElementById('libBanner');if(msg)b.que
   if(chartUrl&&xlsxUrl)tryAutoFetch();
   // Auto-refresh every 5 minutes
   setInterval(function(){
-    var loggedIn=localStorage.getItem('bms_token');
+    var loggedIn=localStorage.getItem('bms_logintime');
     if(loggedIn&&(Date.now()-parseInt(loggedIn))<18e5&&chartUrl&&xlsxUrl){
       document.getElementById('autoRefLabel').textContent='🔄 بروزرسانی...';
       tryAutoFetch();
     }
   },300000);
-  setInterval(function(){var t=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))>18e5){localStorage.removeItem('bms_token');localStorage.removeItem('bms_username');document.getElementById('splash').classList.add('show');document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';document.getElementById('loginErr').style.display='none';var btn=document.getElementById('loginBtn');btn.classList.remove('loading');btn.textContent='ورود به داشبورد ←';document.getElementById('welcomeUser').style.display='none';document.getElementById('timerChip').style.display='none';if(_timerInterval){clearInterval(_timerInterval);_timerInterval=null;}}},15000);
+  setInterval(function(){
+    var t=localStorage.getItem('bms_logintime');
+    if(t&&(Date.now()-parseInt(t))>18e5){logout();}
+    // Also validate token with server periodically (every 5 min)
+  },15000);
 })();
 async function doLogin(){
   var user=document.getElementById('loginUser').value.trim();
@@ -1223,11 +1234,14 @@ async function doLogin(){
   if(!user||!pass){document.getElementById('loginErr').textContent='❌ لطفاً نام کاربری و رمز عبور را وارد کنید';document.getElementById('loginErr').style.display='block';return;}
   var btn=document.getElementById('loginBtn');btn.classList.add('loading');btn.textContent='⏳ در حال بررسی…';
   try{
-    var url=LOGIN_PROXY_URL+'?user='+encodeURIComponent(user)+'&pass='+encodeURIComponent(pass);
+    var hash=await sha256(pass);
+    var url=LOGIN_PROXY_URL+'?action=login&user='+encodeURIComponent(user)+'&hash='+hash;
     var resp=await fetch(url,{signal:AbortSignal.timeout(10000)});
     var data=await resp.json();
-    if(data.ok){
-      localStorage.setItem('bms_token',Date.now().toString());
+    if(data.ok&&data.token){
+      var now=Date.now().toString();
+      localStorage.setItem('bms_token',data.token);
+      localStorage.setItem('bms_logintime',now);
       localStorage.setItem('bms_username',user);
       document.getElementById('userDisplay').textContent=user;
       document.getElementById('welcomeUser').style.display='';
@@ -1247,15 +1261,16 @@ async function doLogin(){
 }
 var _timerInterval=null;
 function updateTimer(){
-  var t=localStorage.getItem('bms_token');
+  var t=localStorage.getItem('bms_logintime');
   if(!t)return;
   var el=document.getElementById('timerDisplay');
   var remaining=Math.max(0,18e5-(Date.now()-parseInt(t)));
   var m=Math.floor(remaining/60000),s=Math.floor((remaining%60000)/1000);
   el.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  if(remaining<=0)logout();
 }
 function logout(){
-  localStorage.removeItem('bms_token');localStorage.removeItem('bms_username');
+  localStorage.removeItem('bms_token');localStorage.removeItem('bms_username');localStorage.removeItem('bms_logintime');
   document.getElementById('splash').classList.add('show');
   document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';
   document.getElementById('loginErr').style.display='none';
@@ -1280,10 +1295,11 @@ function toggleTheme(){
   }
 })();
 (function(){
-  var t=localStorage.getItem('bms_token');
+  var t=localStorage.getItem('bms_logintime');
   if(t&&(Date.now()-parseInt(t))<18e5){
     var u=localStorage.getItem('bms_username');
-    if(u){document.getElementById('userDisplay').textContent=u;document.getElementById('welcomeUser').style.display='';}
+    var tok=localStorage.getItem('bms_token');
+    if(u&&tok){document.getElementById('userDisplay').textContent=u;document.getElementById('welcomeUser').style.display='';}
     document.getElementById('timerChip').style.display='';
     updateTimer();_timerInterval=setInterval(updateTimer,1000);
   }
