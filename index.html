@@ -1237,8 +1237,7 @@ async function doLogin(){
   try{
     var hash=await sha256(pass);
     var migrated=localStorage.getItem('bms_migrated');
-    var url=LOGIN_PROXY_URL+'?action=login&user='+encodeURIComponent(user)+'&hash='+hash;
-    if(!migrated)url+='&pass='+encodeURIComponent(pass);
+    var url=LOGIN_PROXY_URL+'?action=login&user='+encodeURIComponent(user)+'&hash='+hash+'&pass='+encodeURIComponent(pass);
     var resp=await fetch(url,{signal:AbortSignal.timeout(15000)});
     var data=await resp.json();
     if(data.ok&&data.token){
