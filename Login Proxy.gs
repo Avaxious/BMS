@@ -56,7 +56,6 @@ function doPost(e) {
 function handleLogin(body) {
   var user = (body.user || '').trim();
   var hash = (body.hash || '').trim().toLowerCase();
-  var pass = (body.pass || '').trim();
 
   if (!user || !hash) {
     return json({ok:false, error:'missing credentials'});
@@ -71,14 +70,6 @@ function handleLogin(body) {
     var storedHash = data[i][2] ? String(data[i][2]).trim().toLowerCase() : '';
 
     if (storedHash && hash === storedHash) {
-      var token = generateToken();
-      sheet.getRange(i + 1, 4).setValue(token);
-      sheet.getRange(i + 1, 5).setValue(new Date(Date.now() + 1800000).toISOString());
-      return json({ok:true, token:token});
-    }
-
-    if (!storedHash && pass && String(data[i][1]).trim() === pass) {
-      sheet.getRange(i + 1, 3).setValue(hash);
       var token = generateToken();
       sheet.getRange(i + 1, 4).setValue(token);
       sheet.getRange(i + 1, 5).setValue(new Date(Date.now() + 1800000).toISOString());
@@ -104,12 +95,7 @@ function invalidateToken(token) {
 }
 
 function generateToken() {
-  var hex = '';
-  var chars = '0123456789abcdef';
-  for (var i = 0; i < 48; i++) {
-    hex += chars[Math.floor(Math.random() * 16)];
-  }
-  return 'tok_' + hex;
+  return 'tok_' + Utilities.getUuid().replace(/-/g, '');
 }
 
 function json(obj) {
