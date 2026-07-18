@@ -102,3 +102,44 @@ function json(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
+/* ============================================================
+   AUTO-HASH: هر رمز جدید در ستون B خودکار hash میشه در ستون C
+   ============================================================ */
+function onEdit(e) {
+  var range = e.range;
+  var sheet = range.getSheet();
+  if (sheet.getName() !== 'Users') return;
+  if (range.getColumn() !== 2) return;
+  var row = range.getRow();
+  if (row <= 1) return;
+  var pass = String(range.getValue()).trim();
+  if (!pass) return;
+  var hash = sha256GAS(pass);
+  sheet.getRange(row, 3).setValue(hash);
+}
+
+function sha256GAS(input) {
+  var hash = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, input);
+  var hex = '';
+  for (var i = 0; i < hash.length; i++) {
+    var byte = hash[i];
+    if (byte < 0) byte += 256;
+    hex += ('0' + byte.toString(16)).slice(-2);
+  }
+  return hex;
+}
+
+function setupAutoHash() {
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === 'onEdit') {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
+  }
+  ScriptApp.newTrigger('onEdit')
+    .forSpreadsheet('16m9UdjL2QQIC5l-Nivi4Zfp8RueRyBZ1')
+    .onEdit()
+    .create();
+  Logger.log('Auto-hash trigger created!');
+}
