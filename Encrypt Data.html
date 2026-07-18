@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Encrypt Excel for GitHub Pages</title>
+<style>
+  body{font-family:system-ui,sans-serif;background:#0B2036;color:#EAF1F8;max-width:600px;margin:0 auto;padding:40px 20px}
+  h1{font-size:22px;color:#22C0AE}
+  .box{background:#0F2A45;border:1px solid rgba(140,182,219,.14);border-radius:12px;padding:20px;margin:20px 0}
+  label{display:block;font-size:13px;color:#93AAC4;margin:12px 0 4px}
+  input{width:100%;padding:10px;border:1px solid rgba(140,182,219,.2);border-radius:8px;background#0B2036;color:#EAF1F8;font-size:14px;box-sizing:border-box}
+  button{padding:12px 24px;background:#22C0AE;color:#04150f;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin:16px 4px 0 0}
+  button:disabled{opacity:.5}
+  .status{padding:10px;border-radius:8px;margin:12px 0;font-size:13px}
+  .err{background:rgba(229,101,74,.16);color:#E5654A}
+  .ok{background:rgba(34,192,174,.16);color:#22C0AE}
+  #dropZone{border:2px dashed rgba(140,182,219,.2);border-radius:12px;padding:30px;text-align:center;margin:12px 0;cursor:pointer;transition:.2s}
+  #dropZone.dragover{border-color:#22C0AE;background:rgba(34,192,174,.06)}
+  #dropZone .note{font-size:12px;color:#5D7893;margin-top:8px}
+</style>
+</head>
+<body>
+<h1>🔐 رمزنگاری دیتا برای GitHub Pages</h1>
+<p style="color:#93AAC4;font-size:13px">فایل Excel رو رمزنگاری کن تا فقط با کلید خصوصی قابل خوندن باشه</p>
+
+<div class="box">
+  <div id="dropZone">
+    <div style="font-size:28px;margin-bottom:8px">📂</div>
+    <div style="font-weight:600">فایل Excel را اینجا رها کنید</div>
+    <div class="note">data.xlsx — Vessel Checking sheet</div>
+  </div>
+  <input type="file" id="fileInput" accept=".xlsx,.xlsm" style="display:none">
+  <div id="fileInfo" class="status ok" style="display:none"></div>
+
+  <label>رمز عبور (با همکاران به اشتراک بذارید)</label>
+  <input type="password" id="password" placeholder="رمز عبور را وارد کنید" dir="ltr" autocomplete="off">
+
+  <button id="encryptBtn" disabled>🔒 رمزنگاری و دانلود</button>
+  <div id="result" style="margin-top:12px"></div>
+</div>
+
+<div class="box" style="font-size:12px;color:#93AAC4">
+  <b style="color:#E8AE52">نحوه استفاده:</b><br>
+  ۱. فایل data.xlsx رو اینجا بکشید<br>
+  ۲. رمز عبور رو وارد کنید<br>
+  ۳. دکمه رمزنگاری رو بزنید ← فایل <b>data.enc</b> دانلود میشه<br>
+  ۴. data.enc رو توی GitHub Pages آپلود کنید<br>
+  ۵. dashboard.html رو هم آپلود کنید (آپدیت شده)<br>
+  ۶. با باز کردن dashboard، رمز رو میپرسه و دیتا رو نشون میده
+</div>
+
+<script>
+var _file = null;
+var dz = document.getElementById('dropZone');
+var fi = document.getElementById('fileInput');
+var info = document.getElementById('fileInfo');
+
+dz.addEventListener('click', function(){ fi.click(); });
+fi.addEventListener('change', function(e){ if(e.target.files[0]) handleFile(e.target.files[0]); });
+dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', function(){ dz.classList.remove('dragover'); });
+dz.addEventListener('drop', function(e){ e.preventDefault(); dz.classList.remove('dragover'); if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+
+function handleFile(f){
+  _file = f;
+  info.style.display = 'block';
+  info.textContent = '\u2705 ' + f.name + ' (' + f.size.toLocaleString() + ' bytes)';
+  document.getElementById('encryptBtn').disabled = false;
+}
+
+document.getElementById('encryptBtn').addEventListener('click', async function(){
+  if(!_file) return;
+  var btn = this; btn.disabled = true; btn.textContent = '⏳ رمزنگاری...';
+  var res = document.getElementById('result'); res.innerHTML = '';
+  try{
+    var pw = document.getElementById('password').value;
+    if(!pw){ throw new Error('رمز عبور را وارد کنید'); }
+
+    // Encrypt the raw Excel bytes (NOT JSON) — compatible with processArrayBuffer
+    var buf = await _file.arrayBuffer();
+    var enc = await encryptData(buf, pw);
+
+    // Download
+    var blob = new Blob([enc], {type:'application/octet-stream'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'data.enc';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    res.innerHTML = '<div class="ok">✅ فایل data.enc دانلود شد. حالا آپلودش کن توی GitHub.</div>';
+  }catch(e){
+    res.innerHTML = '<div class="err">\u274c ' + e.message.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+  }
+  btn.disabled = false; btn.textContent = '🔒 رمزنگاری و دانلود';
+});
+
+async function encryptData(plaintext, password){
+  var enc = new TextEncoder();
+  var salt = crypto.getRandomValues(new Uint8Array(16));
+  var iv = crypto.getRandomValues(new Uint8Array(12));
+  var keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+  var key = await crypto.subtle.deriveKey(
+    {name:'PBKDF2', salt:salt, iterations:100000, hash:'SHA-256'},
+    keyMaterial,
+    {name:'AES-GCM', length:256},
+    false, ['encrypt']
+  );
+  var ciphertext = await crypto.subtle.encrypt({name:'AES-GCM', iv:iv}, key, enc.encode(plaintext));
+  // Format: salt(16) + iv(12) + ciphertext
+  var result = new Uint8Array(salt.length + iv.length + ciphertext.byteLength);
+  result.set(salt, 0);
+  result.set(iv, salt.length);
+  result.set(new Uint8Array(ciphertext), salt.length + iv.length);
+  return result;
+}
+</script>
+</body>
+</html>
