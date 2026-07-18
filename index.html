@@ -1252,6 +1252,7 @@ async function doLogin(){
       document.getElementById('timerChip').style.display='';
       updateTimer();
       document.getElementById('splash').classList.remove('show');
+      if(window.__xlsxReady)tryAutoFetch();
     }else{
       document.getElementById('loginErr').textContent='❌ نام کاربری یا رمز عبور اشتباه است';
       document.getElementById('loginErr').style.display='block';
