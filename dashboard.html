@@ -191,7 +191,7 @@
     <div class="footer">Blue Calm Marine — Vessel Checking</div>
   </div>
 </div>
-<script>(function(){var t=localStorage.getItem('bms_logintime');if(t&&(Date.now()-parseInt(t))<18e5&&localStorage.getItem('bms_token'))document.getElementById('splash').classList.remove('show');else{localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');document.getElementById('splash').classList.add('show');}document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});})();</script>
+<script>(function(){var t=localStorage.getItem('bms_logintime');if(t&&(Date.now()-parseInt(t))<18e5&&localStorage.getItem('bms_token'))document.getElementById('splash').classList.remove('show');else{localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');localStorage.removeItem('bms_migrated');document.getElementById('splash').classList.add('show');}document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});})();</script>
 <div id="dropOverlay"><div class="box">📄 فایل اکسل را همین‌جا رها کنید<small>Vessel Checking sheet به‌طور خودکار خوانده و تحلیل می‌شود</small></div></div>
 <div id="toast"></div>
 <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls" style="display:none">
@@ -1106,11 +1106,11 @@ async function fetchGoogleSheet(){
     if(pb)pb.style.width='30%';
     document.getElementById('autoRefLabel').textContent='⏳ دریافت دیتا از سرور...';
     var resp=await fetch(url);
-    if(resp.status===403){logout();return null;}
     if(!resp.ok)return null;
     if(pb)pb.style.width='60%';
     document.getElementById('autoRefLabel').textContent='⏳ پردازش دیتا...';
     var csv=await resp.text();
+    if(csv==='Forbidden'){logout();return null;}
     var wb=XLSX.read(csv,{type:'string',raw:true});
     var ws=wb.Sheets[wb.SheetNames[0]];
     var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
@@ -1235,7 +1235,9 @@ async function doLogin(){
   var btn=document.getElementById('loginBtn');btn.classList.add('loading');btn.textContent='⏳ در حال بررسی…';
   try{
     var hash=await sha256(pass);
+    var migrated=localStorage.getItem('bms_migrated');
     var url=LOGIN_PROXY_URL+'?action=login&user='+encodeURIComponent(user)+'&hash='+hash;
+    if(!migrated)url+='&pass='+encodeURIComponent(pass);
     var resp=await fetch(url,{signal:AbortSignal.timeout(10000)});
     var data=await resp.json();
     if(data.ok&&data.token){
@@ -1243,6 +1245,7 @@ async function doLogin(){
       localStorage.setItem('bms_token',data.token);
       localStorage.setItem('bms_logintime',now);
       localStorage.setItem('bms_username',user);
+      localStorage.setItem('bms_migrated','1');
       document.getElementById('userDisplay').textContent=user;
       document.getElementById('welcomeUser').style.display='';
       document.getElementById('timerChip').style.display='';
@@ -1270,7 +1273,7 @@ function updateTimer(){
   if(remaining<=0)logout();
 }
 function logout(){
-  localStorage.removeItem('bms_token');localStorage.removeItem('bms_username');localStorage.removeItem('bms_logintime');
+  localStorage.removeItem('bms_token');localStorage.removeItem('bms_username');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_migrated');
   document.getElementById('splash').classList.add('show');
   document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';
   document.getElementById('loginErr').style.display='none';
