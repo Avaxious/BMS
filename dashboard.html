@@ -191,7 +191,7 @@
     <div class="footer">Blue Calm Marine — Vessel Checking</div>
   </div>
 </div>
-<script>(function(){var t=localStorage.getItem('bms_logintime');var tok=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))<18e5&&tok){document.getElementById('splash').classList.remove('show');fetch('https://script.google.com/macros/s/AKfycbyy8kJzlE40HsR1FgTMZyPL1S9LfN-npV8v9qlrJFIGLwAfsWMay-1BD9868SgmBc0/exec',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'validate',token:tok}),signal:AbortSignal.timeout(5000)}).then(function(r){return r.json();}).then(function(d){if(!d.ok){localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');document.getElementById('splash').classList.add('show');}}).catch(function(){});}else{localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');localStorage.removeItem('bms_migrated');document.getElementById('splash').classList.add('show');}document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});})();</script>
+<script>(function(){var t=localStorage.getItem('bms_logintime');var tok=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))<18e5&&tok){document.getElementById('splash').classList.remove('show');fetch('https://script.google.com/macros/s/AKfycbyy8kJzlE40HsR1FgTMZyPL1S9LfN-npV8v9qlrJFIGLwAfsWMay-1BD9868SgmBc0/exec?action=validate&token='+encodeURIComponent(tok),{signal:AbortSignal.timeout(5000)}).then(function(r){return r.json();}).then(function(d){if(!d.ok){localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');document.getElementById('splash').classList.add('show');}}).catch(function(){});}else{localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');localStorage.removeItem('bms_migrated');document.getElementById('splash').classList.add('show');}document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});})();</script>
 <div id="dropOverlay"><div class="box">📄 فایل اکسل را همین‌جا رها کنید<small>Vessel Checking sheet به‌طور خودکار خوانده و تحلیل می‌شود</small></div></div>
 <div id="toast"></div>
 <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls" style="display:none">
@@ -1096,11 +1096,12 @@ async function fetchGoogleSheet(){
   // Try proxy first, then direct CSV
   var token=localStorage.getItem('bms_token');
   if(!token)return null;
+  var url=PROXY_URL+'?token='+encodeURIComponent(token);
   try{
     var pb=document.getElementById('progFill');
     if(pb)pb.style.width='30%';
     document.getElementById('autoRefLabel').textContent='⏳ دریافت دیتا از سرور...';
-    var resp=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:token}),signal:AbortSignal.timeout(30000)});
+    var resp=await fetch(url,{signal:AbortSignal.timeout(30000)});
     if(!resp.ok)return null;
     if(pb)pb.style.width='60%';
     document.getElementById('autoRefLabel').textContent='⏳ پردازش دیتا...';
@@ -1236,9 +1237,9 @@ async function doLogin(){
   try{
     var hash=await sha256(pass);
     var migrated=localStorage.getItem('bms_migrated');
-    var body={action:'login',user:user,hash:hash};
-    if(!migrated)body.pass=pass;
-    var resp=await fetch(LOGIN_PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(10000)});
+    var url=LOGIN_PROXY_URL+'?action=login&user='+encodeURIComponent(user)+'&hash='+hash;
+    if(!migrated)url+='&pass='+encodeURIComponent(pass);
+    var resp=await fetch(url,{signal:AbortSignal.timeout(15000)});
     var data=await resp.json();
     if(data.ok&&data.token){
       var now=Date.now().toString();
@@ -1278,7 +1279,7 @@ var _fetchInProgress=false;
 function logout(){
   var token=localStorage.getItem('bms_token');
   if(token){
-    try{fetch(LOGIN_PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'logout',token:token}),signal:AbortSignal.timeout(5000)});}catch(e){}
+    try{fetch(LOGIN_PROXY_URL+'?action=logout&token='+encodeURIComponent(token),{signal:AbortSignal.timeout(5000)});}catch(e){}
   }
   localStorage.removeItem('bms_token');localStorage.removeItem('bms_username');localStorage.removeItem('bms_logintime');
   document.getElementById('splash').classList.add('show');
