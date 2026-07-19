@@ -495,8 +495,9 @@ function aggregateFromRecords(records){
 }
 
 function refreshDashboard(){
-  if(!rawRecords.length)return;
+  if(!rawRecords.length){console.log('[BMS] refreshDashboard: rawRecords empty, skip');return;}
   var records=getFilteredRecords();
+  console.log('[BMS] refreshDashboard: filtered',records.length,'/',rawRecords.length);
   document.getElementById('filterInfo').textContent=records.length.toLocaleString()+' رکورد ('+(rawRecords.length?Math.round(records.length/rawRecords.length*100)+'% از کل':'—')+')';
   var data=aggregateFromRecords(records);
   var pending=rawRecords.filter(function(r){return !r.arrv_date;});
@@ -1198,33 +1199,39 @@ function showPasswordModal(){return new Promise(function(rs){
   inp.onkeydown=function(e){if(e.key==='Enter'){m.classList.remove('show');rs(inp.value);}};
 });}
 async function fetchGoogleSheet(){
-  // Try proxy first, then direct CSV
   var token=localStorage.getItem('bms_token');
+  console.log('[BMS] fetchGoogleSheet: token=',token?'present':'MISSING');
   if(!token)return null;
   try{
     var pb=document.getElementById('progFill');
     if(pb)pb.style.width='30%';
     document.getElementById('autoRefLabel').textContent='⏳ دریافت دیتا از سرور...';
+    console.log('[BMS] fetchGoogleSheet: POST to',PROXY_URL);
     var resp=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:token}),signal:AbortSignal.timeout(30000)});
+    console.log('[BMS] fetchGoogleSheet: resp.status=',resp.status);
     if(!resp.ok)return null;
     if(pb)pb.style.width='60%';
     document.getElementById('autoRefLabel').textContent='⏳ پردازش دیتا...';
     var csv=await resp.text();
-    if(csv==='Forbidden'){logout();return null;}
+    console.log('[BMS] fetchGoogleSheet: csv.length=',csv.length,', starts=',csv.substring(0,100));
+    if(csv==='Forbidden'){console.log('[BMS] fetchGoogleSheet: FORBIDDEN - logging out');logout();return null;}
     var wb=XLSX.read(csv,{type:'string',raw:true});
     var ws=wb.Sheets[wb.SheetNames[0]];
     var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
+    console.log('[BMS] fetchGoogleSheet: rows.length=',rows.length);
     if(rows.length<2)return null;
     if(pb)pb.style.width='90%';
     var records=parseRows(rows);
+    console.log('[BMS] fetchGoogleSheet: records.length=',records.length,' sample=',JSON.stringify(records[0]));
     if(pb)pb.style.width='100%';
     setTimeout(function(){if(pb)pb.style.width='0%';},600);
     return records;
-  }catch(e){console.log('Google Sheets error',e);if(pb)pb.style.width='0%';return null;}
+  }catch(e){console.log('[BMS] fetchGoogleSheet ERROR',e);if(pb)pb.style.width='0%';return null;}
 }
 async function tryAutoFetch(){
-  if(_fetchInProgress)return;
+  if(_fetchInProgress){console.log('[BMS] tryAutoFetch: already in progress, skip');return;}
   _fetchInProgress=true;
+  console.log('[BMS] tryAutoFetch: start');
   try{
     if(window.electronAPI){
       try{
@@ -1237,18 +1244,20 @@ async function tryAutoFetch(){
       }catch(e){console.log('Electron error',e);}
     }
     var isLocal=window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'||window.location.protocol==='file:';
+    console.log('[BMS] tryAutoFetch: isLocal=',isLocal);
     if(!isLocal){
-      // 1) Try Google Sheets
       var gsRecords=await fetchGoogleSheet();
+      console.log('[BMS] tryAutoFetch: gsRecords=',gsRecords?gsRecords.length:'null');
       if(gsRecords&&gsRecords.length){
         rawRecords=gsRecords;
         currentMeta={time:new Date().toLocaleString('fa-IR')};
+        console.log('[BMS] tryAutoFetch: calling initFilters + refreshDashboard');
         initFilters();contPage=1;refreshDashboard();
         showToast('✅ دیتا از Google Sheets بارگذاری شد ('+gsRecords.length.toLocaleString()+' رکورد)',false);
         document.getElementById('autoRefLabel').textContent='\uD83D\uDD04 '+new Date().toLocaleTimeString('fa-IR');
         return;
       }
-      // 2) Try encrypted .enc file
+      console.log('[BMS] tryAutoFetch: gsRecords empty, trying .enc file');
       try{
         var resp=await fetch('data.enc');
         if(resp.ok){
@@ -1262,7 +1271,7 @@ async function tryAutoFetch(){
         }
       }catch(e){}
     }
-    // 3) Try local Excel files (works on file:// in Firefox, or server)
+    console.log('[BMS] tryAutoFetch: trying local files');
     var filenames=['data.xlsx','data.xlsm','Copy of Vesel Checking & Pending(M.H).xlsm','Copy of Vesel Checking & Pending(M.H).xlsx','Vessel_Checking.xlsm','Vessel_Checking.xlsx','dashboard.xlsm','dashboard.xlsx'];
     for(var name of filenames){
       try{
@@ -1273,6 +1282,7 @@ async function tryAutoFetch(){
         return;
       }catch(e){}
     }
+    console.log('[BMS] tryAutoFetch: no data source found');
   }finally{
     _fetchInProgress=false;
   }
