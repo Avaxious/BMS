@@ -19,7 +19,6 @@ function doGet(e) {
       return json({ok: false, error: validation.reason});
     }
     
-    // Refresh token expiry
     const usersSheet = SpreadsheetApp.openById(SECURITY_CONFIG.USERS_SHEET_ID)
       .getSheetByName('Users');
     const data = usersSheet.getDataRange().getValues();
@@ -74,7 +73,7 @@ function doPost(e) {
 }
 
 /**
- * Enhanced login handler with PBKDF2 hashing and rate limiting
+ * Enhanced login handler with PBKDF2
  */
 function handleLoginEnhanced(body) {
   const user = (body.user || '').trim();
@@ -85,7 +84,6 @@ function handleLoginEnhanced(body) {
     return json({ok: false, error: 'missing_credentials'});
   }
 
-  // Check if user is locked out
   if (isUserLockedOut(user)) {
     logSecurityEvent('LOCKOUT_ATTEMPT', user, 'User attempted login while locked out');
     return json({ok: false, error: 'account_locked', lockout_duration_min: Math.ceil(SECURITY_CONFIG.LOCKOUT_DURATION_MS / 60000)});
@@ -98,10 +96,7 @@ function handleLoginEnhanced(body) {
   for (let i = 1; i < data.length; i++) {
     if (String(data[i][0]).trim() !== user) continue;
 
-    // Get stored hash and salt
     const storedHashWithSalt = data[i][2] ? String(data[i][2]).trim() : '';
-    
-    // Format: hash:salt
     const [storedHash, salt] = storedHashWithSalt.split(':');
     
     if (!storedHash || !salt) {
@@ -110,19 +105,15 @@ function handleLoginEnhanced(body) {
       return json({ok: false, error: 'invalid_credentials'});
     }
 
-    // Hash provided password with stored salt
     const computedHash = hashPasswordPBKDF2(passwordHash, salt);
 
     if (computedHash.toLowerCase() === storedHash.toLowerCase()) {
-      // Clear failed attempts
       clearFailedLoginAttempts(user);
       
-      // Generate new token
       const token = generateSecureToken();
       const expiryTime = new Date(Date.now() + SECURITY_CONFIG.SESSION_TIMEOUT_MS).toISOString();
       const createdAt = new Date().toISOString();
       
-      // Update sheet
       usersSheet.getRange(i + 1, 4).setValue(token);
       usersSheet.getRange(i + 1, 5).setValue(expiryTime);
       usersSheet.getRange(i + 1, 8).setValue(createdAt);
@@ -138,14 +129,13 @@ function handleLoginEnhanced(body) {
     }
   }
 
-  // User not found or password mismatch
   recordFailedLoginAttempt(user);
   logSecurityEvent('LOGIN_FAILED', user, 'Invalid password or user not found');
   return json({ok: false, error: 'invalid_credentials'});
 }
 
 /**
- * Invalidate token (logout)
+ * Invalidate token
  */
 function invalidateToken(token) {
   try {
@@ -167,14 +157,14 @@ function invalidateToken(token) {
 }
 
 /**
- * Setup auto-hash trigger for password changes
+ * Auto-hash trigger
  */
 function onEdit(e) {
   const range = e.range;
   const sheet = range.getSheet();
   
   if (sheet.getName() !== 'Users') return;
-  if (range.getColumn() !== 2) return; // Column B = Password
+  if (range.getColumn() !== 2) return;
   
   const row = range.getRow();
   if (row <= 1) return;
@@ -182,24 +172,15 @@ function onEdit(e) {
   const plainPassword = String(range.getValue()).trim();
   if (!plainPassword) return;
 
-  // Generate salt
   const salt = generateSalt(SECURITY_CONFIG.SALT_LENGTH);
-  
-  // Hash password with PBKDF2
   const hash = hashPasswordPBKDF2(plainPassword, salt);
   
-  // Store as hash:salt
   sheet.getRange(row, 3).setValue(hash + ':' + salt);
-  
-  // Clear password field (don't store plain text)
   sheet.getRange(row, 2).setValue('');
   
   logSecurityEvent('PASSWORD_CHANGED', sheet.getRange(row, 1).getValue(), 'Password updated with PBKDF2 hashing');
 }
 
-/**
- * Helper function
- */
 function json(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);

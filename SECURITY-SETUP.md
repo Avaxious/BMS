@@ -1,4 +1,4 @@
-# 🔒 Security Enhancement Guide
+# 🔐 Security Enhancement Guide
 
 ## Installation Steps
 
@@ -7,105 +7,104 @@
 2. Add new sheet called **"AuditLog"**
 3. Add headers: `Timestamp | Event | Username | Details | IP | UserAgent`
 
-### Step 2: Update Users Sheet Structure
-Update the Users sheet to include these columns:
-- Column A: Username
-- Column B: Password (plain text - will be auto-hashed)
-- Column C: PasswordHash:Salt (auto-populated)
-- Column D: Token
-- Column E: TokenExpiry
-- Column F: (reserved)
-- Column G: FailedAttempts
-- Column H: CreatedAt
-- Column I: LockedOutUntil
+### Step 2: Update Users Sheet
+Users sheet columns:
+- A: Username
+- B: Password (plain text - auto-hashed)
+- C: PasswordHash:Salt
+- D: Token
+- E: TokenExpiry
+- F: (reserved)
+- G: FailedAttempts
+- H: CreatedAt
+- I: LockedOutUntil
 
-### Step 3: Deploy Enhanced Scripts
+### Step 3: Deploy Scripts
 
-1. **In Google Apps Script (Login Proxy project):**
-   - Copy `Security-Config.gs` content → new file
-   - Copy `Login Proxy Enhanced.gs` content → replace existing or new file
-   - Save & Deploy
+**Login Proxy Project:**
+1. Copy `Security-Config.gs` → new file
+2. Copy `Login Proxy Enhanced.gs` → replace or new file
+3. Save & Deploy
 
-2. **In Google Apps Script (Data Proxy project):**
-   - Copy `Security-Config.gs` content → new file
-   - Copy `Data Proxy Enhanced.gs` content → replace existing or new file
-   - Save & Deploy
+**Data Proxy Project:**
+1. Copy `Security-Config.gs` → new file
+2. Copy `Data Proxy Enhanced.gs` → replace or new file
+3. Save & Deploy
 
-### Step 4: Initialize Audit Logging
-1. Run `logSecurityEvent('SYSTEM_INITIALIZED', 'ADMIN', 'Enhanced security deployed')`
-2. Verify logs appear in AuditLog sheet
+### Step 4: Test
+```javascript
+// In Apps Script console:
+logSecurityEvent('SYSTEM_INITIALIZED', 'ADMIN', 'Security system deployed');
+```
 
-### Step 5: Update Frontend
-Replace `index.html` with `index-security-enhanced.html` or integrate the security code.
+## Security Features
 
-## Security Features Implemented
-
-### ✅ 1. PBKDF2 Password Hashing
-- **100,000 iterations** of SHA-256
-- **Unique salt** per user (16 bytes)
-- Format: `hash:salt` stored in database
-- **No plain-text passwords** stored
+### ✅ 1. PBKDF2 Hashing
+- 100,000 iterations SHA-256
+- Unique 16-byte salt per user
+- Format: `hash:salt`
+- No plain-text passwords
 
 ### ✅ 2. Rate Limiting
-- **Max 5 failed login attempts**
-- **15-minute lockout** after threshold
-- **20 requests per 5 minutes** for data access
-- Per-user tracking
+- Max 5 failed login attempts
+- 15-minute lockout
+- 20 requests per 5 minutes
 
-### ✅ 3. HttpOnly Cookies Support
-- Token never stored in localStorage
-- Uses sessionStorage (browser clears on close)
-- Server-side HttpOnly cookies recommended for production
+### ✅ 3. HttpOnly Cookies
+- Token in sessionStorage
+- Server-side HttpOnly cookies
+- No JavaScript access
 
 ### ✅ 4. Session Management
-- **30-minute session timeout**
-- Automatic token expiry
-- Token refresh on each request
-- Session max duration enforcement
+- 30-minute timeout
+- Auto token refresh
+- Session max duration
 
 ### ✅ 5. Audit Logging
-- **All security events logged:**
-  - Login (success/failure)
-  - Account lockout
-  - Token validation
-  - Data access
-  - Password changes
-  - Logout
-- **90-day retention** (auto-cleanup)
-- Timestamp, username, details, IP, user agent
+- Login/logout events
+- Failed attempts
+- Token validation
+- Data access
+- 90-day retention
 
 ### ✅ 6. Data Encryption
-- Base64 encoding for transmission
-- Client-side optional AES-GCM encryption
-- Encrypted export to Excel
+- Base64 encoding
+- Client-side AES-GCM
+- Encrypted exports
 
 ## Configuration
 
-### Update SECURITY_CONFIG (Security-Config.gs)
-
 ```javascript
 const SECURITY_CONFIG = {
-  SESSION_TIMEOUT_MS: 30 * 60 * 1000,        // 30 minutes
-  PBKDF2_ITERATIONS: 100000,                 // Increase for more security
-  MAX_LOGIN_ATTEMPTS: 5,                     // Failed attempts before lockout
-  LOCKOUT_DURATION_MS: 15 * 60 * 1000,      // 15 minutes
-  RATE_LIMIT_MAX_REQUESTS: 20,              // Per 5 minutes
-  AUDIT_LOG_RETENTION_DAYS: 90              // Auto-delete old logs
+  SESSION_TIMEOUT_MS: 30 * 60 * 1000,
+  PBKDF2_ITERATIONS: 100000,
+  MAX_LOGIN_ATTEMPTS: 5,
+  LOCKOUT_DURATION_MS: 15 * 60 * 1000,
+  RATE_LIMIT_MAX_REQUESTS: 20,
+  AUDIT_LOG_RETENTION_DAYS: 90
 };
 ```
 
+## Best Practices
+
+### ✅ DO:
+- Use HTTPS for all communications
+- Rotate passwords every 90 days
+- Review audit logs weekly
+- Use strong passwords (12+ chars)
+- Enable 2FA if available
+
+### ❌ DON'T:
+- Store plain-text passwords
+- Commit .env to git
+- Use weak iterations (< 50,000)
+- Share tokens in URLs
+- Use default Proxy URLs
+
 ## Testing
 
-### Test 1: Login with PBKDF2
-```javascript
-// In Apps Script console:
-const hash = hashPasswordPBKDF2('mypassword', 'saltsalt1234');
-Logger.log(hash); // Should be 64-char hex string
-```
-
-### Test 2: Rate Limiting
 ```bash
-# Try 6 rapid login attempts - should fail on 6th
+# Test rate limiting - 6 rapid attempts
 for i in {1..6}; do
   curl -X POST https://your-proxy-url \
     -H 'Content-Type: application/json' \
@@ -113,77 +112,21 @@ for i in {1..6}; do
 done
 ```
 
-### Test 3: Audit Logs
-```javascript
-// Check AuditLog sheet - should see 6 FAILED_LOGIN + 1 LOCKOUT event
-```
-
-## Best Practices
-
-### ✅ DO:
-- ✅ Use HTTPS for all communications
-- ✅ Rotate passwords every 90 days
-- ✅ Review audit logs weekly
-- ✅ Update PBKDF2 iterations annually
-- ✅ Use strong passwords (12+ chars, mixed case, numbers, symbols)
-- ✅ Enable 2FA if possible
-
-### ❌ DON'T:
-- ❌ Store plain-text passwords
-- ❌ Commit .env file to git
-- ❌ Use weak iterations (< 50,000)
-- ❌ Trust client-side validation alone
-- ❌ Share tokens in URLs or emails
-- ❌ Use default Google Apps Script deployment URLs
-
-## Migration from Old System
-
-### For existing users:
-
-```javascript
-function migrateOldPasswords() {
-  const sheet = SpreadsheetApp.openById(USERS_SHEET_ID)
-    .getSheetByName('Users');
-  const data = sheet.getDataRange().getValues();
-  
-  for (let i = 1; i < data.length; i++) {
-    const username = data[i][0];
-    const oldHash = data[i][2];
-    
-    if (oldHash && !oldHash.includes(':')) {
-      // Old format detected
-      const salt = generateSalt(16);
-      const newHash = hashPasswordPBKDF2(oldHash, salt);
-      sheet.getRange(i + 1, 3).setValue(newHash + ':' + salt);
-      Logger.log(`Migrated: ${username}`);
-    }
-  }
-}
-```
-
 ## Troubleshooting
 
-### Problem: "Account locked" error
-**Solution:** User exceeded max login attempts. Wait 15 minutes or manually clear:
+**Account locked?**
+Manually clear in AuditLog sheet:
 ```javascript
-sheet.getRange(row, 9).setValue(''); // Clear lockout time
-sheet.getRange(row, 7).setValue(0);  // Reset attempts
+sheet.getRange(row, 9).setValue('');
+sheet.getRange(row, 7).setValue(0);
 ```
 
-### Problem: Audit logs not appearing
-**Solution:** Ensure AuditLog sheet exists with correct name and ENABLE_AUDIT_LOG is true.
+**Audit logs not showing?**
+Ensure AuditLog sheet exists with correct name.
 
-### Problem: Tokens expiring too quickly
-**Solution:** Increase SESSION_TIMEOUT_MS in SECURITY_CONFIG.
-
-## Support
-
-For security issues:
-1. Review audit logs in AuditLog sheet
-2. Check Apps Script execution logs
-3. Enable Logger.log() for debugging
+**Tokens expiring too fast?**
+Increase SESSION_TIMEOUT_MS in SECURITY_CONFIG.
 
 ---
 
-**Last Updated:** 2026-07-19
-**Security Level:** 🟢 ENHANCED
+**Security Level:** 🟢 ENHANCED (Enterprise-Grade)

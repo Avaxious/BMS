@@ -45,11 +45,6 @@ const SECURITY_CONFIG = {
  * Generate cryptographically secure random token
  */
 function generateSecureToken(length = 32) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let token = '';
-  for (let i = 0; i < length; i++) {
-    token += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
   return 'tok_' + Utilities.getUuid().replace(/-/g, '');
 }
 
@@ -89,10 +84,8 @@ function hexToBytes(hex) {
 
 /**
  * Hash password using PBKDF2 (Apps Script native)
- * Note: Apps Script doesn't have native PBKDF2, so we use SHA-256 with iterations
  */
 function hashPasswordPBKDF2(password, salt) {
-  // Create PBKDF2 hash by iterating SHA-256
   let hash = password + salt;
   for (let i = 0; i < SECURITY_CONFIG.PBKDF2_ITERATIONS; i++) {
     hash = Utilities.computeDigest(
@@ -106,7 +99,7 @@ function hashPasswordPBKDF2(password, salt) {
 }
 
 /**
- * Check if user is locked out due to failed login attempts
+ * Check if user is locked out
  */
 function isUserLockedOut(username) {
   const usersSheet = SpreadsheetApp.openById(SECURITY_CONFIG.USERS_SHEET_ID)
@@ -150,7 +143,7 @@ function recordFailedLoginAttempt(username) {
 }
 
 /**
- * Clear failed login attempts on successful login
+ * Clear failed login attempts
  */
 function clearFailedLoginAttempts(username) {
   const usersSheet = SpreadsheetApp.openById(SECURITY_CONFIG.USERS_SHEET_ID)
@@ -159,15 +152,15 @@ function clearFailedLoginAttempts(username) {
   
   for (let i = 1; i < data.length; i++) {
     if (String(data[i][0]).trim() === username) {
-      usersSheet.getRange(i + 1, 7).setValue(0);       // Reset attempts
-      usersSheet.getRange(i + 1, 9).setValue('');      // Clear lockout time
+      usersSheet.getRange(i + 1, 7).setValue(0);
+      usersSheet.getRange(i + 1, 9).setValue('');
       break;
     }
   }
 }
 
 /**
- * Validate token and check expiry
+ * Validate token with expiry
  */
 function validateTokenWithExpiry(token) {
   const usersSheet = SpreadsheetApp.openById(SECURITY_CONFIG.USERS_SHEET_ID)
@@ -179,13 +172,11 @@ function validateTokenWithExpiry(token) {
       const expiry = new Date(data[i][4]);
       const createdAt = data[i][7] ? new Date(data[i][7]) : null;
       
-      // Check expiry
       if (isNaN(expiry.getTime()) || expiry <= new Date()) {
         logSecurityEvent('TOKEN_EXPIRED', data[i][0], 'Token expired');
         return {valid: false, reason: 'expired'};
       }
       
-      // Check session duration (max 30 min from creation)
       if (createdAt && (new Date().getTime() - createdAt.getTime()) > SECURITY_CONFIG.SESSION_TIMEOUT_MS) {
         usersSheet.getRange(i + 1, 4).setValue('');
         usersSheet.getRange(i + 1, 5).setValue('');
@@ -202,7 +193,7 @@ function validateTokenWithExpiry(token) {
 }
 
 /**
- * Log security events to Audit sheet
+ * Log security events
  */
 function logSecurityEvent(eventType, username, details) {
   if (!SECURITY_CONFIG.ENABLE_AUDIT_LOG) return;
@@ -211,19 +202,15 @@ function logSecurityEvent(eventType, username, details) {
     const auditSheet = SpreadsheetApp.openById(SECURITY_CONFIG.USERS_SHEET_ID)
       .getSheetByName('AuditLog');
     
-    const clientIp = 'N/A'; // Get from request headers if available
-    const userAgent = 'N/A';
-    
     auditSheet.appendRow([
       new Date().toISOString(),
       eventType,
       username,
       details,
-      clientIp,
-      userAgent
+      'N/A',
+      'N/A'
     ]);
     
-    // Cleanup old logs (older than 90 days)
     cleanupOldAuditLogs(auditSheet);
   } catch (e) {
     Logger.log('Audit logging failed: ' + e.message);
@@ -231,7 +218,7 @@ function logSecurityEvent(eventType, username, details) {
 }
 
 /**
- * Remove old audit logs
+ * Cleanup old audit logs
  */
 function cleanupOldAuditLogs(auditSheet) {
   const cutoffDate = new Date();
@@ -247,21 +234,8 @@ function cleanupOldAuditLogs(auditSheet) {
     }
   }
   
-  // Delete rows (from bottom to top)
   rowsToDelete.reverse();
   for (let row of rowsToDelete) {
     auditSheet.deleteRow(row);
   }
-}
-
-/**
- * Apply security headers to response
- */
-function addSecurityHeaders(output) {
-  return output
-    .addHeader('X-Frame-Options', 'DENY')
-    .addHeader('X-Content-Type-Options', 'nosniff')
-    .addHeader('X-XSS-Protection', '1; mode=block')
-    .addHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
-    .addHeader('Content-Security-Policy', "default-src 'self'");
 }

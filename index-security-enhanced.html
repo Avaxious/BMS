@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title>داشبورد عملیات دریایی | Blue Calm Marine — Vessel Checking (Secure)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: Vazirmatn, system-ui; background: #071523; color: #EAF1F8; direction: rtl; }
   .splash-screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(7,21,35,.95); z-index: 999; }
   .login-box { background: linear-gradient(160deg, #123350, #0B2036); border: 1px solid rgba(140,182,219,.14); border-radius: 20px; padding: 40px; max-width: 400px; text-align: center; }
@@ -16,17 +18,18 @@
   .login-box input:focus { border-color: #22C0AE; outline: none; }
   .login-box button { width: 100%; padding: 12px; margin: 20px 0; background: linear-gradient(135deg, #22C0AE, #0d7e72); color: #04150f; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
   .login-box button:hover { filter: brightness(1.08); }
+  .login-box button:disabled { opacity: 0.6; cursor: not-allowed; }
   .login-box .error { color: #E5654A; font-size: 12px; margin-top: 10px; display: none; }
   .security-info { font-size: 11px; color: #5D7893; margin-top: 20px; padding: 10px; background: rgba(34,192,174,.08); border-radius: 8px; border-left: 3px solid #22C0AE; }
-  .content { display: none; }
+  .content { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
 </style>
 </head>
 <body>
 
-<!-- Enhanced Login Screen -->
+<!-- Login Screen -->
 <div id="splash" class="splash-screen">
   <div class="login-box">
-    <h1>🔐 Blue Calm Marine</h1>
+    <h1>🔒 Blue Calm Marine</h1>
     <div class="subtitle">Secure Vessel Dashboard</div>
     
     <input type="text" id="username" placeholder="نام کاربری" autocomplete="username">
@@ -37,16 +40,16 @@
     <div class="error" id="loginError">❌ <span id="errorMsg">خطای ورود</span></div>
     
     <div class="security-info">
-      <strong>🔒 امنیت:</strong><br>
+      <strong>🔐 امنیت:</strong><br>
       ✅ رمز گذاری PBKDF2<br>
-      ✅ توکن ایمن HttpOnly<br>
+      ✅ توکن ایمن SessionStorage<br>
       ✅ محدودیت نرخ درخواست<br>
       ✅ نظارت امنیتی
     </div>
   </div>
 </div>
 
-<!-- Main Content (hidden initially) -->
+<!-- Main Content -->
 <div id="content" class="content">
   <h1>داشبورد</h1>
   <p>محتوای داشبورد اینجا نمایش داده می‌شود...</p>
@@ -54,15 +57,13 @@
 </div>
 
 <script>
-// ============================================================
-// SECURITY: Enhanced Frontend with HttpOnly Cookie Support
-// ============================================================
+// Enhanced Frontend Security
 
 const LOGIN_PROXY_URL = 'https://script.google.com/macros/s/AKfycbygAEpxb_igwQ-_bneek08MGYoi60kCXt_vfPktWkQbcrA_4wI3vnK4YGPxZ0wWW4U3/exec';
 const DATA_PROXY_URL = 'https://script.google.com/macros/s/AKfycbyhpPC78t9utPvZ0blWZ9k1ocKImNGXcGFitdM4zRx5tF2JL_UuJlY54qQ3F_a6u4xu/exec';
 
 /**
- * SHA-256 hash (client-side, before sending to server)
+ * SHA-256 hash (client-side)
  */
 async function sha256(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
@@ -72,7 +73,7 @@ async function sha256(str) {
 }
 
 /**
- * Handle login with PBKDF2 hashing
+ * Handle login
  */
 async function handleLogin() {
   const username = document.getElementById('username').value.trim();
@@ -92,31 +93,25 @@ async function handleLogin() {
   errorDiv.style.display = 'none';
   
   try {
-    // Hash password client-side
     const hash = await sha256(password);
     
-    // Send login request
     const response = await fetch(LOGIN_PROXY_URL, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      credentials: 'include', // Include cookies (if using HttpOnly)
+      credentials: 'include',
       body: JSON.stringify({action: 'login', user: username, hash: hash})
     });
     
     const result = await response.json();
     
     if (result.ok && result.token) {
-      // Store token securely
-      // Note: In production, use HttpOnly cookies set by server
       sessionStorage.setItem('bms_token', result.token);
       sessionStorage.setItem('bms_username', username);
       sessionStorage.setItem('bms_expires_at', Date.now() + result.expires_in);
       
-      // Show content
       document.getElementById('splash').style.display = 'none';
       document.getElementById('content').style.display = 'block';
       
-      // Load data
       await loadDashboardData();
     } else {
       errorMsg.textContent = result.error || 'خطای ورود';
@@ -135,7 +130,7 @@ async function handleLogin() {
 }
 
 /**
- * Load dashboard data with token
+ * Load data
  */
 async function loadDashboardData() {
   const token = sessionStorage.getItem('bms_token');
@@ -151,11 +146,9 @@ async function loadDashboardData() {
     const result = await response.json();
     
     if (result.ok && result.data) {
-      // Decrypt/process data
       console.log('Data loaded successfully');
-      // Parse CSV and render dashboard
     } else {
-      console.error('Data load error:', result.error);
+      console.error('Data error:', result.error);
     }
   } catch (err) {
     console.error('Data load error:', err);
@@ -168,26 +161,25 @@ async function loadDashboardData() {
 function handleLogout() {
   const token = sessionStorage.getItem('bms_token');
   
-  // Notify server
   fetch(LOGIN_PROXY_URL + '?action=logout&token=' + encodeURIComponent(token));
   
-  // Clear session
   sessionStorage.clear();
   
-  // Show login
   document.getElementById('splash').style.display = 'flex';
   document.getElementById('content').style.display = 'none';
+  
+  document.getElementById('username').value = '';
+  document.getElementById('password').value = '';
 }
 
 /**
- * Check token expiry on page load
+ * Check token on load
  */
 window.addEventListener('load', function() {
   const token = sessionStorage.getItem('bms_token');
   const expiresAt = sessionStorage.getItem('bms_expires_at');
   
   if (token && expiresAt && Date.now() < parseInt(expiresAt)) {
-    // Token still valid, show dashboard
     document.getElementById('splash').style.display = 'none';
     document.getElementById('content').style.display = 'block';
     loadDashboardData();
@@ -195,14 +187,14 @@ window.addEventListener('load', function() {
 });
 
 /**
- * Security: Listen for token expiry
+ * Monitor token expiry
  */
 setInterval(function() {
   const expiresAt = sessionStorage.getItem('bms_expires_at');
   if (expiresAt && Date.now() >= parseInt(expiresAt)) {
     handleLogout();
   }
-}, 60000); // Check every minute
+}, 60000);
 </script>
 
 </body>

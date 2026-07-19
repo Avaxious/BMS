@@ -4,7 +4,7 @@
  */
 
 const DATA_SHEET_ID = '1rct6063UB1M3gXuuU6NmTYqqnvurn6pQ';
-const REQUEST_CACHE = {}; // Track requests for rate limiting
+const REQUEST_CACHE = {};
 
 function doPost(e) {
   try {
@@ -19,20 +19,17 @@ function doPost(e) {
     
     if (!token) return forbidden('No token provided');
     
-    // Validate token
     const validation = validateTokenWithExpiry(token);
     if (!validation.valid) {
       logSecurityEvent('DATA_UNAUTHORIZED_ACCESS', 'UNKNOWN', 'Invalid token: ' + validation.reason);
       return forbidden('Invalid token: ' + validation.reason);
     }
     
-    // Check rate limiting
     if (!checkRateLimit(validation.username)) {
       logSecurityEvent('RATE_LIMIT_EXCEEDED', validation.username, 'Data request rate limit exceeded');
       return error('Rate limit exceeded. Max ' + SECURITY_CONFIG.RATE_LIMIT_MAX_REQUESTS + ' requests per ' + (SECURITY_CONFIG.RATE_LIMIT_WINDOW / 60000) + ' minutes');
     }
     
-    // Serve encrypted data
     return serveEncryptedData(validation.username);
   } catch (err) {
     logSecurityEvent('DATA_PROXY_ERROR', 'SYSTEM', err.message);
@@ -45,25 +42,22 @@ function doGet(e) {
   
   if (!token) return forbidden('No token provided');
   
-  // Validate token
   const validation = validateTokenWithExpiry(token);
   if (!validation.valid) {
     logSecurityEvent('DATA_UNAUTHORIZED_ACCESS', 'UNKNOWN', 'Invalid token: ' + validation.reason);
     return forbidden('Invalid token: ' + validation.reason);
   }
   
-  // Check rate limiting
   if (!checkRateLimit(validation.username)) {
     logSecurityEvent('RATE_LIMIT_EXCEEDED', validation.username, 'Data request rate limit exceeded');
     return error('Rate limit exceeded');
   }
   
-  // Serve encrypted data
   return serveEncryptedData(validation.username);
 }
 
 /**
- * Serve data as encrypted CSV
+ * Serve encrypted data
  */
 function serveEncryptedData(username) {
   try {
@@ -81,7 +75,6 @@ function serveEncryptedData(username) {
       return notFound('No data available');
     }
     
-    // Convert to CSV
     let csv = '';
     for (let r = 0; r < data.length; r++) {
       const row = data[r];
@@ -98,7 +91,6 @@ function serveEncryptedData(username) {
       csv += vals.join(',') + '\n';
     }
     
-    // Encrypt CSV (client will decrypt with password)
     const encryptedData = encryptDataForTransmission(csv);
     
     logSecurityEvent('DATA_EXPORTED', username, 'Data exported successfully');
@@ -118,17 +110,15 @@ function serveEncryptedData(username) {
 }
 
 /**
- * Simple encryption for transmission (client has the key)
+ * Encrypt for transmission
  */
 function encryptDataForTransmission(plaintext) {
-  // Note: Since Apps Script doesn't have native AES-GCM, we use Base64 encoding
-  // Client-side decryption is recommended for sensitive data
   const encoded = Utilities.base64Encode(plaintext);
   return encoded;
 }
 
 /**
- * Rate limiting check (in-memory cache)
+ * Rate limiting
  */
 function checkRateLimit(username) {
   const now = Date.now();
@@ -139,37 +129,27 @@ function checkRateLimit(username) {
   }
   
   const cache = REQUEST_CACHE[key];
-  
-  // Clean old requests
   cache.requests = cache.requests.filter(t => now - t < SECURITY_CONFIG.RATE_LIMIT_WINDOW);
   
-  // Check limit
   if (cache.requests.length >= SECURITY_CONFIG.RATE_LIMIT_MAX_REQUESTS) {
     return false;
   }
   
-  // Add new request
   cache.requests.push(now);
   return true;
 }
 
-/**
- * Response helpers
- */
 function forbidden(msg) {
   return ContentService.createTextOutput(JSON.stringify({ok: false, error: msg || 'Forbidden'}))
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHttpHeaders({HttpHeaders: {'X-Status': '403'}});
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function notFound(msg) {
   return ContentService.createTextOutput(JSON.stringify({ok: false, error: msg || 'Not found'}))
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHttpHeaders({HttpHeaders: {'X-Status': '404'}});
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function error(msg) {
   return ContentService.createTextOutput(JSON.stringify({ok: false, error: msg || 'Error'}))
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHttpHeaders({HttpHeaders: {'X-Status': '500'}});
+    .setMimeType(ContentService.MimeType.JSON);
 }
