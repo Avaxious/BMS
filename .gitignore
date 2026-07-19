@@ -1,4 +1,11 @@
-.github_token
+.env
+.env.local
+.env.*.local
 *.enc
 data.xlsx
 data.xlsm
+*.DS_Store
+node_modules/
+.idea/
+*.log
+audit_*.backup

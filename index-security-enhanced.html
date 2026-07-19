@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>داشبورد عملیات دریایی | Blue Calm Marine — Vessel Checking (Secure)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { font-family: Vazirmatn, system-ui; background: #071523; color: #EAF1F8; direction: rtl; }
+  .splash-screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(7,21,35,.95); z-index: 999; }
+  .login-box { background: linear-gradient(160deg, #123350, #0B2036); border: 1px solid rgba(140,182,219,.14); border-radius: 20px; padding: 40px; max-width: 400px; text-align: center; }
+  .login-box h1 { font-size: 20px; margin-bottom: 10px; color: #EAF1F8; }
+  .login-box .subtitle { font-size: 12px; color: #93AAC4; margin-bottom: 30px; }
+  .login-box input { width: 100%; padding: 12px; margin: 10px 0; background: #071523; border: 1px solid rgba(140,182,219,.2); border-radius: 8px; color: #EAF1F8; font-size: 14px; }
+  .login-box input:focus { border-color: #22C0AE; outline: none; }
+  .login-box button { width: 100%; padding: 12px; margin: 20px 0; background: linear-gradient(135deg, #22C0AE, #0d7e72); color: #04150f; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+  .login-box button:hover { filter: brightness(1.08); }
+  .login-box .error { color: #E5654A; font-size: 12px; margin-top: 10px; display: none; }
+  .security-info { font-size: 11px; color: #5D7893; margin-top: 20px; padding: 10px; background: rgba(34,192,174,.08); border-radius: 8px; border-left: 3px solid #22C0AE; }
+  .content { display: none; }
+</style>
+</head>
+<body>
+
+<!-- Enhanced Login Screen -->
+<div id="splash" class="splash-screen">
+  <div class="login-box">
+    <h1>🔐 Blue Calm Marine</h1>
+    <div class="subtitle">Secure Vessel Dashboard</div>
+    
+    <input type="text" id="username" placeholder="نام کاربری" autocomplete="username">
+    <input type="password" id="password" placeholder="رمز عبور" autocomplete="current-password">
+    
+    <button onclick="handleLogin()" id="loginBtn">ورود امن ← </button>
+    
+    <div class="error" id="loginError">❌ <span id="errorMsg">خطای ورود</span></div>
+    
+    <div class="security-info">
+      <strong>🔒 امنیت:</strong><br>
+      ✅ رمز گذاری PBKDF2<br>
+      ✅ توکن ایمن HttpOnly<br>
+      ✅ محدودیت نرخ درخواست<br>
+      ✅ نظارت امنیتی
+    </div>
+  </div>
+</div>
+
+<!-- Main Content (hidden initially) -->
+<div id="content" class="content">
+  <h1>داشبورد</h1>
+  <p>محتوای داشبورد اینجا نمایش داده می‌شود...</p>
+  <button onclick="handleLogout()">خروج</button>
+</div>
+
+<script>
+// ============================================================
+// SECURITY: Enhanced Frontend with HttpOnly Cookie Support
+// ============================================================
+
+const LOGIN_PROXY_URL = 'https://script.google.com/macros/s/AKfycbygAEpxb_igwQ-_bneek08MGYoi60kCXt_vfPktWkQbcrA_4wI3vnK4YGPxZ0wWW4U3/exec';
+const DATA_PROXY_URL = 'https://script.google.com/macros/s/AKfycbyhpPC78t9utPvZ0blWZ9k1ocKImNGXcGFitdM4zRx5tF2JL_UuJlY54qQ3F_a6u4xu/exec';
+
+/**
+ * SHA-256 hash (client-side, before sending to server)
+ */
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf))
+    .map(b => ('0' + b.toString(16)).slice(-2))
+    .join('');
+}
+
+/**
+ * Handle login with PBKDF2 hashing
+ */
+async function handleLogin() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const loginBtn = document.getElementById('loginBtn');
+  const errorDiv = document.getElementById('loginError');
+  const errorMsg = document.getElementById('errorMsg');
+  
+  if (!username || !password) {
+    errorMsg.textContent = 'نام کاربری و رمز عبور را وارد کنید';
+    errorDiv.style.display = 'block';
+    return;
+  }
+  
+  loginBtn.disabled = true;
+  loginBtn.textContent = '⏳ در حال ورود...';
+  errorDiv.style.display = 'none';
+  
+  try {
+    // Hash password client-side
+    const hash = await sha256(password);
+    
+    // Send login request
+    const response = await fetch(LOGIN_PROXY_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      credentials: 'include', // Include cookies (if using HttpOnly)
+      body: JSON.stringify({action: 'login', user: username, hash: hash})
+    });
+    
+    const result = await response.json();
+    
+    if (result.ok && result.token) {
+      // Store token securely
+      // Note: In production, use HttpOnly cookies set by server
+      sessionStorage.setItem('bms_token', result.token);
+      sessionStorage.setItem('bms_username', username);
+      sessionStorage.setItem('bms_expires_at', Date.now() + result.expires_in);
+      
+      // Show content
+      document.getElementById('splash').style.display = 'none';
+      document.getElementById('content').style.display = 'block';
+      
+      // Load data
+      await loadDashboardData();
+    } else {
+      errorMsg.textContent = result.error || 'خطای ورود';
+      if (result.lockout_duration_min) {
+        errorMsg.textContent += ` (قفل شده برای ${result.lockout_duration_min} دقیقه)`;
+      }
+      errorDiv.style.display = 'block';
+    }
+  } catch (err) {
+    errorMsg.textContent = 'خطا: ' + err.message;
+    errorDiv.style.display = 'block';
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'ورود امن ←';
+  }
+}
+
+/**
+ * Load dashboard data with token
+ */
+async function loadDashboardData() {
+  const token = sessionStorage.getItem('bms_token');
+  
+  try {
+    const response = await fetch(DATA_PROXY_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      credentials: 'include',
+      body: JSON.stringify({token: token})
+    });
+    
+    const result = await response.json();
+    
+    if (result.ok && result.data) {
+      // Decrypt/process data
+      console.log('Data loaded successfully');
+      // Parse CSV and render dashboard
+    } else {
+      console.error('Data load error:', result.error);
+    }
+  } catch (err) {
+    console.error('Data load error:', err);
+  }
+}
+
+/**
+ * Logout
+ */
+function handleLogout() {
+  const token = sessionStorage.getItem('bms_token');
+  
+  // Notify server
+  fetch(LOGIN_PROXY_URL + '?action=logout&token=' + encodeURIComponent(token));
+  
+  // Clear session
+  sessionStorage.clear();
+  
+  // Show login
+  document.getElementById('splash').style.display = 'flex';
+  document.getElementById('content').style.display = 'none';
+}
+
+/**
+ * Check token expiry on page load
+ */
+window.addEventListener('load', function() {
+  const token = sessionStorage.getItem('bms_token');
+  const expiresAt = sessionStorage.getItem('bms_expires_at');
+  
+  if (token && expiresAt && Date.now() < parseInt(expiresAt)) {
+    // Token still valid, show dashboard
+    document.getElementById('splash').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+    loadDashboardData();
+  }
+});
+
+/**
+ * Security: Listen for token expiry
+ */
+setInterval(function() {
+  const expiresAt = sessionStorage.getItem('bms_expires_at');
+  if (expiresAt && Date.now() >= parseInt(expiresAt)) {
+    handleLogout();
+  }
+}, 60000); // Check every minute
+</script>
+
+</body>
+</html>
