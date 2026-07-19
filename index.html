@@ -1481,7 +1481,7 @@ function toggleTheme(){
   if(t&&(Date.now()-parseInt(t))<18e5){
     var u=localStorage.getItem('bms_username');
     var tok=localStorage.getItem('bms_token');
-    if(u&&tok){document.getElementById('userDisplay').textContent=u;document.getElementById('welcomeUser').style.display='';}
+    if(u&&tok){document.getElementById('userDisplay').textContent=u;document.getElementById('welcomeUser').style.display='';document.getElementById('splash').classList.remove('show');}
     document.getElementById('timerChip').style.display='';
     updateTimer();_timerInterval=setInterval(updateTimer,1000);
   }
