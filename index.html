@@ -1106,7 +1106,18 @@ function parseRows(rows){
     if(dateRaw!=null&&dateRaw!==''){
       if(dateRaw instanceof Date&&!isNaN(dateRaw.getTime()))arrvDate=dateRaw;
       else if(typeof dateRaw==='number'&&dateRaw>40000)arrvDate=new Date((dateRaw-25569)*86400000);
-      else if(typeof dateRaw==='string'&&dateRaw.match(/^\d{4}-\d{2}-\d{2}/))arrvDate=new Date(dateRaw.slice(0,10)+'T00:00:00Z');
+      else if(typeof dateRaw==='string'){
+        if(dateRaw.match(/^\d{4}-\d{2}-\d{2}/))arrvDate=new Date(dateRaw.slice(0,10)+'T00:00:00Z');
+        else{
+          var numVal=Number(dateRaw);
+          if(!isNaN(numVal)&&numVal>40000&&numVal<60000)arrvDate=new Date((numVal-25569)*86400000);
+        }
+        if(!arrvDate&&dateRaw.match(/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/)){
+          var parts=dateRaw.split(/[\/\-]/);
+          var y=parseInt(parts[2]);if(y<100)y+=2000;
+          arrvDate=new Date(y,parseInt(parts[1])-1,parseInt(parts[0]));
+        }
+      }
       if(arrvDate&&isNaN(arrvDate.getTime()))arrvDate=null;
     }
     if(caravan!=null&&caravan!=='')lastCaravan=caravan;
