@@ -16,10 +16,7 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  var token = (e.parameter.token || '').trim();
-  if (!token) return forbidden();
-  if (!validateToken(token)) return forbidden();
-  return serveData();
+  return forbidden();
 }
 
 function validateToken(token) {
