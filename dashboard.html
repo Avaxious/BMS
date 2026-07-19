@@ -174,6 +174,15 @@
   .progBar .fill{height:100%;width:0%;background:var(--teal);border-radius:2px;transition:width .3s;}
   @media (max-width:900px){.grid-3{grid-template-columns:1fr 1fr;}.cmp-grid{grid-template-columns:1fr 1fr;}}
   @media (max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.grid-2{grid-template-columns:1fr;}.grid-3{grid-template-columns:1fr;}.header-inner{padding:14px 16px;}.wrap{padding:20px 16px 0;}.frow{flex-direction:column;}.fg{min-width:100%;}.cmp-grid{grid-template-columns:1fr;}.board-search input{font-size:13px;}.board-scroll{overflow-x:auto;}.board-scroll table{font-size:9px;}table.contab{font-size:9px;}table.contab thead th,table.contab tbody td{padding:4px 5px;white-space:nowrap;}.header-status{gap:6px;}}
+  .multi-sel{position:relative;}
+  .multi-sel .ms-btn{width:100%;padding:6px 8px;background:var(--navy-deep);border:1px solid var(--panel-border);border-radius:6px;color:var(--text);font-size:11px;font-family:var(--mono);cursor:pointer;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:30px;}
+  .multi-sel .ms-btn:after{content:'▾';float:left;margin-left:4px;color:var(--text-faint);}
+  .multi-sel .ms-panel{display:none;position:absolute;top:100%;left:0;right:0;z-index:100;background:var(--navy);border:1px solid var(--panel-border);border-radius:6px;max-height:200px;overflow-y:auto;margin-top:2px;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+  .multi-sel.open .ms-panel{display:block;}
+  .multi-sel .ms-panel label{display:flex;align-items:center;gap:6px;padding:5px 8px;font-size:10.5px;color:var(--text-dim);cursor:pointer;font-family:var(--mono);}
+  .multi-sel .ms-panel label:hover{background:rgba(34,192,174,.08);color:var(--text);}
+  .multi-sel .ms-panel label input{accent-color:var(--teal);}
+  .multi-sel .ms-panel .ms-search{width:calc(100% - 12px);margin:6px;padding:5px 8px;background:var(--navy-deep);border:1px solid var(--panel-border);border-radius:4px;color:var(--text);font-size:10px;font-family:var(--mono);outline:none;}
 </style>
 </head>
 <body>
@@ -191,7 +200,7 @@
     <div class="footer">Blue Calm Marine — Vessel Checking</div>
   </div>
 </div>
-<script>(function(){var t=localStorage.getItem('bms_logintime');var tok=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))<18e5&&tok){document.getElementById('splash').classList.remove('show');fetch('https://script.google.com/macros/s/AKfycbygAEpxb_igwQ-_bneek08MGYoi60kCXt_vfPktWkQbcrA_4wI3vnK4YGPxZ0wWW4U3/exec?action=validate&token='+encodeURIComponent(tok),{signal:AbortSignal.timeout(5000)}).then(function(r){return r.json();}).then(function(d){if(!d.ok){localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');document.getElementById('splash').classList.add('show');}}).catch(function(){});}else{localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');localStorage.removeItem('bms_migrated');document.getElementById('splash').classList.add('show');}document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});})();</script>
+<script>(function(){var t=localStorage.getItem('bms_logintime');var tok=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))<18e5&&tok){document.getElementById('splash').classList.remove('show');fetch('https://script.google.com/macros/s/AKfycbygAEpxb_igwQ-_bneek08MGYoi60kCXt_vfPktWkQbcrA_4wI3vnK4YGPxZ0wWW4U3/exec',{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'validate',token:tok}),signal:AbortSignal.timeout(5000)}).then(function(r){return r.json();}).then(function(d){if(!d.ok){localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');document.getElementById('splash').classList.add('show');}}).catch(function(){});}else{localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');localStorage.removeItem('bms_migrated');document.getElementById('splash').classList.add('show');}document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});})();</script>
 <div id="dropOverlay"><div class="box">📄 فایل اکسل را همین‌جا رها کنید<small>Vessel Checking sheet به‌طور خودکار خوانده و تحلیل می‌شود</small></div></div>
 <div id="toast"></div>
 <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls" style="display:none">
@@ -229,13 +238,21 @@
 
   <!-- Filter Bar -->
   <div class="fbar">
+    <div class="frow" style="margin-bottom:6px">
+      <button class="btn" onclick="setDatePreset('today')" style="font-size:10px;padding:4px 10px;">امروز</button>
+      <button class="btn" onclick="setDatePreset('7days')" style="font-size:10px;padding:4px 10px;">۷ روز اخیر</button>
+      <button class="btn" onclick="setDatePreset('30days')" style="font-size:10px;padding:4px 10px;">۳۰ روز اخیر</button>
+      <button class="btn" onclick="setDatePreset('month')" style="font-size:10px;padding:4px 10px;">این ماه</button>
+      <button class="btn" onclick="setDatePreset('quarter')" style="font-size:10px;padding:4px 10px;">این فصل</button>
+      <button class="btn" onclick="setDatePreset('year')" style="font-size:10px;padding:4px 10px;">امسال</button>
+    </div>
     <div class="frow">
       <div class="fg"><label>از تاریخ (Arrv Date)</label><input type="date" id="fltFrom" onchange="onDateChange()"></div>
       <div class="fg"><label>تا تاریخ</label><input type="date" id="fltTo" onchange="onDateChange()"></div>
-      <div class="fg"><label>POL FORWARDER</label><select id="cb-fwd" onchange="filterSelect(0)"><option value="">همه</option></select></div>
-      <div class="fg"><label>POL</label><select id="cb-pol" onchange="filterSelect(1)"><option value="">همه</option></select></div>
-      <div class="fg"><label>LINE</label><select id="cb-line" onchange="filterSelect(2)"><option value="">همه</option></select></div>
-      <div class="fg"><label>IRAN AGENT</label><select id="cb-agent" onchange="filterSelect(3)"><option value="">همه</option></select></div>
+      <div class="fg"><label>POL FORWARDER</label><div class="multi-sel" id="ms-fwd"><div class="ms-btn" onclick="toggleMs(this)">همه</div><div class="ms-panel"><input class="ms-search" placeholder="جستجو..." oninput="filterMsOptions(this)"></div></div></div>
+      <div class="fg"><label>POL</label><div class="multi-sel" id="ms-pol"><div class="ms-btn" onclick="toggleMs(this)">همه</div><div class="ms-panel"><input class="ms-search" placeholder="جستجو..." oninput="filterMsOptions(this)"></div></div></div>
+      <div class="fg"><label>LINE</label><div class="multi-sel" id="ms-line"><div class="ms-btn" onclick="toggleMs(this)">همه</div><div class="ms-panel"><input class="ms-search" placeholder="جستجو..." oninput="filterMsOptions(this)"></div></div></div>
+      <div class="fg"><label>IRAN AGENT</label><div class="multi-sel" id="ms-agent"><div class="ms-btn" onclick="toggleMs(this)">همه</div><div class="ms-panel"><input class="ms-search" placeholder="جستجو..." oninput="filterMsOptions(this)"></div></div></div>
     </div>
     <div class="fbar-actions">
       <button class="btn" onclick="resetFilters()" style="font-size:10px;">↺ بازنشانی فیلترها</button>
@@ -351,6 +368,8 @@ var LOGIN_PROXY_URL = 'https://script.google.com/macros/s/AKfycbygAEpxb_igwQ-_bn
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 async function sha256(str){var enc=new TextEncoder().encode(str);var buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
+function debounce(fn,delay){var t;return function(){clearTimeout(t);t=setTimeout(fn,delay);};}
+var _debouncedRefresh=debounce(function(){refreshDashboard();},200);
 
 /* ============================================================
    1) DEFAULT SNAPSHOT
@@ -822,14 +841,59 @@ function renderContainerList(records){
    5) FILTER UI
    ============================================================ */
 var filterKeys=['fwd','pol','line','agent'];
-var filterIds=['cb-fwd','cb-pol','cb-line','cb-agent'];
+var filterIds=['ms-fwd','ms-pol','ms-line','ms-agent'];
 
-function filterSelect(i){
-  var key=filterKeys[i];
-  var sel=document.getElementById(filterIds[i]);
-  var v=sel.value;
-  if(v){activeFilters[key]=[v];}else{activeFilters[key]=[];}
-  refreshDashboard();
+function toggleMs(btn){
+  var ms=btn.parentElement;
+  var isOpen=ms.classList.toggle('open');
+  if(isOpen){
+    var panel=ms.querySelector('.ms-panel');
+    var search=panel.querySelector('.ms-search');
+    if(search)search.value='';
+    filterMsOptions(search);
+    setTimeout(function(){if(search)search.focus();},50);
+  }
+}
+function filterMsOptions(searchInput){
+  var panel=searchInput.parentElement;
+  var q=searchInput.value.toLowerCase();
+  panel.querySelectorAll('label').forEach(function(l){
+    var txt=l.textContent.toLowerCase();
+    l.style.display=txt.indexOf(q)!==-1?'':'none';
+  });
+}
+function toggleMsOption(checkbox,key){
+  var panel=checkbox.closest('.ms-panel');
+  var selected=[];
+  panel.querySelectorAll('input[type=checkbox]:checked').forEach(function(cb){selected.push(cb.value);});
+  activeFilters[key]=selected;
+  var btn=checkbox.closest('.multi-sel').querySelector('.ms-btn');
+  btn.textContent=selected.length?selected.join(', '):'همه';
+  _debouncedRefresh();
+}
+function closeAllMs(){
+  document.querySelectorAll('.multi-sel.open').forEach(function(ms){ms.classList.remove('open');});
+}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.multi-sel'))closeAllMs();
+});
+function buildMsOptions(){
+  filterKeys.forEach(function(key,i){
+    var sel=document.getElementById(filterIds[i]);
+    if(!sel)return;
+    var panel=sel.querySelector('.ms-panel');
+    var search=panel.querySelector('.ms-search');
+    var s=new Set();
+    rawRecords.forEach(function(r){if(r[key])s.add(r[key]);});
+    var vals=Array.from(s).sort();
+    var html='';
+    vals.forEach(function(v){
+      html+='<label><input type="checkbox" value="'+esc(v)+'" onchange="toggleMsOption(this,\''+key+'\')">'+esc(v)+'</label>';
+    });
+    panel.innerHTML='';
+    panel.appendChild(search);
+    panel.insertAdjacentHTML('beforeend',html);
+  });
 }
 
 function initFilters(){
@@ -843,13 +907,7 @@ function initFilters(){
   var now=new Date();var firstOfMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
   document.getElementById('fltFrom').value=firstOfMonth;
   document.getElementById('fltTo').value=today;
-  ['pol_forwarder','pol','line','iran_agent'].forEach(function(key,i){
-    var s=new Set();rawRecords.forEach(function(r){if(r[key])s.add(r[key]);});
-    var vals=Array.from(s).sort();
-    var sel=document.getElementById(filterIds[i]);
-    sel.innerHTML='<option value="">همه</option>';
-    vals.forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
-  });
+  buildMsOptions();
   updateFilterOptions();
   var y=String(today.slice(0,4));var m=today.slice(5,7);
   document.getElementById('c1s').value=firstOfMonth;
@@ -860,15 +918,31 @@ function initFilters(){
 
 function resetFilters(){
   activeFilters={fwd:[],pol:[],line:[],agent:[]};
-  filterIds.forEach(function(id){document.getElementById(id).value='';});
+  document.querySelectorAll('.multi-sel .ms-btn').forEach(function(btn){btn.textContent='همه';});
+  document.querySelectorAll('.multi-sel input[type=checkbox]').forEach(function(cb){cb.checked=false;});
   var now=new Date();var today=fmtDate(now);var firstOfMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
   document.getElementById('fltFrom').value=firstOfMonth;
   document.getElementById('fltTo').value=today;
   updateFilterOptions();
-  refreshDashboard();
+  _debouncedRefresh();
 }
 
-function onDateChange(){updateFilterOptions();refreshDashboard();}
+function onDateChange(){updateFilterOptions();_debouncedRefresh();}
+function setDatePreset(preset){
+  var now=new Date();
+  var fmt=function(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+  var from,to=fmt(now);
+  if(preset==='today'){from=to;}
+  else if(preset==='7days'){var d=new Date(now);d.setDate(d.getDate()-7);from=fmt(d);}
+  else if(preset==='30days'){var d=new Date(now);d.setDate(d.getDate()-30);from=fmt(d);}
+  else if(preset==='month'){from=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';}
+  else if(preset==='quarter'){var q=Math.floor(now.getMonth()/3);from=now.getFullYear()+'-'+String(q*3+1).padStart(2,'0')+'-01';}
+  else if(preset==='year'){from=now.getFullYear()+'-01-01';}
+  document.getElementById('fltFrom').value=from;
+  document.getElementById('fltTo').value=to;
+  updateFilterOptions();
+  _debouncedRefresh();
+}
 
 function updateFilterOptions(){
   var from=document.getElementById('fltFrom').value;
@@ -883,14 +957,27 @@ function updateFilterOptions(){
       return true;
     });
   }
-  ['pol_forwarder','pol','line','iran_agent'].forEach(function(key,i){
+  var mapKeys=['pol_forwarder','pol','line','iran_agent'];
+  mapKeys.forEach(function(key,i){
+    var msId=filterIds[i];
+    var sel=document.getElementById(msId);
+    if(!sel)return;
+    var panel=sel.querySelector('.ms-panel');
+    var search=panel.querySelector('.ms-search');
     var s=new Set();dateFiltered.forEach(function(r){if(r[key])s.add(r[key]);});
     var vals=Array.from(s).sort();
-    var sel=document.getElementById(filterIds[i]);
-    var curVal=sel.value;
-    sel.innerHTML='<option value="">همه</option>';
-    vals.forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
-    if(curVal&&vals.indexOf(curVal)!==-1)sel.value=curVal;
+    var checked=[];
+    panel.querySelectorAll('input[type=checkbox]:checked').forEach(function(cb){checked.push(cb.value);});
+    var html='';
+    vals.forEach(function(v){
+      var chk=checked.indexOf(v)!==-1?' checked':'';
+      html+='<label><input type="checkbox" value="'+esc(v)+'"'+chk+' onchange="toggleMsOption(this,\''+key+'\')">'+esc(v)+'</label>';
+    });
+    panel.innerHTML='';
+    panel.appendChild(search);
+    panel.insertAdjacentHTML('beforeend',html);
+    var btn=sel.querySelector('.ms-btn');
+    btn.textContent=checked.length?checked.join(', '):'همه';
   });
   // Populate advanced search selects too
   var advKeys=['pol_forwarder','pol','line','iran_agent','size'];
@@ -988,43 +1075,43 @@ function toDate(val){
   return null;
 }
 
-function aggregateVesselSheet(workbook){
-  var sheetName=findVesselSheetName(workbook);
-  var ws=workbook.Sheets[sheetName];
-  var rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
-  var lastCaravan=null,lastVessel=null;
-  var records=[];
+function parseRows(rows){
+  var lastCaravan=null,lastVessel=null,records=[];
   for(var r=1;r<rows.length;r++){
     var row=rows[r]||[];
-    var caravan=row[1],lastvsl=row[3];
-    var qtyRaw=row[4];
-    var qty=0;
-    if(qtyRaw!=null){
-      var qs=String(qtyRaw).trim();
-      try{qty=qs.split('+').reduce(function(s,x){return s+parseInt(x)||0;},0);}catch(e){qty=0;}
+    var caravan=row[1],vsl=row[3];
+    var qtyRaw=row[4];var qty=0;
+    if(qtyRaw!=null){var qs=String(qtyRaw).trim();try{qty=qs.split('+').reduce(function(s,x){return s+parseInt(x)||0;},0);}catch(e){qty=0;}}
+    var container=row[5],size=row[6],forwarder=row[9],pol=row[10],line=row[11],agent=row[12];
+    var dateRaw=row[14];var arrvDate=null;
+    if(dateRaw!=null&&dateRaw!==''){
+      if(dateRaw instanceof Date&&!isNaN(dateRaw.getTime()))arrvDate=dateRaw;
+      else if(typeof dateRaw==='number'&&dateRaw>40000)arrvDate=new Date((dateRaw-25569)*86400000);
+      else if(typeof dateRaw==='string'&&dateRaw.match(/^\d{4}-\d{2}-\d{2}/))arrvDate=new Date(dateRaw.slice(0,10)+'T00:00:00Z');
+      if(arrvDate&&isNaN(arrvDate.getTime()))arrvDate=null;
     }
-    var container=row[5],size=row[6];
-    var forwarder=row[9],pol=row[10],line=row[11],agent=row[12];
-    var arrvDate=toDate(row[14]);
     if(caravan!=null&&caravan!=='')lastCaravan=caravan;
-    if(lastvsl!=null&&lastvsl!=='')lastVessel=lastvsl;
+    if(vsl!=null&&vsl!=='')lastVessel=String(vsl).trim();
     if((container==null||container==='')&&(row[7]==null||row[7]===''))continue;
-    var date=arrvDate;
-    var status=arrvDate?'Arrived':'Pending';
     records.push({
-      caravan:lastCaravan,
-      vessel:lastVessel?String(lastVessel).trim():null,
+      caravan:lastCaravan,vessel:lastVessel,
       container:container!=null?String(container).trim():null,
-      size:size!=null?String(size).trim():null,
-      qty:qty,
+      size:size!=null?String(size).trim():null,qty:qty,
       pol_forwarder:forwarder!=null&&String(forwarder).trim()!==''?String(forwarder).trim():null,
       pol:pol!=null&&String(pol).trim()!==''?String(pol).trim():null,
       line:line!=null&&String(line).trim()!==''?String(line).trim():null,
       iran_agent:agent!=null&&String(agent).trim()!==''?String(agent).trim():null,
-      arrv_date:arrvDate,date:date,status:status
+      arrv_date:arrvDate,date:arrvDate,status:arrvDate?'Arrived':'Pending'
     });
   }
   return records;
+}
+
+function aggregateVesselSheet(workbook){
+  var sheetName=findVesselSheetName(workbook);
+  var ws=workbook.Sheets[sheetName];
+  var rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
+  return parseRows(rows);
 }
 
 /* ============================================================
@@ -1111,34 +1198,7 @@ async function fetchGoogleSheet(){
     var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
     if(rows.length<2)return null;
     if(pb)pb.style.width='90%';
-    var lastCaravan=null,lastVessel=null,records=[];
-    for(var r=1;r<rows.length;r++){
-      var row=rows[r]||[];
-      var caravan=row[1],vsl=row[3];
-      var qtyRaw=row[4];var qty=0;
-      if(qtyRaw!=null){var qs=String(qtyRaw).trim();try{qty=qs.split('+').reduce(function(s,x){return s+parseInt(x)||0;},0);}catch(e){qty=0;}}
-      var container=row[5],size=row[6],forwarder=row[9],pol=row[10],line=row[11],agent=row[12];
-      var dateRaw=row[14];var arrvDate=null;
-      if(dateRaw!=null&&dateRaw!==''){
-        if(typeof dateRaw==='number')arrvDate=new Date((dateRaw-25569)*86400000);
-        else if(typeof dateRaw==='string')arrvDate=new Date(dateRaw);
-        else if(dateRaw instanceof Date)arrvDate=dateRaw;
-        if(arrvDate&&isNaN(arrvDate.getTime()))arrvDate=null;
-      }
-      if(caravan!=null&&caravan!=='')lastCaravan=caravan;
-      if(vsl!=null&&vsl!=='')lastVessel=String(vsl).trim();
-      if((container==null||container==='')&&(row[7]==null||row[7]===''))continue;
-      records.push({
-        caravan:lastCaravan,vessel:lastVessel,
-        container:container!=null?String(container).trim():null,
-        size:size!=null?String(size).trim():null,qty:qty,
-        pol_forwarder:forwarder!=null&&String(forwarder).trim()!==''?String(forwarder).trim():null,
-        pol:pol!=null&&String(pol).trim()!==''?String(pol).trim():null,
-        line:line!=null&&String(line).trim()!==''?String(line).trim():null,
-        iran_agent:agent!=null&&String(agent).trim()!==''?String(agent).trim():null,
-        arrv_date:arrvDate,date:arrvDate,status:arrvDate?'Arrived':'Pending'
-      });
-    }
+    var records=parseRows(rows);
     if(pb)pb.style.width='100%';
     setTimeout(function(){if(pb)pb.style.width='0%';},600);
     return records;
