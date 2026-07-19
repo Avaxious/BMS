@@ -666,18 +666,19 @@ function greatCircle(lat1,lng1,lat2,lng2,n){
   return pts;
 }
 function filterByPol(polName){
-  var sel=document.getElementById('cb-pol');
-  if(sel){
-    for(var i=0;i<sel.options.length;i++){
-      if(sel.options[i].value===polName){
-        sel.value=polName;
-        activeFilters.pol=[polName];
-        refreshDashboard();
-        break;
-      }
+  activeFilters.pol=[polName];
+  var ms=document.getElementById('ms-pol');
+  if(ms){
+    var btn=ms.querySelector('.ms-btn');
+    if(btn)btn.textContent=polName;
+    var panel=ms.querySelector('.ms-panel');
+    if(panel){
+      panel.querySelectorAll('input[type=checkbox]').forEach(function(cb){
+        cb.checked=(cb.value===polName);
+      });
     }
   }
-  // Show reset button on map
+  refreshDashboard();
   showPolResetBtn(polName);
   setTimeout(function(){
     var el=document.querySelector('.board')||document.getElementById('contListInfo');
@@ -693,8 +694,15 @@ function showPolResetBtn(polName){
   _polResetEl.style.cssText='position:absolute;top:10px;right:10px;z-index:1000;background:var(--panel);border:1px solid var(--teal);color:var(--text);padding:6px 14px;border-radius:100px;cursor:pointer;font-size:11px;font-family:var(--sans);box-shadow:0 4px 16px rgba(0,0,0,.5);white-space:nowrap;';
   _polResetEl.innerHTML='✕ '+esc(polName)+' <span style="opacity:.65;">↺ بازنشانی</span>';
   _polResetEl.onclick=function(){
-    var sel=document.getElementById('cb-pol');
-    if(sel){sel.value='';activeFilters.pol=[];refreshDashboard();}
+    activeFilters.pol=[];
+    var ms=document.getElementById('ms-pol');
+    if(ms){
+      var btn=ms.querySelector('.ms-btn');
+      if(btn)btn.textContent='همه';
+      var panel=ms.querySelector('.ms-panel');
+      if(panel){panel.querySelectorAll('input[type=checkbox]').forEach(function(cb){cb.checked=false;});}
+    }
+    refreshDashboard();
     if(_polResetEl){_polResetEl.remove();_polResetEl=null;}
   };
   mapC.appendChild(_polResetEl);
