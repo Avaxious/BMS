@@ -245,7 +245,7 @@
       <button class="btn" onclick="setDatePreset('month')" style="font-size:10px;padding:4px 10px;">این ماه</button>
       <button class="btn" onclick="setDatePreset('quarter')" style="font-size:10px;padding:4px 10px;">این فصل</button>
       <button class="btn" onclick="setDatePreset('year')" style="font-size:10px;padding:4px 10px;">امسال</button>
-      <button class="btn" id="dateModeBtn" onclick="toggleDateFormat()" style="font-size:10px;padding:4px 10px;">☀️ میلادی</button>
+      <button class="btn" id="dateModeBtn" onclick="toggleDateFormat()" style="font-size:10px;padding:4px 10px;">📅 میلادی</button>
     </div>
     <div class="frow">
       <div class="fg"><label>از تاریخ (Arrv Date)</label><input type="date" id="fltFrom" onchange="onDateChange()"></div>
@@ -376,7 +376,7 @@ function isJalali(){return _dateFormat==='jalali';}
 function toggleDateFormat(){
   _dateFormat=isJalali()?'miladi':'jalali';
   localStorage.setItem('bms_dateformat',_dateFormat);
-  document.getElementById('dateModeBtn').textContent=isJalali()?'🌙 شمسی':'☀️ میلادی';
+  document.getElementById('dateModeBtn').textContent=isJalali()?'📅 شمسی':'📅 میلادی';
   if(rawRecords.length){updateDateInputs();initFilters();}
   refreshDashboard();
 }
@@ -1488,7 +1488,7 @@ function toggleTheme(){
 })();
 (function(){
   var df=localStorage.getItem('bms_dateformat');
-  if(df==='jalali'){_dateFormat='jalali';document.getElementById('dateModeBtn').textContent='🌙 شمسی';}
+  if(df==='jalali'){_dateFormat='jalali';document.getElementById('dateModeBtn').textContent='📅 شمسی';}
 })();
 </script>
 </body>
