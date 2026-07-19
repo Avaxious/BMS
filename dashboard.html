@@ -842,6 +842,7 @@ function renderContainerList(records){
    ============================================================ */
 var filterKeys=['fwd','pol','line','agent'];
 var filterIds=['ms-fwd','ms-pol','ms-line','ms-agent'];
+var filterProps=['pol_forwarder','pol','line','iran_agent'];
 
 function toggleMs(btn){
   var ms=btn.parentElement;
@@ -883,8 +884,9 @@ function buildMsOptions(){
     if(!sel)return;
     var panel=sel.querySelector('.ms-panel');
     var search=panel.querySelector('.ms-search');
+    var prop=filterProps[i];
     var s=new Set();
-    rawRecords.forEach(function(r){if(r[key])s.add(r[key]);});
+    rawRecords.forEach(function(r){if(r[prop])s.add(r[prop]);});
     var vals=Array.from(s).sort();
     var html='';
     vals.forEach(function(v){
