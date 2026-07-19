@@ -914,9 +914,17 @@ function initFilters(){
     document.getElementById('fltTo').value=today;
     return;
   }
-  var now=new Date();var firstOfMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
-  document.getElementById('fltFrom').value=firstOfMonth;
-  document.getElementById('fltTo').value=today;
+  var dates=rawRecords.map(function(r){return r.arrv_date;}).filter(Boolean);
+  if(dates.length){
+    var minDate=new Date(Math.min.apply(null,dates));
+    var maxDate=new Date(Math.max.apply(null,dates));
+    document.getElementById('fltFrom').value=fmtDate(minDate);
+    document.getElementById('fltTo').value=fmtDate(maxDate);
+  }else{
+    var now=new Date();var firstOfMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
+    document.getElementById('fltFrom').value=firstOfMonth;
+    document.getElementById('fltTo').value=today;
+  }
   buildMsOptions();
   updateFilterOptions();
   var y=String(today.slice(0,4));var m=today.slice(5,7);
