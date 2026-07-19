@@ -1096,16 +1096,13 @@ function toDate(val){
 
 function parseRows(rows){
   var lastCaravan=null,lastVessel=null,records=[];
-  console.log('[BMS] parseRows: header='+JSON.stringify(rows[0]));
   for(var r=1;r<rows.length;r++){
     var row=rows[r]||[];
-    if(r<=3)console.log('[BMS-ROW] row['+r+']='+JSON.stringify(row));
     var caravan=row[1],vsl=row[3];
     var qtyRaw=row[4];var qty=0;
     if(qtyRaw!=null){var qs=String(qtyRaw).trim();try{qty=qs.split('+').reduce(function(s,x){return s+parseInt(x)||0;},0);}catch(e){qty=0;}}
     var container=row[5],size=row[6],forwarder=row[9],pol=row[10],line=row[11],agent=row[12];
     var dateRaw=row[14];var arrvDate=null;
-    if(r<=5)console.log('[BMS-DATE] row['+r+'][14]=',JSON.stringify(dateRaw),'typeof=',typeof dateRaw);
     if(dateRaw!=null&&dateRaw!==''){
       if(dateRaw instanceof Date&&!isNaN(dateRaw.getTime()))arrvDate=dateRaw;
       else if(typeof dateRaw==='number'&&dateRaw>40000)arrvDate=new Date((dateRaw-25569)*86400000);
@@ -1120,6 +1117,7 @@ function parseRows(rows){
           var y=parseInt(parts[2]);if(y<100)y+=2000;
           arrvDate=new Date(y,parseInt(parts[1])-1,parseInt(parts[0]));
         }
+        if(!arrvDate){var tryD=new Date(dateRaw);if(!isNaN(tryD.getTime()))arrvDate=tryD;}
       }
       if(arrvDate&&isNaN(arrvDate.getTime()))arrvDate=null;
     }
@@ -1234,7 +1232,6 @@ async function fetchGoogleSheet(){
     var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
     console.log('[BMS] fetchGoogleSheet: rows.length=',rows.length);
     if(rows.length<2)return null;
-    console.log('[BMS] CSV line[1]='+csv.split('\n')[1].substring(0,300));
     if(pb)pb.style.width='90%';
     var records=parseRows(rows);
     console.log('[BMS] fetchGoogleSheet: records.length=',records.length,' sample=',JSON.stringify(records[0]));
