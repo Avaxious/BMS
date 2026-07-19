@@ -539,20 +539,20 @@ function aggregateFromRecords(records){
   var monthMap=new Map();
   records.forEach(function(r){if(r.date){var y=r.date.getFullYear();var m=String(r.date.getMonth()+1).padStart(2,'0');var key=y+'-'+m;if(!monthMap.has(key))monthMap.set(key,[]);monthMap.get(key).push(r);}});
   var monthSorted=Array.from(monthMap.entries()).sort(function(a,b){return a[0]<b[0]?-1:1;});
-  var monthly_cont=monthSorted.map(function(e){return{month:e[0],cont:contCount(e[1]),ship:shipCount(e[1])};});
+  var monthly_cont=monthSorted.map(function(e){var lbl=e[0];if(isJalali()){var parts=e[0].split('-');var j=g2j(parseInt(parts[0]),parseInt(parts[1]),1);lbl=j.jy+'/'+String(j.jm).padStart(2,'0');}return{month:lbl,cont:contCount(e[1]),ship:shipCount(e[1])};});
   // Size dist
   var size_dist=Array.from(sizeMap.entries()).sort(function(a,b){return b[1]-a[1];}).map(function(e){return{label:e[0],value:e[1]};});
-  // Daily data (fill all days)
+  // Daily data (fill all days) — internal keys always Gregorian for correct sorting/parsing
   var dayMap=new Map();
-  records.forEach(function(r){if(r.date){var key=fmtDate(r.date);if(!dayMap.has(key))dayMap.set(key,[]);dayMap.get(key).push(r);}});
+  records.forEach(function(r){if(r.date){var key=r.date.getFullYear()+'-'+String(r.date.getMonth()+1).padStart(2,'0')+'-'+String(r.date.getDate()).padStart(2,'0');if(!dayMap.has(key))dayMap.set(key,[]);dayMap.get(key).push(r);}});
   var dayKeys=Array.from(dayMap.keys()).sort();
   var daily=[];
   if(dayKeys.length){
-    var minD=new Date(dayKeys[0]),maxD=new Date(dayKeys[dayKeys.length-1]);
+    var minD=new Date(dayKeys[0]+'T00:00:00'),maxD=new Date(dayKeys[dayKeys.length-1]+'T00:00:00');
     for(var d=new Date(minD);d<=maxD;d.setDate(d.getDate()+1)){
-      var key=fmtDate(d);
+      var key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
       var arr=dayMap.get(key)||[];
-      daily.push({label:key,cont:arr.length?contCount(arr):0,ship:arr.length?shipCount(arr):0});
+      daily.push({label:fmtDate(d),cont:arr.length?contCount(arr):0,ship:arr.length?shipCount(arr):0});
     }
   }
   var rangeDays=daily.length;
