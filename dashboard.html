@@ -486,6 +486,10 @@ function getFilteredRecords(){
   var to=document.getElementById('fltTo').value;
   var fromDate=from?parseDateInput(from):null;
   var toDate=to?parseDateInput(to):null;
+  console.log('[BMS-FLT] from='+from,'to='+to,'jalali='+isJalali(),'fromDate='+fromDate,'toDate='+toDate,'rawCount='+r.length);
+  if(fromDate)console.log('[BMS-FLT] fromDate.getTime()='+fromDate.getTime());
+  if(toDate)console.log('[BMS-FLT] toDate.getTime()='+toDate.getTime());
+  if(r.length>0){var s0=r[0];console.log('[BMS-FLT] sample arrv_date=',s0.arrv_date,'getTime()='+(s0.arrv_date?s0.arrv_date.getTime():'null'));}
   if(from||to||f.fwd.length||f.pol.length||f.line.length||f.agent.length){
     r=r.filter(function(rec){
       if(from||to){
