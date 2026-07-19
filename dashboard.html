@@ -928,7 +928,7 @@ function initFilters(){
   buildMsOptions();
   updateFilterOptions();
   var y=String(today.slice(0,4));var m=today.slice(5,7);
-  document.getElementById('c1s').value=firstOfMonth;
+  document.getElementById('c1s').value=fmtDate(new Date(parseInt(y),parseInt(m)-1,1));
   document.getElementById('c1e').value=today;
   document.getElementById('c2s').value=today;
   document.getElementById('c2e').value=today;
