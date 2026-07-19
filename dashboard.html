@@ -249,10 +249,10 @@
     <div class="frow">
       <div class="fg"><label>از تاریخ (Arrv Date)</label><input type="date" id="fltFrom" onchange="onDateChange()"></div>
       <div class="fg"><label>تا تاریخ</label><input type="date" id="fltTo" onchange="onDateChange()"></div>
-      <div class="fg"><label>POL FORWARDER</label><div class="multi-sel" id="ms-fwd"><div class="ms-btn" onclick="toggleMs(this)">همه</div><div class="ms-panel"><input class="ms-search" placeholder="جستجو..." oninput="filterMsOptions(this)"></div></div></div>
-      <div class="fg"><label>POL</label><div class="multi-sel" id="ms-pol"><div class="ms-btn" onclick="toggleMs(this)">همه</div><div class="ms-panel"><input class="ms-search" placeholder="جستجو..." oninput="filterMsOptions(this)"></div></div></div>
-      <div class="fg"><label>LINE</label><div class="multi-sel" id="ms-line"><div class="ms-btn" onclick="toggleMs(this)">همه</div><div class="ms-panel"><input class="ms-search" placeholder="جستجو..." oninput="filterMsOptions(this)"></div></div></div>
-      <div class="fg"><label>IRAN AGENT</label><div class="multi-sel" id="ms-agent"><div class="ms-btn" onclick="toggleMs(this)">همه</div><div class="ms-panel"><input class="ms-search" placeholder="جستجو..." oninput="filterMsOptions(this)"></div></div></div>
+      <div class="fg"><label>POL FORWARDER</label><select id="cb-fwd" onchange="filterBySelect()"><option value="">همه</option></select></div>
+      <div class="fg"><label>POL</label><select id="cb-pol" onchange="filterBySelect()"><option value="">همه</option></select></div>
+      <div class="fg"><label>LINE</label><select id="cb-line" onchange="filterBySelect()"><option value="">همه</option></select></div>
+      <div class="fg"><label>IRAN AGENT</label><select id="cb-agent" onchange="filterBySelect()"><option value="">همه</option></select></div>
     </div>
     <div class="fbar-actions">
       <button class="btn" onclick="resetFilters()" style="font-size:10px;">↺ بازنشانی فیلترها</button>
@@ -668,17 +668,8 @@ function greatCircle(lat1,lng1,lat2,lng2,n){
 }
 function filterByPol(polName){
   activeFilters.pol=[polName];
-  var ms=document.getElementById('ms-pol');
-  if(ms){
-    var btn=ms.querySelector('.ms-btn');
-    if(btn)btn.textContent=polName;
-    var panel=ms.querySelector('.ms-panel');
-    if(panel){
-      panel.querySelectorAll('input[type=checkbox]').forEach(function(cb){
-        cb.checked=(cb.value===polName);
-      });
-    }
-  }
+  var sel=document.getElementById('cb-pol');
+  if(sel)sel.value=polName;
   refreshDashboard();
   showPolResetBtn(polName);
   setTimeout(function(){
@@ -696,13 +687,7 @@ function showPolResetBtn(polName){
   _polResetEl.innerHTML='✕ '+esc(polName)+' <span style="opacity:.65;">↺ بازنشانی</span>';
   _polResetEl.onclick=function(){
     activeFilters.pol=[];
-    var ms=document.getElementById('ms-pol');
-    if(ms){
-      var btn=ms.querySelector('.ms-btn');
-      if(btn)btn.textContent='همه';
-      var panel=ms.querySelector('.ms-panel');
-      if(panel){panel.querySelectorAll('input[type=checkbox]').forEach(function(cb){cb.checked=false;});}
-    }
+    var sel=document.getElementById('cb-pol');if(sel)sel.value='';
     refreshDashboard();
     if(_polResetEl){_polResetEl.remove();_polResetEl=null;}
   };
@@ -849,62 +834,31 @@ function renderContainerList(records){
 /* ============================================================
    5) FILTER UI
    ============================================================ */
-var filterKeys=['fwd','pol','line','agent'];
-var filterIds=['ms-fwd','ms-pol','ms-line','ms-agent'];
+var filterIds=['cb-fwd','cb-pol','cb-line','cb-agent'];
 var filterProps=['pol_forwarder','pol','line','iran_agent'];
 
-function toggleMs(btn){
-  var ms=btn.parentElement;
-  var isOpen=ms.classList.toggle('open');
-  if(isOpen){
-    var panel=ms.querySelector('.ms-panel');
-    var search=panel.querySelector('.ms-search');
-    if(search)search.value='';
-    filterMsOptions(search);
-    setTimeout(function(){if(search)search.focus();},50);
-  }
-}
-function filterMsOptions(searchInput){
-  var panel=searchInput.parentElement;
-  var q=searchInput.value.toLowerCase();
-  panel.querySelectorAll('label').forEach(function(l){
-    var txt=l.textContent.toLowerCase();
-    l.style.display=txt.indexOf(q)!==-1?'':'none';
-  });
-}
-function toggleMsOption(checkbox,key){
-  var panel=checkbox.closest('.ms-panel');
-  var selected=[];
-  panel.querySelectorAll('input[type=checkbox]:checked').forEach(function(cb){selected.push(cb.value);});
-  activeFilters[key]=selected;
-  var btn=checkbox.closest('.multi-sel').querySelector('.ms-btn');
-  btn.textContent=selected.length?selected.join(', '):'همه';
-  _debouncedRefresh();
-}
-function closeAllMs(){
-  document.querySelectorAll('.multi-sel.open').forEach(function(ms){ms.classList.remove('open');});
-}
-document.addEventListener('click',function(e){
-  if(!e.target.closest('.multi-sel'))closeAllMs();
-});
 function buildMsOptions(){
-  filterKeys.forEach(function(key,i){
-    var sel=document.getElementById(filterIds[i]);
+  filterIds.forEach(function(id,i){
+    var sel=document.getElementById(id);
     if(!sel)return;
-    var panel=sel.querySelector('.ms-panel');
-    var search=panel.querySelector('.ms-search');
     var prop=filterProps[i];
+    var cur=sel.value;
     var s=new Set();
     rawRecords.forEach(function(r){if(r[prop])s.add(r[prop]);});
     var vals=Array.from(s).sort();
-    var html='';
+    sel.innerHTML='<option value="">همه</option>';
     vals.forEach(function(v){
-      html+='<label><input type="checkbox" value="'+esc(v)+'" onchange="toggleMsOption(this,\''+key+'\')">'+esc(v)+'</label>';
+      sel.insertAdjacentHTML('beforeend','<option value="'+esc(v)+'">'+esc(v)+'</option>');
     });
-    panel.innerHTML='';
-    panel.appendChild(search);
-    panel.insertAdjacentHTML('beforeend',html);
+    sel.value=cur;
   });
+}
+function filterBySelect(){
+  activeFilters.fwd=document.getElementById('cb-fwd').value?[document.getElementById('cb-fwd').value]:[];
+  activeFilters.pol=document.getElementById('cb-pol').value?[document.getElementById('cb-pol').value]:[];
+  activeFilters.line=document.getElementById('cb-line').value?[document.getElementById('cb-line').value]:[];
+  activeFilters.agent=document.getElementById('cb-agent').value?[document.getElementById('cb-agent').value]:[];
+  _debouncedRefresh();
 }
 
 function initFilters(){
@@ -937,8 +891,7 @@ function initFilters(){
 
 function resetFilters(){
   activeFilters={fwd:[],pol:[],line:[],agent:[]};
-  document.querySelectorAll('.multi-sel .ms-btn').forEach(function(btn){btn.textContent='همه';});
-  document.querySelectorAll('.multi-sel input[type=checkbox]').forEach(function(cb){cb.checked=false;});
+  filterIds.forEach(function(id){var sel=document.getElementById(id);if(sel)sel.value='';});
   var now=new Date();var today=fmtDate(now);var firstOfMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
   document.getElementById('fltFrom').value=firstOfMonth;
   document.getElementById('fltTo').value=today;
@@ -976,29 +929,17 @@ function updateFilterOptions(){
       return true;
     });
   }
-  var mapKeys=['pol_forwarder','pol','line','iran_agent'];
-  mapKeys.forEach(function(key,i){
-    var msId=filterIds[i];
-    var sel=document.getElementById(msId);
+  filterIds.forEach(function(id,i){
+    var sel=document.getElementById(id);
     if(!sel)return;
-    var panel=sel.querySelector('.ms-panel');
-    var search=panel.querySelector('.ms-search');
-    var s=new Set();dateFiltered.forEach(function(r){if(r[key])s.add(r[key]);});
+    var prop=filterProps[i];
+    var cur=sel.value;
+    var s=new Set();dateFiltered.forEach(function(r){if(r[prop])s.add(r[prop]);});
     var vals=Array.from(s).sort();
-    var checked=[];
-    panel.querySelectorAll('input[type=checkbox]:checked').forEach(function(cb){checked.push(cb.value);});
-    var html='';
-    vals.forEach(function(v){
-      var chk=checked.indexOf(v)!==-1?' checked':'';
-      html+='<label><input type="checkbox" value="'+esc(v)+'"'+chk+' onchange="toggleMsOption(this,\''+key+'\')">'+esc(v)+'</label>';
-    });
-    panel.innerHTML='';
-    panel.appendChild(search);
-    panel.insertAdjacentHTML('beforeend',html);
-    var btn=sel.querySelector('.ms-btn');
-    btn.textContent=checked.length?checked.join(', '):'همه';
+    sel.innerHTML='<option value="">همه</option>';
+    vals.forEach(function(v){sel.insertAdjacentHTML('beforeend','<option value="'+esc(v)+'">'+esc(v)+'</option>');});
+    if(cur&&vals.indexOf(cur)!==-1)sel.value=cur;
   });
-  // Populate advanced search selects too
   var advKeys=['pol_forwarder','pol','line','iran_agent','size'];
   var advIds=['advFwd','advPol','advLine','advAgent','advSize'];
   advKeys.forEach(function(key,i){
