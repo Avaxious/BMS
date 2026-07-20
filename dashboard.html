@@ -16,8 +16,8 @@
   window.__leafletReady=loadFirstAvailable(['./leaflet.js',_u+'leaflet@1.9.4/dist/leaflet.js',_c+'leaflet/1.9.4/leaflet.js',_j+'leaflet@1.9.4/dist/leaflet-src.js',_g+'leaflet@1.9.4/dist/leaflet.js']).catch(e=>null);
 </script>
 <style>
-  :root{--navy-deep:#071523;--navy:#0B2036;--panel:#0F2A45;--panel-2:#123350;--panel-border:rgba(140,182,219,.14);--grid-line:rgba(120,170,210,.08);--teal:#22C0AE;--teal-dim:rgba(34,192,174,.16);--gold:#E8AE52;--gold-dim:rgba(232,174,82,.16);--red:#E5654A;--red-dim:rgba(229,101,74,.16);--blue:#5B9BD5;--text:#EAF1F8;--text-dim:#A8BDD6;--text-faint:#7A94B2;--mono:'IBM Plex Mono',monospace;--sans:'Vazirmatn',sans-serif;}
-  [data-theme="light"]{--navy-deep:#fbfcfc;--navy:#fbfcfc;--panel:#e0e5e9;--panel-2:#d6dde1;--panel-border:#b2c9c5;--grid-line:rgba(178,201,197,.3);--teal:#1bd488;--teal-dim:rgba(27,212,136,.16);--gold:#D4952A;--gold-dim:rgba(212,149,42,.16);--red:#E5654A;--red-dim:rgba(229,101,74,.16);--blue:#3B82B0;--text:#063a40;--text-dim:#1a5e5a;--text-faint:#3d756e;}
+  :root{--navy-deep:#071523;--navy:#0B2036;--panel:#0F2A45;--panel-2:#123350;--panel-border:rgba(140,182,219,.14);--grid-line:rgba(120,170,210,.08);--teal:#22C0AE;--teal-dim:rgba(34,192,174,.16);--gold:#E8AE52;--gold-dim:rgba(232,174,82,.16);--red:#E5654A;--red-dim:rgba(229,101,74,.16);--blue:#5B9BD5;--text:#EAF1F8;--text-dim:#A8BDD6;--text-faint:#7A94B2;--chart-text:#A8BDD6;--mono:'IBM Plex Mono',monospace;--sans:'Vazirmatn',sans-serif;}
+  [data-theme="light"]{--navy-deep:#fbfcfc;--navy:#fbfcfc;--panel:#e0e5e9;--panel-2:#d6dde1;--panel-border:#b2c9c5;--grid-line:rgba(178,201,197,.3);--teal:#1bd488;--teal-dim:rgba(27,212,136,.16);--gold:#D4952A;--gold-dim:rgba(212,149,42,.16);--red:#E5654A;--red-dim:rgba(229,101,74,.16);--blue:#3B82B0;--text:#063a40;--text-dim:#1a5e5a;--text-faint:#3d756e;--chart-text:#0d2e30;}
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{background:var(--navy-deep);color:var(--text);font-family:var(--sans);direction:rtl;}
   body{background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px),radial-gradient(ellipse 900px 500px at 85% -10%,rgba(34,192,174,.10),transparent 60%),radial-gradient(ellipse 700px 500px at 5% 10%,rgba(232,174,82,.06),transparent 60%);background-size:42px 42px,42px 42px,auto,auto;min-height:100vh;padding-bottom:60px;}
@@ -494,8 +494,8 @@ const DEFAULT_DATA = {"total_containers":7786,"total_shipments":8066,"total_teu"
 /* ============================================================
    2) CHART.JS THEME + REGISTRY
    ============================================================ */
-function setupChartDefaults(){Chart.defaults.font.family="'IBM Plex Mono', monospace";Chart.defaults.color=getComputedStyle(document.documentElement).getPropertyValue('--text-dim').trim()||'#A8BDD6';Chart.defaults.font.size=10.5;}
-function chartTextColor(){return getComputedStyle(document.documentElement).getPropertyValue('--text-dim').trim()||'#A8BDD6';}
+function setupChartDefaults(){Chart.defaults.font.family="'IBM Plex Mono', monospace";Chart.defaults.color=chartTextColor();Chart.defaults.font.size=10.5;}
+function chartTextColor(){return getComputedStyle(document.documentElement).getPropertyValue('--chart-text').trim()||'#A8BDD6';}
 const COLORS={teal:'#22C0AE',tealSoft:'rgba(34,192,174,.55)',tealFill:'rgba(34,192,174,.14)',gold:'#E8AE52',goldFill:'rgba(232,174,82,.14)',red:'#E5654A',blue:'#5B9BD5',grid:'rgba(120,170,210,.10)',palette:['#22C0AE','#E8AE52','#5B9BD5','#B08CE0','#E5654A','#6FCF97','#F2C94C','#9BA8C9','#2FA6A0','#D98CC0']};
 function fmtInt(n){return new Intl.NumberFormat('en-US').format(Math.round(n||0));}
 const charts={};
@@ -1591,6 +1591,9 @@ function toggleTheme(){
   html.setAttribute('data-theme',next);
   localStorage.setItem('bms_theme',next);
   document.getElementById('themeToggle').textContent=next==='light'?'☀️':'🌙';
+  var tc=chartTextColor();
+  Chart.defaults.color=tc;
+  Object.keys(charts).forEach(function(k){if(charts[k]){charts[k].options.plugins.legend.labels.color=tc;charts[k].update();}});
 }
 (function initTheme(){
   var saved=localStorage.getItem('bms_theme');
