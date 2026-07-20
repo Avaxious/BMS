@@ -170,6 +170,31 @@
   .advWrap.show{display:block;}
   .advGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;margin-top:6px;}
   .advGrid .fg{min-width:0;}
+  .kpi .trend{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-family:var(--mono);padding:2px 7px;border-radius:100px;margin-top:5px;font-weight:600;}
+  .kpi .trend.up{background:rgba(34,192,174,.12);color:#22C0AE;}
+  .kpi .trend.dn{background:rgba(229,101,74,.12);color:#E5654A;}
+  .kpi .trend.flat{background:rgba(147,170,196,.12);color:#93AAC4;}
+  .heatmap-wrap{padding:8px 0;overflow-x:auto;}
+  .heatmap-grid{display:flex;flex-direction:row-reverse;gap:2px;}
+  .heatmap-col{display:flex;flex-direction:column;gap:2px;}
+  .heatmap-cell{width:13px;height:13px;border-radius:2px;cursor:pointer;transition:.15s;border:1px solid transparent;}
+  .heatmap-cell:hover{border-color:var(--teal);transform:scale(1.3);z-index:2;}
+  .heatmap-cell[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 4px);right:50%;transform:translateX(50%);background:var(--navy-deep);border:1px solid var(--panel-border);color:var(--text);font-size:9px;font-family:var(--mono);padding:3px 8px;border-radius:4px;white-space:nowrap;z-index:10;pointer-events:none;}
+  .heatmap-cell{position:relative;}
+  .heatmap-legend{display:flex;align-items:center;gap:4px;margin-top:8px;font-size:9px;color:var(--text-faint);font-family:var(--mono);direction:ltr;justify-content:flex-end;}
+  .heatmap-legend span{display:inline-block;width:11px;height:11px;border-radius:2px;}
+  .auto-cmp{background:var(--panel);border:1px solid var(--panel-border);border-radius:14px;padding:16px 20px;margin-bottom:18px;}
+  .auto-cmp .cmp-title{font-size:13px;font-weight:700;margin-bottom:4px;}
+  .auto-cmp .cmp-sub{font-size:11px;color:var(--text-dim);margin-bottom:12px;}
+  .auto-cmp-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+  .auto-cmp-item{text-align:center;padding:12px 8px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid var(--panel-border);}
+  .auto-cmp-item .ac-label{font-size:9px;color:var(--text-faint);font-family:var(--mono);margin-bottom:6px;}
+  .auto-cmp-item .ac-cur{font-size:22px;font-weight:700;font-family:var(--mono);direction:ltr;}
+  .auto-cmp-item .ac-prev{font-size:11px;color:var(--text-dim);margin-top:2px;}
+  .auto-cmp-item .ac-change{font-size:11px;font-weight:600;margin-top:4px;}
+  .auto-cmp-item .ac-change.up{color:#22C0AE;}
+  .auto-cmp-item .ac-change.dn{color:var(--red);}
+  .auto-cmp-item .ac-change.flat{color:var(--text-faint);}
   .progBar{height:3px;background:var(--panel-border);border-radius:2px;overflow:hidden;margin:6px 0;}
   .progBar .fill{height:100%;width:0%;background:var(--teal);border-radius:2px;transition:width .3s;}
   @media (max-width:900px){.grid-3{grid-template-columns:1fr 1fr;}.cmp-grid{grid-template-columns:1fr 1fr;}}
@@ -281,6 +306,12 @@
     </div>
   </div>
 
+  <!-- Auto Period Comparison (مورد 2 + 6) -->
+  <div id="autoCmpSection" style="display:none">
+    <div class="section-head"><h2 id="autoCmpTitle">مقایسه با دوره قبل</h2><div class="tag">AUTO PERIOD COMPARISON</div></div>
+    <div class="auto-cmp" id="autoCmpBox"></div>
+  </div>
+
   <!-- Monthly -->
   <div class="section-head"><h2 id="monthSectionTitle">روند ۲۴ ماه اخیر</h2><div class="tag">ROLLING VOLUME</div></div>
   <div class="card">
@@ -289,10 +320,18 @@
     <div class="chart-box h-230"><canvas id="chartMonthly"></canvas></div>
   </div>
 
+  <!-- Calendar Heatmap (مورد 7) -->
+  <div class="section-head"><h2>نقشه حرارتی تقویم</h2><div class="tag">DAILY VOLUME HEATMAP</div></div>
+  <div class="card">
+    <div class="card-title">روزهای پرترافیک <span>(اندازه هر خانه متناسب با حجم کانتینر)</span></div>
+    <div class="card-desc" id="heatmapDesc">۳۶۵ روز اخیر</div>
+    <div class="heatmap-wrap" id="heatmapWrap"></div>
+  </div>
+
   <!-- Top Partners -->
   <div class="section-head"><h2>شرکای عملیاتی برتر</h2><div class="tag">TOP PARTNERS BY VOLUME</div></div>
   <div class="grid-3">
-    <div class="card"><div class="card-title">برترین خطوط کشتیرانی</div><div class="card-desc">Top 10 Shipping Lines</div><div class="chart-box h-320"><canvas id="chartLines"></canvas></div></div>
+    <div class="card"><div class="card-title">سهم خطوط کشتیرانی <span>(Pie)</span></div><div class="card-desc">Shipping Line Share</div><div class="chart-box h-320"><canvas id="chartLinesPie"></canvas></div></div>
     <div class="card"><div class="card-title">برترین فورواردرهای POL</div><div class="card-desc">Top 10 POL Forwarders</div><div class="chart-box h-320"><canvas id="chartForwarders"></canvas></div></div>
     <div class="card"><div class="card-title">برترین نمایندگان ایران</div><div class="card-desc">Top 10 Iran Agents</div><div class="chart-box h-320"><canvas id="chartAgents"></canvas></div></div>
   </div>
@@ -539,20 +578,20 @@ function aggregateFromRecords(records){
   var monthMap=new Map();
   records.forEach(function(r){if(r.date){var y=r.date.getFullYear();var m=String(r.date.getMonth()+1).padStart(2,'0');var key=y+'-'+m;if(!monthMap.has(key))monthMap.set(key,[]);monthMap.get(key).push(r);}});
   var monthSorted=Array.from(monthMap.entries()).sort(function(a,b){return a[0]<b[0]?-1:1;});
-  var monthly_cont=monthSorted.map(function(e){return{month:e[0],cont:contCount(e[1]),ship:shipCount(e[1])};});
+  var monthly_cont=monthSorted.map(function(e){var lbl=e[0];if(isJalali()){var parts=e[0].split('-');var j=g2j(parseInt(parts[0]),parseInt(parts[1]),1);lbl=j.jy+'/'+String(j.jm).padStart(2,'0');}return{month:lbl,cont:contCount(e[1]),ship:shipCount(e[1])};});
   // Size dist
   var size_dist=Array.from(sizeMap.entries()).sort(function(a,b){return b[1]-a[1];}).map(function(e){return{label:e[0],value:e[1]};});
-  // Daily data (fill all days)
+  // Daily data (fill all days) — internal keys always Gregorian for correct sorting/parsing
   var dayMap=new Map();
-  records.forEach(function(r){if(r.date){var key=fmtDate(r.date);if(!dayMap.has(key))dayMap.set(key,[]);dayMap.get(key).push(r);}});
+  records.forEach(function(r){if(r.date){var key=r.date.getFullYear()+'-'+String(r.date.getMonth()+1).padStart(2,'0')+'-'+String(r.date.getDate()).padStart(2,'0');if(!dayMap.has(key))dayMap.set(key,[]);dayMap.get(key).push(r);}});
   var dayKeys=Array.from(dayMap.keys()).sort();
   var daily=[];
   if(dayKeys.length){
-    var minD=new Date(dayKeys[0]),maxD=new Date(dayKeys[dayKeys.length-1]);
+    var minD=new Date(dayKeys[0]+'T00:00:00'),maxD=new Date(dayKeys[dayKeys.length-1]+'T00:00:00');
     for(var d=new Date(minD);d<=maxD;d.setDate(d.getDate()+1)){
-      var key=fmtDate(d);
+      var key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
       var arr=dayMap.get(key)||[];
-      daily.push({label:key,cont:arr.length?contCount(arr):0,ship:arr.length?shipCount(arr):0});
+      daily.push({label:fmtDate(d),cont:arr.length?contCount(arr):0,ship:arr.length?shipCount(arr):0});
     }
   }
   var rangeDays=daily.length;
@@ -579,6 +618,8 @@ function aggregateFromRecords(records){
   var dates=records.map(function(r){return r.date;}).filter(Boolean);
   var date_min=dates.length?fmtDate(new Date(Math.min.apply(null,dates))):null;
   var date_max=dates.length?fmtDate(new Date(Math.max.apply(null,dates))):null;
+  var lineMap=new Map();records.forEach(function(r){if(r.line){if(!lineMap.has(r.line))lineMap.set(r.line,[]);lineMap.get(r.line).push(r);}});
+  var lineShare=Array.from(lineMap.entries()).map(function(e){return{label:e[0],value:contCount(e[1])};}).sort(function(a,b){return b.value-a.value;});
   return{
     total_containers:total_containers,total_shipments:total_shipments,total_teu:records.reduce(function(s,r){var sz=r.size;return s+(sz==='40'||sz==="40'"?2:sz==='20'||sz==="20'"?1:0);},0),unique_vessels:vesselSet.size,
     unique_lines:lineSet.size,unique_forwarders:fwdSet.size,unique_agents:agentSet.size,
@@ -586,7 +627,7 @@ function aggregateFromRecords(records){
     size_dist:size_dist,top_lines:topNbyCount('line',10),top_forwarders:topNbyCount('pol_forwarder',10),
     top_agents:topNbyCount('iran_agent',10),top_pol:topNbyCount('pol',10),
     yearly_cont:yearly_cont,yearly_ship:yearly_ship,monthly_cont:monthly_cont,daily:daily,rangeDays:rangeDays,all_records:all_records,
-    pol_coords:pol_coords
+    pol_coords:pol_coords,line_share:lineShare
   };
 }
 
@@ -604,6 +645,32 @@ function refreshDashboard(){
       iran_agent:r.iran_agent||null,date:'',status:r.status||'Pending'
     });
   });
+  var from=document.getElementById('fltFrom').value;
+  var to=document.getElementById('fltTo').value;
+  var fromDate=from?parseDateInput(from):null;
+  var toDate=to?parseDateInput(to):null;
+  if(fromDate&&toDate){
+    var msDay=86400000;
+    var rangeDays=Math.round((toDate.getTime()-fromDate.getTime())/msDay);
+    var prevTo=new Date(fromDate.getTime()-msDay);
+    var prevFrom=new Date(prevTo.getTime()-rangeDays*msDay);
+    var prevFromStr=fmtDate(prevFrom);
+    var prevToStr=fmtDate(prevTo);
+    var prevRecords=rawRecords.filter(function(r){
+      if(!r.arrv_date)return false;
+      var d=fmtDate(r.arrv_date);
+      if(prevFromStr&&d<prevFromStr)return false;
+      if(prevToStr&&d>prevToStr)return false;
+      if(activeFilters.fwd.length&&activeFilters.fwd.indexOf(r.pol_forwarder)===-1)return false;
+      if(activeFilters.pol.length&&activeFilters.pol.indexOf(r.pol)===-1)return false;
+      if(activeFilters.line.length&&activeFilters.line.indexOf(r.line)===-1)return false;
+      if(activeFilters.agent.length&&activeFilters.agent.indexOf(r.iran_agent)===-1)return false;
+      return true;
+    });
+    data.prevPeriod=aggregateFromRecords(prevRecords);
+    data.prevPeriodLabel=prevFromStr+' تا '+prevToStr;
+    data.curPeriodLabel=from+' تا '+to;
+  }
   renderAll(data,currentMeta);
 }
 
@@ -611,15 +678,48 @@ function refreshDashboard(){
    4) RENDER FUNCTIONS
    ============================================================ */
 function renderAll(v, meta){
+  var pp=v.prevPeriod;
+  function trendHtml(cur,prev){
+    if(!prev)return'';
+    var diff=cur-prev;
+    var pct=prev?((diff/prev)*100).toFixed(1):'0';
+    var cls=diff>0?'up':diff<0?'dn':'flat';
+    var arrow=diff>0?'▲':diff<0?'▼':'—';
+    return'<div class="trend '+cls+'">'+arrow+' '+Math.abs(pct)+'%</div>';
+  }
   document.getElementById('kpiGrid').innerHTML=[
-    {lbl:'کل کانتینرها (ستون F)',val:fmtInt(v.total_containers),sub:'CONTAINERS',cls:'accent-teal'},
-    {lbl:'کل بارنامه (ستون E)',val:fmtInt(v.total_shipments),sub:'SHIPMENTS',cls:'accent-gold'},
-    {lbl:'TEU',val:fmtInt(v.total_teu||0),sub:'TWENTY-FOOT EQUIVALENT',cls:'accent-red'},
-    {lbl:'سفرهای دریایی',val:fmtInt(v.unique_vessels),sub:'VESSEL / VOYAGE',cls:''},
-    {lbl:'خطوط کشتیرانی',val:fmtInt(v.unique_lines),sub:'SHIPPING LINES',cls:''},
-    {lbl:'فورواردرهای POL',val:fmtInt(v.unique_forwarders),sub:'POL FORWARDERS',cls:''},
-    {lbl:'نمایندگان ایران',val:fmtInt(v.unique_agents),sub:'IRAN AGENTS',cls:''}
-  ].map(function(k){return'<div class="kpi '+k.cls+'"><div class="lbl">'+k.lbl+'</div><div class="val">'+k.val+'</div><div class="sub">'+k.sub+'</div></div>';}).join('');
+    {lbl:'کل کانتینرها (ستون F)',val:fmtInt(v.total_containers),sub:'CONTAINERS',cls:'accent-teal',cur:v.total_containers,prev:pp?pp.total_containers:null},
+    {lbl:'کل بارنامه (ستون E)',val:fmtInt(v.total_shipments),sub:'SHIPMENTS',cls:'accent-gold',cur:v.total_shipments,prev:pp?pp.total_shipments:null},
+    {lbl:'TEU',val:fmtInt(v.total_teu||0),sub:'TWENTY-FOOT EQUIVALENT',cls:'accent-red',cur:v.total_teu||0,prev:pp?pp.total_teu||0:null},
+    {lbl:'سفرهای دریایی',val:fmtInt(v.unique_vessels),sub:'VESSEL / VOYAGE',cls:'',cur:v.unique_vessels,prev:pp?pp.unique_vessels:null},
+    {lbl:'خطوط کشتیرانی',val:fmtInt(v.unique_lines),sub:'SHIPPING LINES',cls:'',cur:v.unique_lines,prev:pp?pp.unique_lines:null},
+    {lbl:'فورواردرهای POL',val:fmtInt(v.unique_forwarders),sub:'POL FORWARDERS',cls:'',cur:v.unique_forwarders,prev:pp?pp.unique_forwarders:null},
+    {lbl:'نمایندگان ایران',val:fmtInt(v.unique_agents),sub:'IRAN AGENTS',cls:'',cur:v.unique_agents,prev:pp?pp.unique_agents:null}
+  ].map(function(k){return'<div class="kpi '+k.cls+'"><div class="lbl">'+k.lbl+'</div><div class="val">'+k.val+'</div>'+trendHtml(k.cur,k.prev)+'<div class="sub">'+k.sub+'</div></div>';}).join('');
+
+  var cmpSection=document.getElementById('autoCmpSection');
+  if(pp){
+    cmpSection.style.display='';
+    document.getElementById('autoCmpTitle').textContent='مقایسه با دوره قبل: '+v.prevPeriodLabel;
+    var cmpItems=[
+      {lbl:'کانتینر',cur:v.total_containers,prev:pp.total_containers},
+      {lbl:'بارنامه',cur:v.total_shipments,prev:pp.total_shipments},
+      {lbl:'TEU',cur:v.total_teu||0,prev:pp.total_teu||0},
+      {lbl:'کشتی',cur:v.unique_vessels,prev:pp.unique_vessels},
+      {lbl:'خط کشتیرانی',cur:v.unique_lines,prev:pp.unique_lines},
+      {lbl:'فورواردر',cur:v.unique_forwarders,prev:pp.unique_forwarders},
+      {lbl:'ایجنت ایران',cur:v.unique_agents,prev:pp.unique_agents}
+    ];
+    document.getElementById('autoCmpBox').innerHTML='<div class="cmp-sub">بازه فعلی: '+v.curPeriodLabel+'</div><div class="auto-cmp-row">'+cmpItems.map(function(it){
+      var diff=it.cur-it.prev;
+      var pct=it.prev?((diff/it.prev)*100).toFixed(1):'—';
+      var cls=diff>0?'up':diff<0?'dn':'flat';
+      var arrow=diff>0?'▲':diff<0?'▼':'—';
+      return'<div class="auto-cmp-item"><div class="ac-label">'+it.lbl+'</div><div class="ac-cur '+cls+'">'+fmtInt(it.cur)+'</div><div class="ac-prev">دوره قبل: '+fmtInt(it.prev)+'</div><div class="ac-change '+cls+'">'+arrow+' '+Math.abs(parseFloat(pct))+'%</div></div>';
+    }).join('')+'</div>';
+  }else{
+    cmpSection.style.display='none';
+  }
 
   // Determine granularity
   var rd=v.rangeDays||0,gran='yearly',granLabel='سالانه',granUnit='سال',granUnitEn='year';
@@ -712,7 +812,13 @@ function renderAll(v, meta){
       options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.x);}}}},scales:{x:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);}}},y:{grid:{display:false},ticks:{font:{size:10}}}}}
     });
   }
-  hbar('chartLines',v.top_lines,COLORS.teal);
+  destroyChart('chartLinesPie');
+  var lsData=(v.line_share||[]).slice(0,12);
+  charts.chartLinesPie=new Chart(document.getElementById('chartLinesPie'),{
+    type:'pie',
+    data:{labels:lsData.map(function(d){return d.label;}),datasets:[{data:lsData.map(function(d){return d.value;}),backgroundColor:COLORS.palette,borderColor:'#0F2A45',borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:'#93AAC4',generateLabels:function(chart){var data=chart.data;var total=data.datasets[0].data.reduce(function(a,b){return a+b;},0);return data.labels.map(function(l,i){var val=data.datasets[0].data[i];var pct=total?(val/total*100).toFixed(1):0;return{text:l+' ('+pct+'%)',fillStyle:data.datasets[0].backgroundColor[i],hidden:false,index:i};});}},tooltip:{callbacks:{label:function(c){var total=c.dataset.data.reduce(function(a,b){return a+b;},0);var pct=total?(c.parsed/total*100).toFixed(1):0;return c.label+': '+fmtInt(c.parsed)+' کانتینر ('+pct+'%)';}}}}}
+  });
   hbar('chartForwarders',v.top_forwarders,COLORS.gold);
   hbar('chartAgents',v.top_agents,COLORS.blue);
 
@@ -731,6 +837,9 @@ function renderAll(v, meta){
   });
   document.getElementById('sizeLegend').innerHTML=v.size_dist.map(function(d,i){return'<span><i style="background:'+(i===0?COLORS.gold:COLORS.blue)+'"></i> کانتینر '+esc(d.label)+"': "+fmtInt(d.value)+' ('+(v.total_containers?(d.value/v.total_containers*100).toFixed(1):0)+'%)</span>';}).join('');
 
+  // Calendar Heatmap
+  renderHeatmap(v);
+
   // Container list
   renderContainerList(v.all_records);
 
@@ -740,7 +849,66 @@ function renderAll(v, meta){
 }
 
 /* ============================================================
-   4a) MAP RENDER
+   4a) CALENDAR HEATMAP
+   ============================================================ */
+function renderHeatmap(v){
+  var wrap=document.getElementById('heatmapWrap');
+  if(!wrap)return;
+  wrap.innerHTML='';
+  var dayMap=new Map();
+  (v.daily||[]).forEach(function(d){dayMap.set(d.label,d.cont);});
+  if(!dayMap.size){wrap.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-faint);font-size:12px;">داده‌ای برای نمایش وجود ندارد</div>';return;}
+  var keys=Array.from(dayMap.keys()).sort();
+  var lastDate=new Date(keys[keys.length-1]+'T00:00:00');
+  var firstHeatDate=new Date(lastDate);
+  firstHeatDate.setDate(firstHeatDate.getDate()-364);
+  var maxVal=0;
+  var dayData=[];
+  var cur=new Date(firstHeatDate);
+  while(cur<=lastDate){
+    var key=cur.getFullYear()+'-'+String(cur.getMonth()+1).padStart(2,'0')+'-'+String(cur.getDate()).padStart(2,'0');
+    var val=dayMap.get(key)||0;
+    if(val>maxVal)maxVal=val;
+    var dow=cur.getDay();
+    dayData.push({key:key,val:val,dow:dow});
+    cur.setDate(cur.getDate()+1);
+  }
+  var cols={0:[],1:[],2:[],3:[],4:[],5:[],6:[]};
+  dayData.forEach(function(d){cols[d.dow].push(d);});
+  var dowNames=['ش','ی','د','س','چ','پ','ج'];
+  var grid=document.createElement('div');
+  grid.className='heatmap-grid';
+  var heatColors=['#161B22','#0e4429','#006d32','#26a641','#39d353'];
+  var lightHeatColors=['#ebedf0','#9be9a8','#40c463','#30a14e','#216e39'];
+  var isDark=document.documentElement.getAttribute('data-theme')!=='light';
+  var palette=isDark?heatColors:lightHeatColors;
+  for(var dow=6;dow>=0;dow--){
+    var col=document.createElement('div');
+    col.className='heatmap-col';
+    var label=document.createElement('div');
+    label.style.cssText='font-size:8px;color:var(--text-faint);font-family:var(--mono);width:13px;text-align:center;line-height:13px;flex-shrink:0;';
+    label.textContent=dowNames[dow];
+    col.appendChild(label);
+    cols[dow].forEach(function(d){
+      var cell=document.createElement('div');
+      cell.className='heatmap-cell';
+      var ci=maxVal?Math.min(4,Math.floor(d.val/maxVal*4)):0;
+      cell.style.background=palette[ci];
+      cell.setAttribute('data-tip',d.key+': '+fmtInt(d.val)+' کانتینر');
+      col.appendChild(cell);
+    });
+    grid.appendChild(col);
+  }
+  wrap.appendChild(grid);
+  var legend=document.createElement('div');
+  legend.className='heatmap-legend';
+  legend.innerHTML='<span style="color:var(--text-faint)">کم</span>'+palette.map(function(c){return'<span style="background:'+c+'"></span>';}).join('')+'<span style="color:var(--text-faint)">زیاد</span>';
+  wrap.appendChild(legend);
+  document.getElementById('heatmapDesc').textContent=dayData.length+' روز اخیر · حداکثر: '+fmtInt(maxVal)+' کانتینر در روز';
+}
+
+/* ============================================================
+   4b) MAP RENDER
    ============================================================ */
 var _mapInstance=null;
 var _animId=null;
