@@ -174,15 +174,21 @@
   .kpi .trend.up{background:rgba(34,192,174,.12);color:#22C0AE;}
   .kpi .trend.dn{background:rgba(229,101,74,.12);color:#E5654A;}
   .kpi .trend.flat{background:rgba(147,170,196,.12);color:#93AAC4;}
-  .heatmap-wrap{padding:8px 0;overflow-x:auto;}
-  .heatmap-grid{display:flex;flex-direction:row-reverse;gap:2px;}
-  .heatmap-col{display:flex;flex-direction:column;gap:2px;}
-  .heatmap-cell{width:13px;height:13px;border-radius:2px;cursor:pointer;transition:.15s;border:1px solid transparent;}
-  .heatmap-cell:hover{border-color:var(--teal);transform:scale(1.3);z-index:2;}
-  .heatmap-cell[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 4px);right:50%;transform:translateX(50%);background:var(--navy-deep);border:1px solid var(--panel-border);color:var(--text);font-size:9px;font-family:var(--mono);padding:3px 8px;border-radius:4px;white-space:nowrap;z-index:10;pointer-events:none;}
+  .heatmap-wrap{padding:12px 0;overflow-x:auto;}
+  .heatmap-container{display:inline-flex;flex-direction:column;gap:0;}
+  .heatmap-months{display:flex;gap:0;margin-bottom:4px;padding-right:28px;}
+  .heatmap-months span{font-size:9px;color:var(--text-faint);font-family:var(--mono);text-align:center;}
+  .heatmap-body{display:flex;gap:0;}
+  .heatmap-dow{display:flex;flex-direction:column;gap:3px;padding-left:0;margin-left:0;}
+  .heatmap-dow span{width:26px;height:13px;font-size:8px;color:var(--text-faint);font-family:var(--mono);display:flex;align-items:center;line-height:1;}
+  .heatmap-weeks{display:flex;flex-direction:column;gap:3px;}
+  .heatmap-week{display:flex;gap:3px;}
+  .heatmap-cell{width:13px;height:13px;border-radius:3px;cursor:pointer;transition:all .15s;border:none;outline:1px solid rgba(255,255,255,.04);}
+  .heatmap-cell:hover{outline:2px solid var(--teal);transform:scale(1.4);z-index:2;position:relative;}
+  .heatmap-cell[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--navy-deep);border:1px solid var(--panel-border);color:var(--text);font-size:9px;font-family:var(--mono);padding:4px 10px;border-radius:6px;white-space:nowrap;z-index:10;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.5);}
   .heatmap-cell{position:relative;}
-  .heatmap-legend{display:flex;align-items:center;gap:4px;margin-top:8px;font-size:9px;color:var(--text-faint);font-family:var(--mono);direction:ltr;justify-content:flex-end;}
-  .heatmap-legend span{display:inline-block;width:11px;height:11px;border-radius:2px;}
+  .heatmap-legend{display:flex;align-items:center;gap:4px;margin-top:10px;font-size:9px;color:var(--text-faint);font-family:var(--mono);direction:ltr;justify-content:flex-end;}
+  .heatmap-legend span{display:inline-block;width:11px;height:11px;border-radius:3px;}
   .auto-cmp{background:var(--panel);border:1px solid var(--panel-border);border-radius:14px;padding:16px 20px;margin-bottom:18px;}
   .auto-cmp .cmp-title{font-size:13px;font-weight:700;margin-bottom:4px;}
   .auto-cmp .cmp-sub{font-size:11px;color:var(--text-dim);margin-bottom:12px;}
@@ -680,12 +686,12 @@ function refreshDashboard(){
 function renderAll(v, meta){
   var pp=v.prevPeriod;
   function trendHtml(cur,prev){
-    if(!prev)return'';
+    if(prev==null)return'';
     var diff=cur-prev;
-    var pct=prev?((diff/prev)*100).toFixed(1):'0';
+    var pct=prev!==0?((diff/prev)*100).toFixed(1):'∞';
     var cls=diff>0?'up':diff<0?'dn':'flat';
     var arrow=diff>0?'▲':diff<0?'▼':'—';
-    return'<div class="trend '+cls+'">'+arrow+' '+Math.abs(pct)+'%</div>';
+    return'<div class="trend '+cls+'">'+arrow+' '+pct+'%</div>';
   }
   document.getElementById('kpiGrid').innerHTML=[
     {lbl:'کل کانتینرها (ستون F)',val:fmtInt(v.total_containers),sub:'CONTAINERS',cls:'accent-teal',cur:v.total_containers,prev:pp?pp.total_containers:null},
@@ -712,10 +718,10 @@ function renderAll(v, meta){
     ];
     document.getElementById('autoCmpBox').innerHTML='<div class="cmp-sub">بازه فعلی: '+v.curPeriodLabel+'</div><div class="auto-cmp-row">'+cmpItems.map(function(it){
       var diff=it.cur-it.prev;
-      var pct=it.prev?((diff/it.prev)*100).toFixed(1):'—';
+      var pct=it.prev!==0?((diff/it.prev)*100).toFixed(1):'∞';
       var cls=diff>0?'up':diff<0?'dn':'flat';
       var arrow=diff>0?'▲':diff<0?'▼':'—';
-      return'<div class="auto-cmp-item"><div class="ac-label">'+it.lbl+'</div><div class="ac-cur '+cls+'">'+fmtInt(it.cur)+'</div><div class="ac-prev">دوره قبل: '+fmtInt(it.prev)+'</div><div class="ac-change '+cls+'">'+arrow+' '+Math.abs(parseFloat(pct))+'%</div></div>';
+      return'<div class="auto-cmp-item"><div class="ac-label">'+it.lbl+'</div><div class="ac-cur '+cls+'">'+fmtInt(it.cur)+'</div><div class="ac-prev">دوره قبل: '+fmtInt(it.prev)+'</div><div class="ac-change '+cls+'">'+arrow+' '+pct+'%</div></div>';
     }).join('')+'</div>';
   }else{
     cmpSection.style.display='none';
@@ -871,42 +877,90 @@ function renderHeatmap(v){
     var key=cur.getFullYear()+'-'+String(cur.getMonth()+1).padStart(2,'0')+'-'+String(cur.getDate()).padStart(2,'0');
     var val=dayMap.get(key)||0;
     if(val>maxVal)maxVal=val;
-    var dow=cur.getDay();
-    dayData.push({key:key,val:val,dow:dow});
+    dayData.push({key:key,val:val,dow:cur.getDay(),date:new Date(cur)});
     cur.setDate(cur.getDate()+1);
   }
-  var cols={0:[],1:[],2:[],3:[],4:[],5:[],6:[]};
-  dayData.forEach(function(d){cols[d.dow].push(d);});
-  var dowNames=['ش','ی','د','س','چ','پ','ج'];
-  var grid=document.createElement('div');
-  grid.className='heatmap-grid';
   var heatColors=['#161B22','#0e4429','#006d32','#26a641','#39d353'];
   var lightHeatColors=['#ebedf0','#9be9a8','#40c463','#30a14e','#216e39'];
   var isDark=document.documentElement.getAttribute('data-theme')!=='light';
   var palette=isDark?heatColors:lightHeatColors;
-  for(var dow=6;dow>=0;dow--){
-    var col=document.createElement('div');
-    col.className='heatmap-col';
-    var label=document.createElement('div');
-    label.style.cssText='font-size:8px;color:var(--text-faint);font-family:var(--mono);width:13px;text-align:center;line-height:13px;flex-shrink:0;';
-    label.textContent=dowNames[dow];
-    col.appendChild(label);
-    cols[dow].forEach(function(d){
+  var container=document.createElement('div');
+  container.className='heatmap-container';
+  var monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var dowNames=['Sat','Sun','Mon','Tue','Wed','Thu','Fri'];
+  var weeks=[];
+  var week=[];
+  dayData.forEach(function(d,i){
+    week.push(d);
+    if(d.dow===5||i===dayData.length-1){
+      weeks.push(week);
+      week=[];
+    }
+  });
+  var monthsBar=document.createElement('div');
+  monthsBar.className='heatmap-months';
+  var weekWidth=16;
+  var lastMonth=-1;
+  weeks.forEach(function(w){
+    var firstDay=w[0];
+    var m=firstDay.date.getMonth();
+    if(m!==lastMonth){
+      var span=document.createElement('span');
+      span.textContent=monthNames[m];
+      span.style.width=weekWidth+'px';
+      monthsBar.appendChild(span);
+      lastMonth=m;
+    }else{
+      var span=document.createElement('span');
+      span.textContent='';
+      span.style.width=weekWidth+'px';
+      monthsBar.appendChild(span);
+    }
+  });
+  container.appendChild(monthsBar);
+  var body=document.createElement('div');
+  body.className='heatmap-body';
+  var dowCol=document.createElement('div');
+  dowCol.className='heatmap-dow';
+  [0,2,4].forEach(function(i){
+    var sp=document.createElement('span');
+    sp.textContent=dowNames[i];
+    dowCol.appendChild(sp);
+    var sp2=document.createElement('span');
+    sp2.textContent='';
+    dowCol.appendChild(sp2);
+  });
+  body.appendChild(dowCol);
+  var weeksContainer=document.createElement('div');
+  weeksContainer.className='heatmap-weeks';
+  weeks.forEach(function(w){
+    var weekEl=document.createElement('div');
+    weekEl.className='heatmap-week';
+    for(var dow=0;dow<7;dow++){
       var cell=document.createElement('div');
       cell.className='heatmap-cell';
-      var ci=maxVal?Math.min(4,Math.floor(d.val/maxVal*4)):0;
-      cell.style.background=palette[ci];
-      cell.setAttribute('data-tip',d.key+': '+fmtInt(d.val)+' کانتینر');
-      col.appendChild(cell);
-    });
-    grid.appendChild(col);
-  }
-  wrap.appendChild(grid);
+      var found=w.find(function(d){return d.dow===dow;});
+      if(found){
+        var ci=maxVal?Math.min(4,Math.floor(found.val/maxVal*4)):0;
+        cell.style.background=palette[ci];
+        var dateLabel=fmtDate(found.date);
+        cell.setAttribute('data-tip',dateLabel+': '+fmtInt(found.val)+' کانتینر');
+      }else{
+        cell.style.background='transparent';
+        cell.style.outline='none';
+      }
+      weekEl.appendChild(cell);
+    }
+    weeksContainer.appendChild(weekEl);
+  });
+  body.appendChild(weeksContainer);
+  container.appendChild(body);
+  wrap.appendChild(container);
   var legend=document.createElement('div');
   legend.className='heatmap-legend';
-  legend.innerHTML='<span style="color:var(--text-faint)">کم</span>'+palette.map(function(c){return'<span style="background:'+c+'"></span>';}).join('')+'<span style="color:var(--text-faint)">زیاد</span>';
+  legend.innerHTML='<span style="color:var(--text-faint)">Less</span>'+palette.map(function(c){return'<span style="background:'+c+'"></span>';}).join('')+'<span style="color:var(--text-faint)">More</span>';
   wrap.appendChild(legend);
-  document.getElementById('heatmapDesc').textContent=dayData.length+' روز اخیر · حداکثر: '+fmtInt(maxVal)+' کانتینر در روز';
+  document.getElementById('heatmapDesc').textContent=dayData.length+' روز · حداکثر: '+fmtInt(maxVal)+' کانتینر در روز';
 }
 
 /* ============================================================
