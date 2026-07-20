@@ -315,7 +315,7 @@
   <!-- Top Partners -->
   <div class="section-head"><h2>شرکای عملیاتی برتر</h2><div class="tag">TOP PARTNERS BY VOLUME</div></div>
   <div class="grid-3">
-    <div class="card"><div class="card-title">سهم خطوط کشتیرانی <span>(Pie)</span></div><div class="card-desc">Shipping Line Share</div><div class="chart-box h-320"><canvas id="chartLinesPie"></canvas></div></div>
+    <div class="card"><div class="card-title">سهم نمایندگان ایران <span>(Pie)</span></div><div class="card-desc">Iran Agent Share</div><div class="chart-box h-320"><canvas id="chartLinesPie"></canvas></div></div>
     <div class="card"><div class="card-title">برترین فورواردرهای POL</div><div class="card-desc">Top 10 POL Forwarders</div><div class="chart-box h-320"><canvas id="chartForwarders"></canvas></div></div>
     <div class="card"><div class="card-title">برترین نمایندگان ایران</div><div class="card-desc">Top 10 Iran Agents</div><div class="chart-box h-320"><canvas id="chartAgents"></canvas></div></div>
   </div>
@@ -598,7 +598,7 @@ function aggregateFromRecords(records){
   var dates=records.map(function(r){return r.date;}).filter(Boolean);
   var date_min=dates.length?fmtDate(new Date(Math.min.apply(null,dates))):null;
   var date_max=dates.length?fmtDate(new Date(Math.max.apply(null,dates))):null;
-  var lineMap=new Map();records.forEach(function(r){if(r.line){if(!lineMap.has(r.line))lineMap.set(r.line,[]);lineMap.get(r.line).push(r);}});
+  var lineMap=new Map();records.forEach(function(r){if(r.iran_agent){if(!lineMap.has(r.iran_agent))lineMap.set(r.iran_agent,[]);lineMap.get(r.iran_agent).push(r);}});
   var lineShare=Array.from(lineMap.entries()).map(function(e){return{label:e[0],value:contCount(e[1])};}).sort(function(a,b){return b.value-a.value;});
   return{
     total_containers:total_containers,total_shipments:total_shipments,total_teu:records.reduce(function(s,r){var sz=r.size;return s+(sz==='40'||sz==="40'"?2:sz==='20'||sz==="20'"?1:0);},0),unique_vessels:vesselSet.size,
