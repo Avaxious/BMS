@@ -814,11 +814,13 @@ function renderAll(v, meta){
   }
   destroyChart('chartLinesPie');
   var lsData=(v.line_share||[]).slice(0,12);
-  charts.chartLinesPie=new Chart(document.getElementById('chartLinesPie'),{
-    type:'pie',
-    data:{labels:lsData.map(function(d){return d.label;}),datasets:[{data:lsData.map(function(d){return d.value;}),backgroundColor:COLORS.palette,borderColor:'#0F2A45',borderWidth:2}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:'#93AAC4',generateLabels:function(chart){var data=chart.data;var total=data.datasets[0].data.reduce(function(a,b){return a+b;},0);return data.labels.map(function(l,i){var val=data.datasets[0].data[i];var pct=total?(val/total*100).toFixed(1):0;return{text:l+' ('+pct+'%)',fillStyle:data.datasets[0].backgroundColor[i],hidden:false,index:i};});}},tooltip:{callbacks:{label:function(c){var total=c.dataset.data.reduce(function(a,b){return a+b;},0);var pct=total?(c.parsed/total*100).toFixed(1):0;return c.label+': '+fmtInt(c.parsed)+' کانتینر ('+pct+'%)';}}}}}
-  });
+  if(lsData.length){
+    charts.chartLinesPie=new Chart(document.getElementById('chartLinesPie'),{
+      type:'pie',
+      data:{labels:lsData.map(function(d){return d.label;}),datasets:[{data:lsData.map(function(d){return d.value;}),backgroundColor:COLORS.palette,borderColor:'#0F2A45',borderWidth:2}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:'#93AAC4',generateLabels:function(chart){var data=chart.data;var total=data.datasets[0].data.reduce(function(a,b){return a+b;},0);return data.labels.map(function(l,i){var val=data.datasets[0].data[i];var pct=total?(val/total*100).toFixed(1):0;return{text:l+' ('+pct+'%)',fillStyle:data.datasets[0].backgroundColor[i],hidden:false,index:i};});}},tooltip:{callbacks:{label:function(c){var total=c.dataset.data.reduce(function(a,b){return a+b;},0);var pct=total?(c.parsed/total*100).toFixed(1):0;return c.label+': '+fmtInt(c.parsed)+' کانتینر ('+pct+'%)';}}}}}
+    });
+  }
   hbar('chartForwarders',v.top_forwarders,COLORS.gold);
   hbar('chartAgents',v.top_agents,COLORS.blue);
 
