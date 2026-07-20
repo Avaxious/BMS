@@ -390,27 +390,63 @@ let LOGIN_PROXY_URL = '';
 let _worker = null;
 let _workerBusy = false;
 let _workerCallback = null;
-try { _worker = new Worker('worker.js'); } catch(e) {}
-if (_worker) {
-  _worker.onmessage = function(e) {
-    _workerBusy = false;
-    if (_workerCallback) { _workerCallback(e.data.data); _workerCallback = null; }
-  };
-  _worker.onerror = function(e) {
-    _workerBusy = false;
-    log('Worker error:', e);
-    if (_workerCallback) { _workerCallback(null); _workerCallback = null; }
-  };
-}
+let _workerFallback = null;
+let _workerReady = false;
 
 function aggregateAsync(records,filterParams,callback){
-  if(_worker&&!_workerBusy){
+  if(_worker&&_workerReady&&!_workerBusy){
     _workerBusy=true;_workerCallback=callback;
-    try{_worker.postMessage({type:'aggregate',records:records,filters:filterParams});}catch(e){_workerBusy=false;callback(aggregateFromRecords(records));}
+    _workerFallback=setTimeout(function(){
+      _workerBusy=false;_workerCallback=null;
+      _workerReady=false;
+      log('Worker timeout, falling back to sync');
+      callback(aggregateFromRecords(records));
+    },5000);
+    try{
+      let safeRecords=records.map(function(r){
+        return{
+          container:r.container,vessel:r.vessel,size:r.size,qty:r.qty,
+          pol_forwarder:r.pol_forwarder,pol:r.pol,line:r.line,
+          iran_agent:r.iran_agent,
+          dateStr:r.date?(r.date.getFullYear()+'-'+String(r.date.getMonth()+1).padStart(2,'0')+'-'+String(r.date.getDate()).padStart(2,'0')):'',
+          arrv_dateStr:r.arrv_date?(r.arrv_date.getFullYear()+'-'+String(r.arrv_date.getMonth()+1).padStart(2,'0')+'-'+String(r.arrv_date.getDate()).padStart(2,'0')):'',
+          status:r.status
+        };
+      });
+      _worker.postMessage({type:'aggregate',records:safeRecords,filters:filterParams});
+    }catch(e){
+      clearTimeout(_workerFallback);_workerFallback=null;
+      _workerBusy=false;_workerCallback=null;_workerReady=false;
+      callback(aggregateFromRecords(records));
+    }
   }else{
     callback(aggregateFromRecords(records));
   }
 }
+
+try{
+  _worker=new Worker('worker.js');
+  _worker.onmessage=function(e){
+    _workerBusy=false;
+    clearTimeout(_workerFallback);_workerFallback=null;
+    if(e.data&&e.data.type==='error'){
+      _workerReady=false;
+      log('Worker returned error:',e.data.error);
+      if(_workerCallback){let cb=_workerCallback;_workerCallback=null;cb(null);}
+      return;
+    }
+    if(_workerCallback){let cb=_workerCallback;_workerCallback=null;cb(e.data.data);}
+  };
+  _worker.onerror=function(e){
+    _workerBusy=false;
+    clearTimeout(_workerFallback);_workerFallback=null;
+    _workerReady=false;
+    log('Worker error:',e);
+    if(_workerCallback){let cb=_workerCallback;_workerCallback=null;cb(null);}
+  };
+  _worker.postMessage({type:'ping'});
+  _workerReady=true;
+}catch(e){_worker=null;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function sanitizeHtml(s){let d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
 function fmtDateToMs(s){if(!s)return 0;let p=s.split(/[-\/]/);if(p.length<3)return 0;if(isJalali()){let g=j2g(parseInt(p[0]),parseInt(p[1]),parseInt(p[2]));if(!g[0])return 0;return new Date(g[0],g[1]-1,g[2]).getTime();}return new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2])).getTime();}
@@ -685,6 +721,7 @@ function refreshDashboard(){
   }
   let filterParams={dateFormat:localStorage.getItem('bms_dateformat')||'miladi'};
   function onMainResult(mainData){
+    if(!mainData){mainData=aggregateFromRecords(records);}
     let existingContainers=new Set(mainData.all_records.map(function(r){return r.container;}));
     let pending=rawRecords.filter(function(r){return !r.arrv_date && (!existingContainers.has(r.container)||!r.container);});
     pending.forEach(function(r){
@@ -692,6 +729,7 @@ function refreshDashboard(){
     });
     if(prevRecords){
       function onPrevResult(prevData){
+        if(!prevData){prevData=aggregateFromRecords(prevRecords);}
         mainData.prevPeriod=prevData;mainData.prevPeriodLabel=prevPeriodLabel;mainData.curPeriodLabel=curPeriodLabel;
         renderAll(mainData,currentMeta);
       }
