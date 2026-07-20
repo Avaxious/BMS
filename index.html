@@ -635,20 +635,8 @@ function refreshDashboard(){
   let fromDate=from?parseDateInput(from):null;
   let toDate=to?parseDateInput(to):null;
   if(fromDate&&toDate&&!isNaN(fromDate.getTime())&&!isNaN(toDate.getTime())){
-    let msDay=86400000;
-    let rangeDays=Math.round((toDate.getTime()-fromDate.getTime())/msDay);
-    let prevFrom,prevTo;
-    let fromMonth=fromDate.getMonth(),fromDay=fromDate.getDate(),fromYear=fromDate.getFullYear();
-    if(fromMonth===0&&fromDay===1){
-      prevFrom=new Date(fromYear-1,fromMonth,fromDay);
-      prevTo=new Date(fromYear-1,toDate.getMonth(),toDate.getDate());
-    }else if(fromDay===1){
-      prevFrom=new Date(fromYear,fromMonth-1,fromDay);
-      prevTo=new Date(fromYear,fromMonth-1,toDate.getDate());
-    }else{
-      prevTo=new Date(fromDate.getTime()-msDay);
-      prevFrom=new Date(prevTo.getTime()-rangeDays*msDay);
-    }
+    let prevFrom=new Date(fromDate.getFullYear()-1,fromDate.getMonth(),fromDate.getDate());
+    let prevTo=new Date(toDate.getFullYear()-1,toDate.getMonth(),toDate.getDate());
     let prevFromStr=fmtDate(prevFrom);
     let prevToStr=fmtDate(prevTo);
     let prevRecords=rawRecords.filter(function(r){
@@ -670,21 +658,10 @@ function refreshDashboard(){
     if(recDates.length>1){
       let minRD=new Date(Math.min.apply(null,recDates));
       let maxRD=new Date(Math.max.apply(null,recDates));
-      let rMsDay=86400000;
-      let rRange=Math.round((maxRD.getTime()-minRD.getTime())/rMsDay);
+      let rRange=Math.round((maxRD.getTime()-minRD.getTime())/86400000);
       if(rRange>0){
-        let rpFrom,rpTo;
-        let minMonth=minRD.getMonth(),minDay=minRD.getDate(),minYear=minRD.getFullYear();
-        if(minMonth===0&&minDay===1){
-          rpFrom=new Date(minYear-1,minMonth,minDay);
-          rpTo=new Date(minYear-1,maxRD.getMonth(),maxRD.getDate());
-        }else if(minDay===1){
-          rpFrom=new Date(minYear,minMonth-1,minDay);
-          rpTo=new Date(minYear,minMonth-1,maxRD.getDate());
-        }else{
-          rpTo=new Date(minRD.getTime()-rMsDay);
-          rpFrom=new Date(rpTo.getTime()-rRange*rMsDay);
-        }
+        let rpFrom=new Date(minRD.getFullYear()-1,minRD.getMonth(),minRD.getDate());
+        let rpTo=new Date(maxRD.getFullYear()-1,maxRD.getMonth(),maxRD.getDate());
         let rpFs=fmtDate(rpFrom);
         let rpTs=fmtDate(rpTo);
         let rpRecs=rawRecords.filter(function(r){
