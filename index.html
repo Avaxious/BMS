@@ -950,10 +950,12 @@ function renderMap(v){
     });
     function animLoop(){
       if(!_mapInstance||!_mapInstance._map){_animId=null;return;}
-      dots.forEach(function(d){
-        d.idx+=d.speed;if(d.idx>=d.path.length)d.idx=0;
-        d.dot.setLatLng(d.path[Math.floor(d.idx)]);
-      });
+      if(!document.hidden){
+        dots.forEach(function(d){
+          d.idx+=d.speed;if(d.idx>=d.path.length)d.idx=0;
+          d.dot.setLatLng(d.path[Math.floor(d.idx)]);
+        });
+      }
       _animId=requestAnimationFrame(animLoop);
     }
     _animId=requestAnimationFrame(animLoop);
