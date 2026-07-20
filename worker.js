@@ -4,9 +4,23 @@
 
 self.onmessage = function(e) {
   var msg = e.data;
+  if (msg.type === 'ping') {
+    self.postMessage({ type: 'pong' });
+    return;
+  }
   if (msg.type === 'aggregate') {
-    var result = aggregateFromRecords(msg.records, msg.filters);
-    self.postMessage({ type: 'result', data: result });
+    try {
+      var records = msg.records;
+      // Convert date strings back to Date objects
+      for (var i = 0; i < records.length; i++) {
+        if (records[i].dateStr) records[i].date = new Date(records[i].dateStr + 'T00:00:00');
+        if (records[i].arrv_dateStr) records[i].arrv_date = new Date(records[i].arrv_dateStr + 'T00:00:00');
+      }
+      var result = aggregateFromRecords(records, msg.filters);
+      self.postMessage({ type: 'result', data: result });
+    } catch(err) {
+      self.postMessage({ type: 'error', error: err.message });
+    }
   }
 };
 
