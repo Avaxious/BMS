@@ -766,7 +766,7 @@ function renderAll(v, meta){
     options:{
       responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:9},color:chartTextColor(),usePointStyle:true}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.y);}}}},
-      scales:{x:{stacked:false,grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);}}}}
+      scales:{x:{stacked:false,grid:{display:false},ticks:{font:{size:10},color:chartTextColor()}},y:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);},color:chartTextColor()}}}
     }
   });
 
@@ -805,7 +805,7 @@ function renderAll(v, meta){
     options:{
       responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:9},color:chartTextColor(),usePointStyle:true}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.y);}}}},
-      scales:{x:{grid:{display:false},ticks:{maxRotation:60,minRotation:60,font:{size:9}}},y:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);}}}}
+      scales:{x:{grid:{display:false},ticks:{maxRotation:60,minRotation:60,font:{size:9},color:chartTextColor()}},y:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);},color:chartTextColor()}}}
     }
   });
 
@@ -814,7 +814,7 @@ function renderAll(v, meta){
     charts[id]=new Chart(document.getElementById(id),{
       type:'bar',
       data:{labels:items.map(function(d){return d.label.length>26?d.label.slice(0,24)+'\u2026':d.label;}),datasets:[{data:items.map(function(d){return d.value;}),backgroundColor:color,borderRadius:4,maxBarThickness:16}]},
-      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.x);}}}},scales:{x:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);}}},y:{grid:{display:false},ticks:{font:{size:10}}}}}
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.x);}}}},scales:{x:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);},color:chartTextColor()}},y:{grid:{display:false},ticks:{font:{size:10},color:chartTextColor()}}}}
     });
   }
   destroyChart('chartLinesPie');
@@ -1593,7 +1593,16 @@ function toggleTheme(){
   document.getElementById('themeToggle').textContent=next==='light'?'☀️':'🌙';
   var tc=chartTextColor();
   Chart.defaults.color=tc;
-  Object.keys(charts).forEach(function(k){if(charts[k]){charts[k].options.plugins.legend.labels.color=tc;charts[k].update();}});
+  Object.keys(charts).forEach(function(k){if(charts[k]){
+    charts[k].options.plugins.legend.labels.color=tc;
+    if(charts[k].options.scales){
+      Object.keys(charts[k].options.scales).forEach(function(sk){
+        var sc=charts[k].options.scales[sk];
+        if(sc.ticks)sc.ticks.color=tc;
+      });
+    }
+    charts[k].update();
+  }});
 }
 (function initTheme(){
   var saved=localStorage.getItem('bms_theme');
