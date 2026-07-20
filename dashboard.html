@@ -189,29 +189,23 @@
   .auto-cmp-item .ac-change.dn{color:var(--red);}
   .auto-cmp-item .ac-change.flat{color:var(--text-faint);}
   .progBar{height:3px;background:var(--panel-border);border-radius:2px;overflow:hidden;margin:6px 0;}
-  .progBar .fill{height:100%;width:0%;background:var(--teal);border-radius:2px;transition:width .3s;}
+  .progBar .fill{height:100%;width:0%;background:var(--teal);border-radius:2px;transition:width .3s;will-change:width;}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
   @media (max-width:900px){.grid-3{grid-template-columns:1fr 1fr;}.cmp-grid{grid-template-columns:1fr 1fr;}}
   @media (max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.grid-2{grid-template-columns:1fr;}.grid-3{grid-template-columns:1fr;}.header-inner{padding:14px 16px;}.wrap{padding:20px 16px 0;}.frow{flex-direction:column;}.fg{min-width:100%;}.cmp-grid{grid-template-columns:1fr;}.board-search input{font-size:13px;}.board-scroll{overflow-x:auto;}.board-scroll table{font-size:9px;}table.contab{font-size:9px;}table.contab thead th,table.contab tbody td{padding:4px 5px;white-space:nowrap;}.header-status{gap:6px;}}
-  .multi-sel{position:relative;}
-  .multi-sel .ms-btn{width:100%;padding:6px 8px;background:var(--navy-deep);border:1px solid var(--panel-border);border-radius:6px;color:var(--text);font-size:11px;font-family:var(--mono);cursor:pointer;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:30px;}
-  .multi-sel .ms-btn:after{content:'▾';float:left;margin-left:4px;color:var(--text-faint);}
-  .multi-sel .ms-panel{display:none;position:absolute;top:100%;left:0;right:0;z-index:100;background:var(--navy);border:1px solid var(--panel-border);border-radius:6px;max-height:200px;overflow-y:auto;margin-top:2px;box-shadow:0 8px 24px rgba(0,0,0,.4);}
-  .multi-sel.open .ms-panel{display:block;}
-  .multi-sel .ms-panel label{display:flex;align-items:center;gap:6px;padding:5px 8px;font-size:10.5px;color:var(--text-dim);cursor:pointer;font-family:var(--mono);}
-  .multi-sel .ms-panel label:hover{background:rgba(34,192,174,.08);color:var(--text);}
-  .multi-sel .ms-panel label input{accent-color:var(--teal);}
-  .multi-sel .ms-panel .ms-search{width:calc(100% - 12px);margin:6px;padding:5px 8px;background:var(--navy-deep);border:1px solid var(--panel-border);border-radius:4px;color:var(--text);font-size:10px;font-family:var(--mono);outline:none;}
 </style>
 </head>
 <body>
 
-<div id="splash">
+<div id="splash" role="dialog" aria-modal="true" aria-labelledby="splashTitle">
   <div class="card">
-    <div class="logo"><img src="BMS.jpg"></div>
-    <h1><span class="accent">B</span>lue <span class="accent">C</span>alm <span class="accent">M</span>arine</h1>
+    <div class="logo"><img src="BMS.jpg" alt="BMS"></div>
+    <h1 id="splashTitle"><span class="accent">B</span>lue <span class="accent">C</span>alm <span class="accent">M</span>arine</h1>
     <div class="sub">VESSEL CHECKING INTELLIGENCE · LIVE</div>
     <div class="desc">برای ورود به داشبورد نام کاربری و رمز عبور را وارد کنید</div>
+    <label for="loginUser" class="sr-only">نام کاربری</label>
     <input class="field" id="loginUser" type="text" placeholder="نام کاربری" autocomplete="username">
+    <label for="loginPass" class="sr-only">رمز عبور</label>
     <input class="field" id="loginPass" type="password" placeholder="رمز عبور" autocomplete="current-password">
     <div class="err" id="loginErr">❌ نام کاربری یا رمز عبور اشتباه است</div>
     <button class="btn" id="loginBtn" onclick="doLogin()">ورود به داشبورد ←</button>
@@ -249,7 +243,7 @@
   <span class="closeBtn" onclick="document.getElementById('libBanner').classList.remove('show')">✕</span>
 </div>
 
-<div id="pwdModal"><div class="modal-bg"></div><div class="modal-box"><div style="font-size:32px;margin-bottom:6px">🔐</div><div style="font-weight:700;margin-bottom:3px">داده رمزنگاری شده</div><div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">برای باز کردن رمز عبور را وارد کنید</div><input type="password" id="pwdInput" placeholder="رمز عبور" dir="ltr" style="width:100%;padding:9px;border:1px solid var(--panel-border);border-radius:8px;background:var(--navy);color:var(--text);font-size:14px;box-sizing:border-box;text-align:center"><div style="display:flex;gap:8px;margin-top:12px"><button class="ok" style="flex:1;padding:9px;background:var(--teal);color:#04150f;border:none;border-radius:8px;font-weight:600;cursor:pointer">تأیید</button><button class="cancel" style="flex:1;padding:9px;background:var(--panel);color:var(--text-dim);border:1px solid var(--panel-border);border-radius:8px;cursor:pointer">انصراف</button></div></div></div>
+<div id="pwdModal" role="dialog" aria-modal="true"><div class="modal-bg"></div><div class="modal-box"><div style="font-size:32px;margin-bottom:6px">🔐</div><div style="font-weight:700;margin-bottom:3px">داده رمزنگاری شده</div><div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">برای باز کردن رمز عبور را وارد کنید</div><label for="pwdInput" class="sr-only">رمز عبور</label><input type="password" id="pwdInput" placeholder="رمز عبور" dir="ltr" style="width:100%;padding:9px;border:1px solid var(--panel-border);border-radius:8px;background:var(--navy);color:var(--text);font-size:14px;box-sizing:border-box;text-align:center"><div style="display:flex;gap:8px;margin-top:12px"><button class="ok" style="flex:1;padding:9px;background:var(--teal);color:#04150f;border:none;border-radius:8px;font-weight:600;cursor:pointer">تأیید</button><button class="cancel" style="flex:1;padding:9px;background:var(--panel);color:var(--text-dim);border:1px solid var(--panel-border);border-radius:8px;cursor:pointer">انصراف</button></div></div></div>
 
 <div class="wrap">
 
@@ -352,7 +346,7 @@
       <h2>ALL RECORDS · CONTAINER REGISTRY</h2>
       <div class="board-summary">نمایش <span class="bcount" id="contShowCount">0</span> از <span class="bcount" id="contTotalCount">0</span></div>
     </div>
-    <div class="board-search"><input type="text" id="contSearch" placeholder="🔎 جستجو در کانتینر، کشتی، خط، فورواردر، POL، ایجنت..." oninput="renderContainerList()"><button class="btn" onclick="toggleAdvSearch()" style="font-size:10px;margin-right:4px;">⬇ جستجوی پیشرفته</button></div>
+    <div class="board-search"><input type="text" id="contSearch" placeholder="🔎 جستجو در کانتینر، کشتی، خط، فورواردر، POL، ایجنت..." oninput="debouncedContSearch()"><button class="btn" onclick="toggleAdvSearch()" style="font-size:10px;margin-right:4px;">⬇ جستجوی پیشرفته</button></div>
     <div class="advWrap" id="advWrap">
       <div class="advGrid">
         <div class="fg"><label>VESSEL</label><input type="text" id="advVessel" oninput="advSearchChange()" placeholder="نام کشتی"></div>
@@ -387,14 +381,14 @@ var activeFilters = {fwd:[], pol:[], line:[], agent:[]};
 var currentMeta = null;
 var contPage = 1, contPerPage = 200;
 var contSort = {key:null, asc:true};
-var GOOGLE_SHEET_CSV_URL = ''; // Direct CSV (leave empty if using proxy)
 var PROXY_URL = 'https://script.google.com/macros/s/AKfycbyhpPC78t9utPvZ0blWZ9k1ocKImNGXcGFitdM4zRx5tF2JL_UuJlY54qQ3F_a6u4xu/exec';
 var LOGIN_PROXY_URL = 'https://script.google.com/macros/s/AKfycbygAEpxb_igwQ-_bneek08MGYoi60kCXt_vfPktWkQbcrA_4wI3vnK4YGPxZ0wWW4U3/exec';
 
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 async function sha256(str){var enc=new TextEncoder().encode(str);var buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
 function debounce(fn,delay){var t;return function(){clearTimeout(t);t=setTimeout(fn,delay);};}
 var _debouncedRefresh=debounce(function(){refreshDashboard();},200);
+var debouncedContSearch=debounce(function(){renderContainerList();},150);
 var _dateFormat=localStorage.getItem('bms_dateformat')||'miladi';
 function isJalali(){return _dateFormat==='jalali';}
 function toggleDateFormat(){
@@ -618,7 +612,8 @@ function refreshDashboard(){
   var records=getFilteredRecords();
   document.getElementById('filterInfo').textContent=records.length.toLocaleString()+' رکورد ('+(rawRecords.length?Math.round(records.length/rawRecords.length*100)+'% از کل':'—')+')';
   var data=aggregateFromRecords(records);
-  var pending=rawRecords.filter(function(r){return !r.arrv_date;});
+  var existingContainers=new Set(data.all_records.map(function(r){return r.container;}));
+  var pending=rawRecords.filter(function(r){return !r.arrv_date && (!existingContainers.has(r.container)||!r.container);});
   pending.forEach(function(r){
     data.all_records.push({
       container:r.container||null,vessel:r.vessel||null,size:r.size||null,qty:r.qty||0,
@@ -906,12 +901,15 @@ var _prevPols=null;
 function renderMap(v){
   var c=document.getElementById('mapC');
   if(!c)return;
-  if(_mapInstance){_mapInstance.remove();_mapInstance=null;_animId=null;}
-  if(_polResetEl){_polResetEl.remove();_polResetEl=null;}
-  if(!window.L||!v.pol_coords||!v.pol_coords.length)return;
-  // Avoid re-rendering if same POLs (data unchanged)
+  if(!window.L||!v.pol_coords||!v.pol_coords.length){
+    if(_mapInstance){_mapInstance.remove();_mapInstance=null;_animId=null;}
+    if(_polResetEl){_polResetEl.remove();_polResetEl=null;}
+    return;
+  }
   var curPols=v.pol_coords.map(function(p){return p.name+':'+p.count;}).join('|');
   if(_prevPols===curPols&&_mapInstance)return;
+  if(_mapInstance){_mapInstance.remove();_mapInstance=null;_animId=null;}
+  if(_polResetEl){_polResetEl.remove();_polResetEl=null;}
   _prevPols=curPols;
   _mapInstance=L.map('mapC',{zoomControl:false,attributionControl:false}).setView([27.5,64],4);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(_mapInstance);
@@ -1016,10 +1014,10 @@ function renderContainerList(records){
   document.getElementById('contTotalCount').textContent=fmtInt(filtered.length);
   document.getElementById('contShowCount').textContent=fmtInt(show.length);
   var html='';
+  function cel(v){return (v==null||v==='')?'<td class="miss">\u2014</td>':'<td>'+esc(v)+'</td>';}
+  function celSz(v){if(v==null||v==='')return '<td class="miss">\u2014</td>';return '<td class="sz">'+esc(v)+"'"+'</td>';}
   show.forEach(function(r,i){
     var cls=r.status==='Arrived'?'stat-arr':'stat-pen';
-    function cel(v){return (v==null||v==='')?'<td class="miss">\u2014</td>':'<td>'+esc(v)+'</td>';}
-    function celSz(v){if(v==null||v==='')return '<td class="miss">\u2014</td>';return '<td class="sz">'+esc(v)+"'"+'</td>';}
     html+='<tr><td>'+(start+i+1)+'</td>'+cel(r.container)+cel(r.vessel)+celSz(r.size)+'<td>'+parseInt(r.qty||0)+'</td>'+cel(r.pol_forwarder)+cel(r.pol)+cel(r.line)+cel(r.iran_agent)+cel(r.date)+'<td class="'+cls+'">'+(r.status==='Arrived'?'Arrived':'Pending')+'</td></tr>';
   });
   document.getElementById('contBody').innerHTML=html;
@@ -1137,15 +1135,12 @@ function setDatePreset(preset){
   var from,to=fmtDate(now);
   if(isJalali()){
     var jToday=g2j(now.getFullYear(),now.getMonth()+1,now.getDate());
-    var jy=jToday[0];
+    var jy=jToday[0],jm=jToday[1];
     if(preset==='today'){from=to;}
     else if(preset==='7days'){var d=new Date(now);d.setDate(d.getDate()-7);from=fmtDate(d);}
     else if(preset==='30days'){var d=new Date(now);d.setDate(d.getDate()-30);from=fmtDate(d);}
-    else if(preset==='month'){from=jy+'-'+String(jToday[1]).padStart(2,'0')+'-01';}
-    else if(preset==='quarter'){
-      var qm=Math.floor((jToday[1]-1)/3)*3+1;
-      from=jy+'-'+String(qm).padStart(2,'0')+'-01';
-    }
+    else if(preset==='month'){from=jy+'-'+String(jm).padStart(2,'0')+'-01';}
+    else if(preset==='quarter'){var qm=Math.floor((jm-1)/3)*3+1;from=jy+'-'+String(qm).padStart(2,'0')+'-01';}
     else if(preset==='year'){from=jy+'-01-01';}
   }else{
     if(preset==='today'){from=to;}
@@ -1230,7 +1225,7 @@ function toggleAdvSearch(){
 }
 function advSearchChange(){
   contPage=1;
-  renderContainerList();
+  debouncedContSearch();
 }
 
 /* ============================================================
@@ -1273,13 +1268,6 @@ function findVesselSheetName(workbook){
   if(exact)return exact;
   var partial=names.find(function(n){return n.toLowerCase().indexOf('vessel')!==-1;});
   return partial||names[0];
-}
-
-function toDate(val){
-  if(val instanceof Date&&!isNaN(val)){var y=val.getUTCFullYear();if(y>1900&&y<2100)return val;}
-  if(typeof val==='number'&&val>40000)return new Date((val-25569)*86400000);
-  if(typeof val==='string'&&val.match(/^\d{4}-\d{2}-\d{2}/))return new Date(val.slice(0,10)+'T00:00:00Z');
-  return null;
 }
 
 function parseRows(rows){
@@ -1384,12 +1372,17 @@ document.addEventListener('drop',function(e){e.preventDefault();var file=e.dataT
    ============================================================ */
 
 async function decryptData(buf, password){
-  var data=new Uint8Array(buf);
-  var salt=data.slice(0,16), iv=data.slice(16,28), ct=data.slice(28);
-  var enc=new TextEncoder();
-  var keyMaterial=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveKey']);
-  var key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},keyMaterial,{name:'AES-GCM',length:256},false,['decrypt']);
-  return await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},key,ct);
+  try{
+    var data=new Uint8Array(buf);
+    var salt=data.slice(0,16), iv=data.slice(16,28), ct=data.slice(28);
+    var enc=new TextEncoder();
+    var keyMaterial=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveKey']);
+    var key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},keyMaterial,{name:'AES-GCM',length:256},false,['decrypt']);
+    return await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},key,ct);
+  }catch(e){
+    showToast('❌ رمز عبور اشتباه است یا فایل خراب است',true);
+    return null;
+  }
 }
 function showPasswordModal(){return new Promise(function(rs){
   var m=document.getElementById('pwdModal');m.classList.add('show');
@@ -1400,42 +1393,34 @@ function showPasswordModal(){return new Promise(function(rs){
 });}
 async function fetchGoogleSheet(){
   var token=localStorage.getItem('bms_token');
-  console.log('[BMS] fetchGoogleSheet: token=',token?'present':'MISSING');
   if(!token)return null;
   try{
     var pb=document.getElementById('progFill');
     if(pb)pb.style.width='30%';
     document.getElementById('autoRefLabel').textContent='⏳ دریافت دیتا از سرور...';
-    console.log('[BMS] fetchGoogleSheet: POST to',PROXY_URL);
     var resp=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:token}),signal:AbortSignal.timeout(30000)});
-    console.log('[BMS] fetchGoogleSheet: resp.status=',resp.status);
     if(!resp.ok)return null;
     if(pb)pb.style.width='60%';
     document.getElementById('autoRefLabel').textContent='⏳ پردازش دیتا...';
     var csv=await resp.text();
-    console.log('[BMS] fetchGoogleSheet: csv.length=',csv.length,', starts=',csv.substring(0,100));
     if(csv==='Forbidden'){
-      console.log('[BMS] fetchGoogleSheet: FORBIDDEN - token may have been cleared server-side');
       showBanner('<b>⚠️ اتصال به سرور دیتا ممکن نیست.</b><br>لطفاً از صفحه خارج شده دوباره وارد شوید. (توکن شما هنوز معتبر است)');
       return null;
     }
     var wb=XLSX.read(csv,{type:'string',raw:true});
     var ws=wb.Sheets[wb.SheetNames[0]];
     var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
-    console.log('[BMS] fetchGoogleSheet: rows.length=',rows.length);
     if(rows.length<2)return null;
     if(pb)pb.style.width='90%';
     var records=parseRows(rows);
-    console.log('[BMS] fetchGoogleSheet: records.length=',records.length,' sample=',JSON.stringify(records[0]));
     if(pb)pb.style.width='100%';
     setTimeout(function(){if(pb)pb.style.width='0%';},600);
     return records;
-  }catch(e){console.log('[BMS] fetchGoogleSheet ERROR',e);if(pb)pb.style.width='0%';return null;}
+  }catch(e){if(pb)pb.style.width='0%';return null;}
 }
 async function tryAutoFetch(){
-  if(_fetchInProgress){console.log('[BMS] tryAutoFetch: already in progress, skip');return;}
+  if(_fetchInProgress)return;
   _fetchInProgress=true;
-  console.log('[BMS] tryAutoFetch: start');
   try{
     if(window.electronAPI){
       try{
@@ -1445,23 +1430,19 @@ async function tryAutoFetch(){
           for(var i=0;i<len;i++)bytes[i]=binary.charCodeAt(i);
           processArrayBuffer(bytes.buffer,result.name);return;
         }
-      }catch(e){console.log('Electron error',e);}
+      }catch(e){}
     }
     var isLocal=window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'||window.location.protocol==='file:';
-    console.log('[BMS] tryAutoFetch: isLocal=',isLocal);
     if(!isLocal){
       var gsRecords=await fetchGoogleSheet();
-      console.log('[BMS] tryAutoFetch: gsRecords=',gsRecords?gsRecords.length:'null');
       if(gsRecords&&gsRecords.length){
         rawRecords=gsRecords;
         currentMeta={time:new Date().toLocaleString('fa-IR')};
-        console.log('[BMS] tryAutoFetch: calling initFilters + refreshDashboard');
         initFilters();contPage=1;refreshDashboard();
         showToast('✅ دیتا از Google Sheets بارگذاری شد ('+gsRecords.length.toLocaleString()+' رکورد)',false);
         document.getElementById('autoRefLabel').textContent='\uD83D\uDD04 '+new Date().toLocaleTimeString('fa-IR');
         return;
       }
-      console.log('[BMS] tryAutoFetch: gsRecords empty, trying .enc file');
       try{
         var resp=await fetch('data.enc');
         if(resp.ok){
@@ -1469,13 +1450,11 @@ async function tryAutoFetch(){
           var pw=await showPasswordModal();
           if(pw){
             var dec=await decryptData(buf,pw);
-            processArrayBuffer(dec,'data.xlsx (encrypted)');
-            return;
+            if(dec){processArrayBuffer(dec,'data.xlsx (encrypted)');return;}
           }
         }
       }catch(e){}
     }
-    console.log('[BMS] tryAutoFetch: trying local files');
     var filenames=['data.xlsx','data.xlsm','Copy of Vesel Checking & Pending(M.H).xlsm','Copy of Vesel Checking & Pending(M.H).xlsx','Vessel_Checking.xlsm','Vessel_Checking.xlsx','dashboard.xlsm','dashboard.xlsx'];
     for(var name of filenames){
       try{
@@ -1486,7 +1465,6 @@ async function tryAutoFetch(){
         return;
       }catch(e){}
     }
-    console.log('[BMS] tryAutoFetch: no data source found');
   }finally{
     _fetchInProgress=false;
   }
@@ -1499,13 +1477,12 @@ function showBanner(msg){var b=document.getElementById('libBanner');if(msg)b.que
     document.getElementById('libLoading').classList.add('hide');
     showBanner('<b>⚠️ کتابخانه‌های مورد نیاز از اینترنت بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5).');
   },28000);
-  var chartUrl=await window.__chartReady;
-  var xlsxUrl=await window.__xlsxReady;
-  var leafletUrl=await window.__leafletReady;
+  var results=await Promise.all([window.__chartReady,window.__xlsxReady,window.__leafletReady]);
+  var chartUrl=results[0],xlsxUrl=results[1],leafletUrl=results[2];
   clearTimeout(safeTimer);
   document.getElementById('libLoading').classList.add('hide');
-  if(chartUrl){setupChartDefaults();renderAll(DEFAULT_DATA,{filename:null,time:null});initFilters();}else{showBanner('<b>⚠️ کتابخانه‌های مورد نیاز از اینترنت بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5). ۲) فایل اکسل را بفرستید تا نسخهٔ آفلاین بسازم.');}
-  if(!leafletUrl&&!chartUrl&&!xlsxUrl){showBanner('<b>⚠️ Leaflet.js (نقشه) بارگذاری نشد.</b><br>نقشه در دسترس نیست، بقیه داشبورد کار می‌کند.');}
+  if(chartUrl){setupChartDefaults();renderAll(DEFAULT_DATA,{filename:null,time:null});initFilters();}
+  if(!chartUrl||!xlsxUrl){showBanner('<b>⚠️ کتابخانه‌های مورد نیاز بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5). ۲) فایل اکسل را بفرستید تا نسخهٔ آفلاین بسازم.');}
   if(chartUrl&&xlsxUrl)tryAutoFetch();
   // Auto-refresh every 5 minutes
   _autoRefreshInterval=setInterval(function(){
@@ -1515,7 +1492,7 @@ function showBanner(msg){var b=document.getElementById('libBanner');if(msg)b.que
       tryAutoFetch();
     }
   },300000);
-  _timerInterval=setInterval(function(){
+  _logoutCheckInterval=setInterval(function(){
     var t=localStorage.getItem('bms_logintime');
     if(t&&(Date.now()-parseInt(t))>18e5){logout();}
   },15000);
@@ -1533,7 +1510,9 @@ async function doLogin(){
       body:JSON.stringify({action:'login',user:user,hash:hash}),
       signal:AbortSignal.timeout(15000)
     });
-    var data=await resp.json();
+    var text=await resp.text();
+    var data;
+    try{data=JSON.parse(text);}catch(e){data={ok:false};}
     if(data.ok&&data.token){
       var now=Date.now().toString();
       localStorage.setItem('bms_token',data.token);
@@ -1558,6 +1537,7 @@ async function doLogin(){
   }
 }
 var _timerInterval=null;
+var _logoutCheckInterval=null;
 function updateTimer(){
   var t=localStorage.getItem('bms_logintime');
   if(!t)return;
@@ -1582,6 +1562,7 @@ function logout(){
   document.getElementById('welcomeUser').style.display='none';
   document.getElementById('timerChip').style.display='none';
   if(_timerInterval){clearInterval(_timerInterval);_timerInterval=null;}
+  if(_logoutCheckInterval){clearInterval(_logoutCheckInterval);_logoutCheckInterval=null;}
   if(_autoRefreshInterval){clearInterval(_autoRefreshInterval);_autoRefreshInterval=null;}
 }
 function toggleTheme(){
