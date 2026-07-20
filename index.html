@@ -387,7 +387,30 @@ let currentMeta = null;
 let contSort = {key:null, asc:true};
 let PROXY_URL = '';
 let LOGIN_PROXY_URL = '';
+let _worker = null;
+let _workerBusy = false;
+let _workerCallback = null;
+try { _worker = new Worker('worker.js'); } catch(e) {}
+if (_worker) {
+  _worker.onmessage = function(e) {
+    _workerBusy = false;
+    if (_workerCallback) { _workerCallback(e.data.data); _workerCallback = null; }
+  };
+  _worker.onerror = function(e) {
+    _workerBusy = false;
+    log('Worker error:', e);
+    if (_workerCallback) { _workerCallback(null); _workerCallback = null; }
+  };
+}
 
+function aggregateAsync(records,filterParams,callback){
+  if(_worker&&!_workerBusy){
+    _workerBusy=true;_workerCallback=callback;
+    try{_worker.postMessage({type:'aggregate',records:records,filters:filterParams});}catch(e){_workerBusy=false;callback(aggregateFromRecords(records));}
+  }else{
+    callback(aggregateFromRecords(records));
+  }
+}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function sanitizeHtml(s){let d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
 function fmtDateToMs(s){if(!s)return 0;let p=s.split(/[-\/]/);if(p.length<3)return 0;if(isJalali()){let g=j2g(parseInt(p[0]),parseInt(p[1]),parseInt(p[2]));if(!g[0])return 0;return new Date(g[0],g[1]-1,g[2]).getTime();}return new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2])).getTime();}
@@ -620,64 +643,64 @@ function refreshDashboard(){
   if(!rawRecords.length){return;}
   let records=getFilteredRecords();
   document.getElementById('filterInfo').textContent=records.length.toLocaleString()+' رکورد ('+(rawRecords.length?Math.round(records.length/rawRecords.length*100)+'% از کل':'—')+')';
-  let data=aggregateFromRecords(records);
-  let existingContainers=new Set(data.all_records.map(function(r){return r.container;}));
-  let pending=rawRecords.filter(function(r){return !r.arrv_date && (!existingContainers.has(r.container)||!r.container);});
-  pending.forEach(function(r){
-    data.all_records.push({
-      container:r.container||null,vessel:r.vessel||null,size:r.size||null,qty:r.qty||0,
-      pol_forwarder:r.pol_forwarder||null,pol:r.pol||null,line:r.line||null,
-      iran_agent:r.iran_agent||null,date:'',status:r.status||'Pending'
-    });
-  });
   let from=document.getElementById('fltFrom').value;
   let to=document.getElementById('fltTo').value;
   let fromDate=from?parseDateInput(from):null;
   let toDate=to?parseDateInput(to):null;
+  let prevRecords=null,prevFromStr=null,prevToStr=null,curPeriodLabel=null,prevPeriodLabel=null;
   if(fromDate&&toDate&&!isNaN(fromDate.getTime())&&!isNaN(toDate.getTime())){
     let prevFrom=new Date(fromDate.getFullYear()-1,fromDate.getMonth(),fromDate.getDate());
     let prevTo=new Date(toDate.getFullYear()-1,toDate.getMonth(),toDate.getDate());
-    let prevFromStr=fmtDate(prevFrom);
-    let prevToStr=fmtDate(prevTo);
-    let prevRecords=rawRecords.filter(function(r){
+    prevFromStr=fmtDate(prevFrom);prevToStr=fmtDate(prevTo);
+    prevRecords=rawRecords.filter(function(r){
       if(!r.arrv_date)return false;
-      let d=fmtDate(r.arrv_date),dm=fmtDateToMs(d);
-      if(prevFromStr&&dm<fmtDateToMs(prevFromStr))return false;
-      if(prevToStr&&dm>fmtDateToMs(prevToStr))return false;
+      let dm=fmtDateToMs(fmtDate(r.arrv_date));
+      if(dm<fmtDateToMs(prevFromStr))return false;
+      if(dm>fmtDateToMs(prevToStr))return false;
       if(activeFilters.fwd.length&&activeFilters.fwd.indexOf(r.pol_forwarder)===-1)return false;
       if(activeFilters.pol.length&&activeFilters.pol.indexOf(r.pol)===-1)return false;
       if(activeFilters.line.length&&activeFilters.line.indexOf(r.line)===-1)return false;
       if(activeFilters.agent.length&&activeFilters.agent.indexOf(r.iran_agent)===-1)return false;
       return true;
     });
-    data.prevPeriod=aggregateFromRecords(prevRecords);
-    data.prevPeriodLabel=prevFromStr+' تا '+prevToStr;
-    data.curPeriodLabel=from+' تا '+to;
+    curPeriodLabel=from+' تا '+to;prevPeriodLabel=prevFromStr+' تا '+prevToStr;
   }else if(records.length>1){
     let recDates=records.map(function(r){return r.arrv_date;}).filter(Boolean);
     if(recDates.length>1){
-      let minRD=new Date(Math.min.apply(null,recDates));
-      let maxRD=new Date(Math.max.apply(null,recDates));
-      let rRange=Math.round((maxRD.getTime()-minRD.getTime())/86400000);
-      if(rRange>0){
+      let minRD=new Date(Math.min.apply(null,recDates)),maxRD=new Date(Math.max.apply(null,recDates));
+      if(Math.round((maxRD.getTime()-minRD.getTime())/86400000)>0){
         let rpFrom=new Date(minRD.getFullYear()-1,minRD.getMonth(),minRD.getDate());
         let rpTo=new Date(maxRD.getFullYear()-1,maxRD.getMonth(),maxRD.getDate());
-        let rpFs=fmtDate(rpFrom);
-        let rpTs=fmtDate(rpTo);
-        let rpRecs=rawRecords.filter(function(r){
+        prevFromStr=fmtDate(rpFrom);prevToStr=fmtDate(rpTo);
+        prevRecords=rawRecords.filter(function(r){
           if(!r.arrv_date)return false;
-          let d=fmtDate(r.arrv_date),dm=fmtDateToMs(d);
-          if(rpFs&&dm<fmtDateToMs(rpFs))return false;
-          if(rpTs&&dm>fmtDateToMs(rpTs))return false;
+          let dm=fmtDateToMs(fmtDate(r.arrv_date));
+          if(dm<fmtDateToMs(prevFromStr))return false;
+          if(dm>fmtDateToMs(prevToStr))return false;
           return true;
         });
-        data.prevPeriod=aggregateFromRecords(rpRecs);
-        data.prevPeriodLabel=rpFs+' تا '+rpTs;
-        data.curPeriodLabel=fmtDate(minRD)+' تا '+fmtDate(maxRD);
+        curPeriodLabel=fmtDate(minRD)+' تا '+fmtDate(maxRD);prevPeriodLabel=prevFromStr+' تا '+prevToStr;
       }
     }
   }
-  renderAll(data,currentMeta);
+  let filterParams={dateFormat:localStorage.getItem('bms_dateformat')||'miladi'};
+  function onMainResult(mainData){
+    let existingContainers=new Set(mainData.all_records.map(function(r){return r.container;}));
+    let pending=rawRecords.filter(function(r){return !r.arrv_date && (!existingContainers.has(r.container)||!r.container);});
+    pending.forEach(function(r){
+      mainData.all_records.push({container:r.container||null,vessel:r.vessel||null,size:r.size||null,qty:r.qty||0,pol_forwarder:r.pol_forwarder||null,pol:r.pol||null,line:r.line||null,iran_agent:r.iran_agent||null,date:'',status:r.status||'Pending'});
+    });
+    if(prevRecords){
+      function onPrevResult(prevData){
+        mainData.prevPeriod=prevData;mainData.prevPeriodLabel=prevPeriodLabel;mainData.curPeriodLabel=curPeriodLabel;
+        renderAll(mainData,currentMeta);
+      }
+      aggregateAsync(prevRecords,filterParams,onPrevResult);
+    }else{
+      renderAll(mainData,currentMeta);
+    }
+  }
+  aggregateAsync(records,filterParams,onMainResult);
 }
 
 /* ============================================================
