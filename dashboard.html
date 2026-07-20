@@ -102,9 +102,11 @@
   table.contab td.sz{color:var(--gold);}
   table.contab td.stat-arr{color:var(--teal);}
   table.contab td.stat-pen{color:var(--red);}
-  .board-scroll{max-height:520px;overflow-y:auto;}
+  .board-scroll{height:520px;overflow-y:auto;position:relative;contain:layout style;}
   .board-scroll::-webkit-scrollbar{width:6px;}
   .board-scroll::-webkit-scrollbar-thumb{background:var(--panel-border);border-radius:10px;}
+  .board-scroll table.contab{width:100%;}
+  .board-scroll thead{position:sticky;top:0;z-index:2;background:var(--navy);}
   .board-search{margin-bottom:8px;}
   .board-search input{width:100%;padding:7px 12px;background:var(--navy);border:1px solid var(--panel-border);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:11px;outline:none;}
   .board-search input:focus{border-color:var(--teal);}
@@ -356,9 +358,9 @@
         <div class="fg"><label>STATUS</label><select id="advStatus" onchange="advSearchChange()"><option value="">همه</option><option>Arrived</option><option>Pending</option></select></div>
       </div>
     </div>
-    <div class="board-scroll">
+    <div class="board-scroll" id="contScroll">
       <table class="contab">
-        <thead><tr><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='idx')k.asc=!k.asc;else{k.key='idx';k.asc=false;}renderContainerList()">#<span class="sortic" id="srt-idx"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='container')k.asc=!k.asc;else{k.key='container';k.asc=true;}renderContainerList()">کانتینر<span class="sortic" id="srt-container"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='vessel')k.asc=!k.asc;else{k.key='vessel';k.asc=true;}renderContainerList()">کشتی / سفر<span class="sortic" id="srt-vessel"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='size')k.asc=!k.asc;else{k.key='size';k.asc=true;}renderContainerList()">سایز<span class="sortic" id="srt-size"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='qty')k.asc=!k.asc;else{k.key='qty';k.asc=true;}renderContainerList()">تعداد<span class="sortic" id="srt-qty"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='pol_forwarder')k.asc=!k.asc;else{k.key='pol_forwarder';k.asc=true;}renderContainerList()">فورواردر POL<span class="sortic" id="srt-pol_forwarder"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='pol')k.asc=!k.asc;else{k.key='pol';k.asc=true;}renderContainerList()">بندر بارگیری<span class="sortic" id="srt-pol"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='line')k.asc=!k.asc;else{k.key='line';k.asc=true;}renderContainerList()">خط کشتیرانی<span class="sortic" id="srt-line"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='iran_agent')k.asc=!k.asc;else{k.key='iran_agent';k.asc=true;}renderContainerList()">نمایندهٔ ایران<span class="sortic" id="srt-iran_agent"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='date')k.asc=!k.asc;else{k.key='date';k.asc=false;}renderContainerList()">تاریخ<span class="sortic" id="srt-date"></span></th><th style="cursor:pointer" onclick="var k=contSort;if(k.key==='status')k.asc=!k.asc;else{k.key='status';k.asc=true;}renderContainerList()">وضعیت<span class="sortic" id="srt-status"></span></th></tr></thead>
+        <thead id="contHead"><tr><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='idx')k.asc=!k.asc;else{k.key='idx';k.asc=false;}renderContainerList()">#<span class="sortic" id="srt-idx"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='container')k.asc=!k.asc;else{k.key='container';k.asc=true;}renderContainerList()">کانتینر<span class="sortic" id="srt-container"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='vessel')k.asc=!k.asc;else{k.key='vessel';k.asc=true;}renderContainerList()">کشتی / سفر<span class="sortic" id="srt-vessel"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='size')k.asc=!k.asc;else{k.key='size';k.asc=true;}renderContainerList()">سایز<span class="sortic" id="srt-size"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='qty')k.asc=!k.asc;else{k.key='qty';k.asc=true;}renderContainerList()">تعداد<span class="sortic" id="srt-qty"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='pol_forwarder')k.asc=!k.asc;else{k.key='pol_forwarder';k.asc=true;}renderContainerList()">فورواردر POL<span class="sortic" id="srt-pol_forwarder"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='pol')k.asc=!k.asc;else{k.key='pol';k.asc=true;}renderContainerList()">بندر بارگیری<span class="sortic" id="srt-pol"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='line')k.asc=!k.asc;else{k.key='line';k.asc=true;}renderContainerList()">خط کشتیرانی<span class="sortic" id="srt-line"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='iran_agent')k.asc=!k.asc;else{k.key='iran_agent';k.asc=true;}renderContainerList()">نمایندهٔ ایران<span class="sortic" id="srt-iran_agent"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='date')k.asc=!k.asc;else{k.key='date';k.asc=false;}renderContainerList()">تاریخ<span class="sortic" id="srt-date"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='status')k.asc=!k.asc;else{k.key='status';k.asc=true;}renderContainerList()">وضعیت<span class="sortic" id="srt-status"></span></th></tr></thead>
         <tbody id="contBody"></tbody>
       </table>
     </div>
@@ -377,10 +379,9 @@
 let rawRecords = [];
 let activeFilters = {fwd:[], pol:[], line:[], agent:[]};
 let currentMeta = null;
-let contPage = 1, contPerPage = 200;
 let contSort = {key:null, asc:true};
-const PROXY_URL = 'https://script.google.com/macros/s/AKfycbyhpPC78t9utPvZ0blWZ9k1ocKImNGXcGFitdM4zRx5tF2JL_UuJlY54qQ3F_a6u4xu/exec';
-const LOGIN_PROXY_URL = 'https://script.google.com/macros/s/AKfycbygAEpxb_igwQ-_bneek08MGYoi60kCXt_vfPktWkQbcrA_4wI3vnK4YGPxZ0wWW4U3/exec';
+let PROXY_URL = '';
+let LOGIN_PROXY_URL = '';
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 async function sha256(str){let enc=new TextEncoder().encode(str);let buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
@@ -882,7 +883,7 @@ function showPolResetBtn(polName){
   let mapC=document.getElementById('mapC');
   if(!mapC)return;
   _polResetEl=document.createElement('div');
-  _polResetEl.style.cssText='position:absolute;top:10px;right:10px;z-index:1000;background:let(--panel);border:1px solid let(--teal);color:let(--text);padding:6px 14px;border-radius:100px;cursor:pointer;font-size:11px;font-family:let(--sans);box-shadow:0 4px 16px rgba(0,0,0,.5);white-space:nowrap;';
+  _polResetEl.style.cssText='position:absolute;top:10px;right:10px;z-index:1000;background:var(--panel);border:1px solid var(--teal);color:var(--text);padding:6px 14px;border-radius:100px;cursor:pointer;font-size:11px;font-family:var(--sans);box-shadow:0 4px 16px rgba(0,0,0,.5);white-space:nowrap;';
   _polResetEl.innerHTML='✕ '+esc(polName)+' <span style="opacity:.65;">↺ بازنشانی</span>';
   _polResetEl.onclick=function(){
     activeFilters.pol=[];
@@ -960,11 +961,39 @@ function renderMap(v){
    4b) CONTAINER LIST RENDER
    ============================================================ */
 let _allRecordsCache=null;
+let _vsRowH=28;
+let _vsFiltered=[];
+let _vsScrollEl=null;
+let _vsBodyEl=null;
+
+function _cel(v){return (v==null||v==='')?'<td class="miss">\u2014</td>':'<td>'+esc(v)+'</td>';}
+function _celSz(v){if(v==null||v==='')return '<td class="miss">\u2014</td>';return '<td class="sz">'+esc(v)+"'"+'</td>';}
+
+function _vsRenderRows(){
+  if(!_vsScrollEl||!_vsBodyEl)return;
+  let scrollTop=_vsScrollEl.scrollTop;
+  let viewH=_vsScrollEl.clientHeight;
+  let total=_vsFiltered.length;
+  let headH=36;
+  let startIdx=Math.max(0,Math.floor((scrollTop-headH)/_vsRowH)-3);
+  let endIdx=Math.min(total,Math.ceil((scrollTop-headH+viewH)/_vsRowH)+3);
+  let topPad=startIdx*_vsRowH;
+  let bottomPad=Math.max(0,(total-endIdx)*_vsRowH);
+  let html='';
+  if(topPad>0)html+='<tr style="height:'+topPad+'px"><td colspan="11"></td></tr>';
+  for(let i=startIdx;i<endIdx;i++){
+    let r=_vsFiltered[i];
+    let cls=r.status==='Arrived'?'stat-arr':'stat-pen';
+    html+='<tr><td>'+(i+1)+'</td>'+_cel(r.container)+_cel(r.vessel)+_celSz(r.size)+'<td>'+parseInt(r.qty||0)+'</td>'+_cel(r.pol_forwarder)+_cel(r.pol)+_cel(r.line)+_cel(r.iran_agent)+_cel(r.date)+'<td class="'+cls+'">'+(r.status==='Arrived'?'Arrived':'Pending')+'</td></tr>';
+  }
+  if(bottomPad>0)html+='<tr style="height:'+bottomPad+'px"><td colspan="11"></td></tr>';
+  _vsBodyEl.innerHTML=html;
+}
+
 function renderContainerList(records){
-  if(records){_allRecordsCache=records;contPage=1;}
+  if(records){_allRecordsCache=records;}
   let all=_allRecordsCache||[];
   let q=document.getElementById('contSearch').value.trim().toLowerCase();
-  // Advanced search values
   let advVessel=document.getElementById('advVessel').value.trim().toLowerCase();
   let advFwd=document.getElementById('advFwd').value;
   let advPol=document.getElementById('advPol').value;
@@ -973,10 +1002,10 @@ function renderContainerList(records){
   let advSize=document.getElementById('advSize').value;
   let advStatus=document.getElementById('advStatus').value;
   let hasAdv=advVessel||advFwd||advPol||advLine||advAgent||advSize||advStatus;
-  let filtered=all.filter(function(r){
+  _vsFiltered=all.filter(function(r){
     if(q){
-      let searchStr=[r.container,r.vessel,r.line,r.pol_forwarder,r.pol,r.iran_agent,r.size,r.qty,r.date,r.status].join(' ').toLowerCase();
-      if(searchStr.indexOf(q)===-1)return false;
+      if(!r._search)r._search=[r.container,r.vessel,r.line,r.pol_forwarder,r.pol,r.iran_agent,r.size,r.qty,r.date,r.status].join(' ').toLowerCase();
+      if(r._search.indexOf(q)===-1)return false;
     }
     if(hasAdv){
       if(advVessel&&(r.vessel||'').toLowerCase().indexOf(advVessel)===-1)return false;
@@ -989,48 +1018,27 @@ function renderContainerList(records){
     }
     return true;
   });
-  // Sort
   let sk=contSort.key;
   if(sk&&sk!=='idx'){
-    filtered.sort(function(a,b){
+    _vsFiltered.sort(function(a,b){
       let va=a[sk],vb=b[sk];
       if(va==null)va='';if(vb==null)vb='';
       if(typeof va==='number')return contSort.asc?va-vb:vb-va;
       return contSort.asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));
     });
   }
-  // Update sort indicators
   document.querySelectorAll('.sortic').forEach(function(el){el.className='sortic';});
   if(sk){let sel=document.getElementById('srt-'+sk);if(sel)sel.className='sortic '+(contSort.asc?'asc':'dsc');}
-  let totalPages=Math.max(1,Math.ceil(filtered.length/contPerPage));
-  if(contPage>totalPages)contPage=totalPages;
-  let start=(contPage-1)*contPerPage;
-  let show=filtered.slice(start,start+contPerPage);
-  document.getElementById('contTotalCount').textContent=fmtInt(filtered.length);
-  document.getElementById('contShowCount').textContent=fmtInt(show.length);
-  let html='';
-  function cel(v){return (v==null||v==='')?'<td class="miss">\u2014</td>':'<td>'+esc(v)+'</td>';}
-  function celSz(v){if(v==null||v==='')return '<td class="miss">\u2014</td>';return '<td class="sz">'+esc(v)+"'"+'</td>';}
-  show.forEach(function(r,i){
-    let cls=r.status==='Arrived'?'stat-arr':'stat-pen';
-    html+='<tr><td>'+(start+i+1)+'</td>'+cel(r.container)+cel(r.vessel)+celSz(r.size)+'<td>'+parseInt(r.qty||0)+'</td>'+cel(r.pol_forwarder)+cel(r.pol)+cel(r.line)+cel(r.iran_agent)+cel(r.date)+'<td class="'+cls+'">'+(r.status==='Arrived'?'Arrived':'Pending')+'</td></tr>';
-  });
-  document.getElementById('contBody').innerHTML=html;
-  let info=document.getElementById('contListInfo');
-  if(totalPages>1){
-    let phtml='<div style="display:flex;align-items:center;gap:6px;justify-content:center;padding:6px 0;font-size:10px;color:let(--text-dim);font-family:let(--mono)">';
-    phtml+='<span style="cursor:pointer;color:let(--teal)" onclick="contPage=1;renderContainerList()">\u00ab</span>';
-    phtml+='<span style="cursor:pointer;color:let(--teal)" onclick="if(contPage>1){contPage--;renderContainerList()}">\u2039</span>';
-    let startPage=Math.max(1,contPage-2);
-    let endPage=Math.min(totalPages,contPage+2);
-    for(let p=startPage;p<=endPage;p++){
-      phtml+='<span style="cursor:pointer;'+(p===contPage?'background:let(--teal);color:#04150f;font-weight:700;padding:2px 7px;border-radius:4px':'color:let(--text-dim);padding:2px 7px')+'" onclick="contPage='+p+';renderContainerList()">'+p+'</span>';
-    }
-    phtml+='<span style="cursor:pointer;color:let(--teal)" onclick="if(contPage<totalPages){contPage++;renderContainerList()}">\u203a</span>';
-    phtml+='<span style="cursor:pointer;color:let(--teal)" onclick="contPage='+totalPages+';renderContainerList()">\u00bb</span>';
-    phtml+='</div>';
-    info.innerHTML=phtml;
-  }else{info.innerHTML='';}
+  document.getElementById('contTotalCount').textContent=fmtInt(_vsFiltered.length);
+  document.getElementById('contShowCount').textContent=fmtInt(_vsFiltered.length);
+  if(!_vsScrollEl){
+    _vsScrollEl=document.getElementById('contScroll');
+    _vsBodyEl=document.getElementById('contBody');
+    _vsScrollEl.addEventListener('scroll',_vsRenderRows);
+  }
+  _vsScrollEl.scrollTop=0;
+  _vsRenderRows();
+  document.getElementById('contListInfo').innerHTML='';
 }
 
 /* ============================================================
@@ -1219,7 +1227,6 @@ function toggleAdvSearch(){
   w.classList.toggle('show');
 }
 function advSearchChange(){
-  contPage=1;
   debouncedContSearch();
 }
 
@@ -1338,7 +1345,6 @@ function processArrayBuffer(buf,filename){
     let timeStr=now.toLocaleString('fa-IR',{hour:'2-digit',minute:'2-digit',second:'2-digit',year:'numeric',month:'2-digit',day:'2-digit'});
     currentMeta={filename:filename,time:timeStr};
     initFilters();
-    contPage=1;
     refreshDashboard();
     showToast('✅ داشبورد از «'+filename+'» به‌روزرسانی شد ('+rawRecords.length.toLocaleString()+' رکورد)',false);
     let autoRef=document.getElementById('autoRefLabel');
@@ -1433,7 +1439,7 @@ async function tryAutoFetch(){
       if(gsRecords&&gsRecords.length){
         rawRecords=gsRecords;
         currentMeta={time:new Date().toLocaleString('fa-IR')};
-        initFilters();contPage=1;refreshDashboard();
+        initFilters();refreshDashboard();
         showToast('✅ دیتا از Google Sheets بارگذاری شد ('+gsRecords.length.toLocaleString()+' رکورد)',false);
         document.getElementById('autoRefLabel').textContent='\uD83D\uDD04 '+new Date().toLocaleTimeString('fa-IR');
         return;
@@ -1468,6 +1474,11 @@ function showBanner(msg){let b=document.getElementById('libBanner');if(msg)b.que
 
 
 (async function boot(){
+  // Load external config (API URLs)
+  try{
+    let cfgResp=await fetch('config.json');
+    if(cfgResp.ok){let cfg=await cfgResp.json();if(cfg.PROXY_URL)PROXY_URL=cfg.PROXY_URL;if(cfg.LOGIN_PROXY_URL)LOGIN_PROXY_URL=cfg.LOGIN_PROXY_URL;}
+  }catch(e){}
   let safeTimer=setTimeout(function(){
     document.getElementById('libLoading').classList.add('hide');
     showBanner('<b>⚠️ کتابخانه‌های مورد نیاز از اینترنت بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5).');
