@@ -16,8 +16,8 @@
   window.__leafletReady=loadFirstAvailable(['./leaflet.js',_u+'leaflet@1.9.4/dist/leaflet.js',_c+'leaflet/1.9.4/leaflet.js',_j+'leaflet@1.9.4/dist/leaflet-src.js',_g+'leaflet@1.9.4/dist/leaflet.js']).catch(e=>null);
 </script>
 <style>
-  :root{--navy-deep:#071523;--navy:#0B2036;--panel:#0F2A45;--panel-2:#123350;--panel-border:rgba(140,182,219,.14);--grid-line:rgba(120,170,210,.08);--teal:#22C0AE;--teal-dim:rgba(34,192,174,.16);--gold:#E8AE52;--gold-dim:rgba(232,174,82,.16);--red:#E5654A;--red-dim:rgba(229,101,74,.16);--blue:#5B9BD5;--text:#EAF1F8;--text-dim:#93AAC4;--text-faint:#5D7893;--mono:'IBM Plex Mono',monospace;--sans:'Vazirmatn',sans-serif;}
-  [data-theme="light"]{--navy-deep:#fbfcfc;--navy:#fbfcfc;--panel:#e0e5e9;--panel-2:#d6dde1;--panel-border:#b2c9c5;--grid-line:rgba(178,201,197,.3);--teal:#1bd488;--teal-dim:rgba(27,212,136,.16);--gold:#D4952A;--gold-dim:rgba(212,149,42,.16);--red:#E5654A;--red-dim:rgba(229,101,74,.16);--blue:#3B82B0;--text:#055b65;--text-dim:#45828b;--text-faint:#7ba8a5;}
+  :root{--navy-deep:#071523;--navy:#0B2036;--panel:#0F2A45;--panel-2:#123350;--panel-border:rgba(140,182,219,.14);--grid-line:rgba(120,170,210,.08);--teal:#22C0AE;--teal-dim:rgba(34,192,174,.16);--gold:#E8AE52;--gold-dim:rgba(232,174,82,.16);--red:#E5654A;--red-dim:rgba(229,101,74,.16);--blue:#5B9BD5;--text:#EAF1F8;--text-dim:#A8BDD6;--text-faint:#7A94B2;--chart-text:#A8BDD6;--mono:'IBM Plex Mono',monospace;--sans:'Vazirmatn',sans-serif;}
+  [data-theme="light"]{--navy-deep:#fbfcfc;--navy:#fbfcfc;--panel:#e0e5e9;--panel-2:#d6dde1;--panel-border:#b2c9c5;--grid-line:rgba(178,201,197,.3);--teal:#1bd488;--teal-dim:rgba(27,212,136,.16);--gold:#D4952A;--gold-dim:rgba(212,149,42,.16);--red:#E5654A;--red-dim:rgba(229,101,74,.16);--blue:#3B82B0;--text:#063a40;--text-dim:#1a5e5a;--text-faint:#3d756e;--chart-text:#0d2e30;}
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{background:var(--navy-deep);color:var(--text);font-family:var(--sans);direction:rtl;}
   body{background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px),radial-gradient(ellipse 900px 500px at 85% -10%,rgba(34,192,174,.10),transparent 60%),radial-gradient(ellipse 700px 500px at 5% 10%,rgba(232,174,82,.06),transparent 60%);background-size:42px 42px,42px 42px,auto,auto;min-height:100vh;padding-bottom:60px;}
@@ -36,6 +36,7 @@
   .btn:hover{border-color:var(--teal);color:var(--text);}
   .btn.primary{background:linear-gradient(135deg,var(--teal),#0d7e72);color:#04150f;border:none;font-weight:600;}
   .btn.primary:hover{filter:brightness(1.08);}
+  .btn.date-preset.active{background:var(--teal);color:#04150f;border:1.5px solid var(--teal);box-shadow:0 0 8px rgba(34,192,174,.45);font-weight:600;}
   .btn.live{border-color:var(--gold-dim);}
   .btn.live.on{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
   .status-chip{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px;color:var(--text-dim);background:var(--panel);border:1px solid var(--panel-border);padding:7px 14px;border-radius:100px;}
@@ -173,16 +174,8 @@
   .kpi .trend{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-family:var(--mono);padding:2px 7px;border-radius:100px;margin-top:5px;font-weight:600;}
   .kpi .trend.up{background:rgba(34,192,174,.12);color:#22C0AE;}
   .kpi .trend.dn{background:rgba(229,101,74,.12);color:#E5654A;}
-  .kpi .trend.flat{background:rgba(147,170,196,.12);color:#93AAC4;}
-  .heatmap-wrap{padding:8px 0;overflow-x:auto;}
-  .heatmap-grid{display:flex;flex-direction:row-reverse;gap:2px;}
-  .heatmap-col{display:flex;flex-direction:column;gap:2px;}
-  .heatmap-cell{width:13px;height:13px;border-radius:2px;cursor:pointer;transition:.15s;border:1px solid transparent;}
-  .heatmap-cell:hover{border-color:var(--teal);transform:scale(1.3);z-index:2;}
-  .heatmap-cell[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 4px);right:50%;transform:translateX(50%);background:var(--navy-deep);border:1px solid var(--panel-border);color:var(--text);font-size:9px;font-family:var(--mono);padding:3px 8px;border-radius:4px;white-space:nowrap;z-index:10;pointer-events:none;}
-  .heatmap-cell{position:relative;}
-  .heatmap-legend{display:flex;align-items:center;gap:4px;margin-top:8px;font-size:9px;color:var(--text-faint);font-family:var(--mono);direction:ltr;justify-content:flex-end;}
-  .heatmap-legend span{display:inline-block;width:11px;height:11px;border-radius:2px;}
+  .kpi .trend.flat{background:rgba(147,170,196,.12);color:var(--text-faint);}
+
   .auto-cmp{background:var(--panel);border:1px solid var(--panel-border);border-radius:14px;padding:16px 20px;margin-bottom:18px;}
   .auto-cmp .cmp-title{font-size:13px;font-weight:700;margin-bottom:4px;}
   .auto-cmp .cmp-sub{font-size:11px;color:var(--text-dim);margin-bottom:12px;}
@@ -196,29 +189,23 @@
   .auto-cmp-item .ac-change.dn{color:var(--red);}
   .auto-cmp-item .ac-change.flat{color:var(--text-faint);}
   .progBar{height:3px;background:var(--panel-border);border-radius:2px;overflow:hidden;margin:6px 0;}
-  .progBar .fill{height:100%;width:0%;background:var(--teal);border-radius:2px;transition:width .3s;}
+  .progBar .fill{height:100%;width:0%;background:var(--teal);border-radius:2px;transition:width .3s;will-change:width;}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
   @media (max-width:900px){.grid-3{grid-template-columns:1fr 1fr;}.cmp-grid{grid-template-columns:1fr 1fr;}}
   @media (max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.grid-2{grid-template-columns:1fr;}.grid-3{grid-template-columns:1fr;}.header-inner{padding:14px 16px;}.wrap{padding:20px 16px 0;}.frow{flex-direction:column;}.fg{min-width:100%;}.cmp-grid{grid-template-columns:1fr;}.board-search input{font-size:13px;}.board-scroll{overflow-x:auto;}.board-scroll table{font-size:9px;}table.contab{font-size:9px;}table.contab thead th,table.contab tbody td{padding:4px 5px;white-space:nowrap;}.header-status{gap:6px;}}
-  .multi-sel{position:relative;}
-  .multi-sel .ms-btn{width:100%;padding:6px 8px;background:var(--navy-deep);border:1px solid var(--panel-border);border-radius:6px;color:var(--text);font-size:11px;font-family:var(--mono);cursor:pointer;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:30px;}
-  .multi-sel .ms-btn:after{content:'▾';float:left;margin-left:4px;color:var(--text-faint);}
-  .multi-sel .ms-panel{display:none;position:absolute;top:100%;left:0;right:0;z-index:100;background:var(--navy);border:1px solid var(--panel-border);border-radius:6px;max-height:200px;overflow-y:auto;margin-top:2px;box-shadow:0 8px 24px rgba(0,0,0,.4);}
-  .multi-sel.open .ms-panel{display:block;}
-  .multi-sel .ms-panel label{display:flex;align-items:center;gap:6px;padding:5px 8px;font-size:10.5px;color:var(--text-dim);cursor:pointer;font-family:var(--mono);}
-  .multi-sel .ms-panel label:hover{background:rgba(34,192,174,.08);color:var(--text);}
-  .multi-sel .ms-panel label input{accent-color:var(--teal);}
-  .multi-sel .ms-panel .ms-search{width:calc(100% - 12px);margin:6px;padding:5px 8px;background:var(--navy-deep);border:1px solid var(--panel-border);border-radius:4px;color:var(--text);font-size:10px;font-family:var(--mono);outline:none;}
 </style>
 </head>
 <body>
 
-<div id="splash">
+<div id="splash" role="dialog" aria-modal="true" aria-labelledby="splashTitle">
   <div class="card">
-    <div class="logo"><img src="BMS.jpg"></div>
-    <h1><span class="accent">B</span>lue <span class="accent">C</span>alm <span class="accent">M</span>arine</h1>
+    <div class="logo"><img src="BMS.jpg" alt="BMS"></div>
+    <h1 id="splashTitle"><span class="accent">B</span>lue <span class="accent">C</span>alm <span class="accent">M</span>arine</h1>
     <div class="sub">VESSEL CHECKING INTELLIGENCE · LIVE</div>
     <div class="desc">برای ورود به داشبورد نام کاربری و رمز عبور را وارد کنید</div>
+    <label for="loginUser" class="sr-only">نام کاربری</label>
     <input class="field" id="loginUser" type="text" placeholder="نام کاربری" autocomplete="username">
+    <label for="loginPass" class="sr-only">رمز عبور</label>
     <input class="field" id="loginPass" type="password" placeholder="رمز عبور" autocomplete="current-password">
     <div class="err" id="loginErr">❌ نام کاربری یا رمز عبور اشتباه است</div>
     <button class="btn" id="loginBtn" onclick="doLogin()">ورود به داشبورد ←</button>
@@ -256,7 +243,7 @@
   <span class="closeBtn" onclick="document.getElementById('libBanner').classList.remove('show')">✕</span>
 </div>
 
-<div id="pwdModal"><div class="modal-bg"></div><div class="modal-box"><div style="font-size:32px;margin-bottom:6px">🔐</div><div style="font-weight:700;margin-bottom:3px">داده رمزنگاری شده</div><div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">برای باز کردن رمز عبور را وارد کنید</div><input type="password" id="pwdInput" placeholder="رمز عبور" dir="ltr" style="width:100%;padding:9px;border:1px solid var(--panel-border);border-radius:8px;background:var(--navy);color:var(--text);font-size:14px;box-sizing:border-box;text-align:center"><div style="display:flex;gap:8px;margin-top:12px"><button class="ok" style="flex:1;padding:9px;background:var(--teal);color:#04150f;border:none;border-radius:8px;font-weight:600;cursor:pointer">تأیید</button><button class="cancel" style="flex:1;padding:9px;background:var(--panel);color:var(--text-dim);border:1px solid var(--panel-border);border-radius:8px;cursor:pointer">انصراف</button></div></div></div>
+<div id="pwdModal" role="dialog" aria-modal="true"><div class="modal-bg"></div><div class="modal-box"><div style="font-size:32px;margin-bottom:6px">🔐</div><div style="font-weight:700;margin-bottom:3px">داده رمزنگاری شده</div><div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">برای باز کردن رمز عبور را وارد کنید</div><label for="pwdInput" class="sr-only">رمز عبور</label><input type="password" id="pwdInput" placeholder="رمز عبور" dir="ltr" style="width:100%;padding:9px;border:1px solid var(--panel-border);border-radius:8px;background:var(--navy);color:var(--text);font-size:14px;box-sizing:border-box;text-align:center"><div style="display:flex;gap:8px;margin-top:12px"><button class="ok" style="flex:1;padding:9px;background:var(--teal);color:#04150f;border:none;border-radius:8px;font-weight:600;cursor:pointer">تأیید</button><button class="cancel" style="flex:1;padding:9px;background:var(--panel);color:var(--text-dim);border:1px solid var(--panel-border);border-radius:8px;cursor:pointer">انصراف</button></div></div></div>
 
 <div class="wrap">
 
@@ -264,12 +251,12 @@
   <!-- Filter Bar -->
   <div class="fbar">
     <div class="frow" style="margin-bottom:6px">
-      <button class="btn" onclick="setDatePreset('today')" style="font-size:10px;padding:4px 10px;">امروز</button>
-      <button class="btn" onclick="setDatePreset('7days')" style="font-size:10px;padding:4px 10px;">۷ روز اخیر</button>
-      <button class="btn" onclick="setDatePreset('30days')" style="font-size:10px;padding:4px 10px;">۳۰ روز اخیر</button>
-      <button class="btn" onclick="setDatePreset('month')" style="font-size:10px;padding:4px 10px;">این ماه</button>
-      <button class="btn" onclick="setDatePreset('quarter')" style="font-size:10px;padding:4px 10px;">این فصل</button>
-      <button class="btn" onclick="setDatePreset('year')" style="font-size:10px;padding:4px 10px;">امسال</button>
+      <button class="btn date-preset" id="dp-today" onclick="setDatePreset('today')" style="font-size:10px;padding:4px 10px;">امروز</button>
+      <button class="btn date-preset" id="dp-7days" onclick="setDatePreset('7days')" style="font-size:10px;padding:4px 10px;">۷ روز اخیر</button>
+      <button class="btn date-preset" id="dp-30days" onclick="setDatePreset('30days')" style="font-size:10px;padding:4px 10px;">۳۰ روز اخیر</button>
+      <button class="btn date-preset" id="dp-month" onclick="setDatePreset('month')" style="font-size:10px;padding:4px 10px;">این ماه</button>
+      <button class="btn date-preset" id="dp-quarter" onclick="setDatePreset('quarter')" style="font-size:10px;padding:4px 10px;">این فصل</button>
+      <button class="btn date-preset" id="dp-year" onclick="setDatePreset('year')" style="font-size:10px;padding:4px 10px;">امسال</button>
       <button class="btn" id="dateModeBtn" onclick="toggleDateFormat()" style="font-size:10px;padding:4px 10px;">📅 میلادی</button>
     </div>
     <div class="frow">
@@ -320,18 +307,10 @@
     <div class="chart-box h-230"><canvas id="chartMonthly"></canvas></div>
   </div>
 
-  <!-- Calendar Heatmap (مورد 7) -->
-  <div class="section-head"><h2>نقشه حرارتی تقویم</h2><div class="tag">DAILY VOLUME HEATMAP</div></div>
-  <div class="card">
-    <div class="card-title">روزهای پرترافیک <span>(اندازه هر خانه متناسب با حجم کانتینر)</span></div>
-    <div class="card-desc" id="heatmapDesc">۳۶۵ روز اخیر</div>
-    <div class="heatmap-wrap" id="heatmapWrap"></div>
-  </div>
-
   <!-- Top Partners -->
   <div class="section-head"><h2>شرکای عملیاتی برتر</h2><div class="tag">TOP PARTNERS BY VOLUME</div></div>
   <div class="grid-3">
-    <div class="card"><div class="card-title">سهم خطوط کشتیرانی <span>(Pie)</span></div><div class="card-desc">Shipping Line Share</div><div class="chart-box h-320"><canvas id="chartLinesPie"></canvas></div></div>
+    <div class="card"><div class="card-title">سهم نمایندگان ایران <span>(Pie)</span></div><div class="card-desc">Iran Agent Share</div><div class="chart-box h-320"><canvas id="chartLinesPie"></canvas></div></div>
     <div class="card"><div class="card-title">برترین فورواردرهای POL</div><div class="card-desc">Top 10 POL Forwarders</div><div class="chart-box h-320"><canvas id="chartForwarders"></canvas></div></div>
     <div class="card"><div class="card-title">برترین نمایندگان ایران</div><div class="card-desc">Top 10 Iran Agents</div><div class="chart-box h-320"><canvas id="chartAgents"></canvas></div></div>
   </div>
@@ -367,7 +346,7 @@
       <h2>ALL RECORDS · CONTAINER REGISTRY</h2>
       <div class="board-summary">نمایش <span class="bcount" id="contShowCount">0</span> از <span class="bcount" id="contTotalCount">0</span></div>
     </div>
-    <div class="board-search"><input type="text" id="contSearch" placeholder="🔎 جستجو در کانتینر، کشتی، خط، فورواردر، POL، ایجنت..." oninput="renderContainerList()"><button class="btn" onclick="toggleAdvSearch()" style="font-size:10px;margin-right:4px;">⬇ جستجوی پیشرفته</button></div>
+    <div class="board-search"><input type="text" id="contSearch" placeholder="🔎 جستجو در کانتینر، کشتی، خط، فورواردر، POL، ایجنت..." oninput="debouncedContSearch()"><button class="btn" onclick="toggleAdvSearch()" style="font-size:10px;margin-right:4px;">⬇ جستجوی پیشرفته</button></div>
     <div class="advWrap" id="advWrap">
       <div class="advGrid">
         <div class="fg"><label>VESSEL</label><input type="text" id="advVessel" oninput="advSearchChange()" placeholder="نام کشتی"></div>
@@ -402,14 +381,14 @@ var activeFilters = {fwd:[], pol:[], line:[], agent:[]};
 var currentMeta = null;
 var contPage = 1, contPerPage = 200;
 var contSort = {key:null, asc:true};
-var GOOGLE_SHEET_CSV_URL = ''; // Direct CSV (leave empty if using proxy)
 var PROXY_URL = 'https://script.google.com/macros/s/AKfycbyhpPC78t9utPvZ0blWZ9k1ocKImNGXcGFitdM4zRx5tF2JL_UuJlY54qQ3F_a6u4xu/exec';
 var LOGIN_PROXY_URL = 'https://script.google.com/macros/s/AKfycbygAEpxb_igwQ-_bneek08MGYoi60kCXt_vfPktWkQbcrA_4wI3vnK4YGPxZ0wWW4U3/exec';
 
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 async function sha256(str){var enc=new TextEncoder().encode(str);var buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
 function debounce(fn,delay){var t;return function(){clearTimeout(t);t=setTimeout(fn,delay);};}
 var _debouncedRefresh=debounce(function(){refreshDashboard();},200);
+var debouncedContSearch=debounce(function(){renderContainerList();},150);
 var _dateFormat=localStorage.getItem('bms_dateformat')||'miladi';
 function isJalali(){return _dateFormat==='jalali';}
 function toggleDateFormat(){
@@ -509,7 +488,8 @@ const DEFAULT_DATA = {"total_containers":7786,"total_shipments":8066,"total_teu"
 /* ============================================================
    2) CHART.JS THEME + REGISTRY
    ============================================================ */
-function setupChartDefaults(){Chart.defaults.font.family="'IBM Plex Mono', monospace";Chart.defaults.color='#93AAC4';Chart.defaults.font.size=10.5;}
+function setupChartDefaults(){Chart.defaults.font.family="'IBM Plex Mono', monospace";Chart.defaults.color=chartTextColor();Chart.defaults.font.size=10.5;}
+function chartTextColor(){return getComputedStyle(document.documentElement).getPropertyValue('--chart-text').trim()||'#A8BDD6';}
 const COLORS={teal:'#22C0AE',tealSoft:'rgba(34,192,174,.55)',tealFill:'rgba(34,192,174,.14)',gold:'#E8AE52',goldFill:'rgba(232,174,82,.14)',red:'#E5654A',blue:'#5B9BD5',grid:'rgba(120,170,210,.10)',palette:['#22C0AE','#E8AE52','#5B9BD5','#B08CE0','#E5654A','#6FCF97','#F2C94C','#9BA8C9','#2FA6A0','#D98CC0']};
 function fmtInt(n){return new Intl.NumberFormat('en-US').format(Math.round(n||0));}
 const charts={};
@@ -525,10 +505,6 @@ function getFilteredRecords(){
   var to=document.getElementById('fltTo').value;
   var fromDate=from?parseDateInput(from):null;
   var toDate=to?parseDateInput(to):null;
-  console.log('[BMS-FLT] from='+from,'to='+to,'jalali='+isJalali(),'fromDate='+fromDate,'toDate='+toDate,'rawCount='+r.length);
-  if(fromDate)console.log('[BMS-FLT] fromDate.getTime()='+fromDate.getTime());
-  if(toDate)console.log('[BMS-FLT] toDate.getTime()='+toDate.getTime());
-  if(r.length>0){var s0=r[0];console.log('[BMS-FLT] sample arrv_date=',s0.arrv_date,'getTime()='+(s0.arrv_date?s0.arrv_date.getTime():'null'));}
   if(from||to||f.fwd.length||f.pol.length||f.line.length||f.agent.length){
     r=r.filter(function(rec){
       if(from||to){
@@ -618,7 +594,7 @@ function aggregateFromRecords(records){
   var dates=records.map(function(r){return r.date;}).filter(Boolean);
   var date_min=dates.length?fmtDate(new Date(Math.min.apply(null,dates))):null;
   var date_max=dates.length?fmtDate(new Date(Math.max.apply(null,dates))):null;
-  var lineMap=new Map();records.forEach(function(r){if(r.line){if(!lineMap.has(r.line))lineMap.set(r.line,[]);lineMap.get(r.line).push(r);}});
+  var lineMap=new Map();records.forEach(function(r){if(r.iran_agent){if(!lineMap.has(r.iran_agent))lineMap.set(r.iran_agent,[]);lineMap.get(r.iran_agent).push(r);}});
   var lineShare=Array.from(lineMap.entries()).map(function(e){return{label:e[0],value:contCount(e[1])};}).sort(function(a,b){return b.value-a.value;});
   return{
     total_containers:total_containers,total_shipments:total_shipments,total_teu:records.reduce(function(s,r){var sz=r.size;return s+(sz==='40'||sz==="40'"?2:sz==='20'||sz==="20'"?1:0);},0),unique_vessels:vesselSet.size,
@@ -632,12 +608,12 @@ function aggregateFromRecords(records){
 }
 
 function refreshDashboard(){
-  if(!rawRecords.length){console.log('[BMS] refreshDashboard: rawRecords empty, skip');return;}
+  if(!rawRecords.length){return;}
   var records=getFilteredRecords();
-  console.log('[BMS] refreshDashboard: filtered',records.length,'/',rawRecords.length);
   document.getElementById('filterInfo').textContent=records.length.toLocaleString()+' رکورد ('+(rawRecords.length?Math.round(records.length/rawRecords.length*100)+'% از کل':'—')+')';
   var data=aggregateFromRecords(records);
-  var pending=rawRecords.filter(function(r){return !r.arrv_date;});
+  var existingContainers=new Set(data.all_records.map(function(r){return r.container;}));
+  var pending=rawRecords.filter(function(r){return !r.arrv_date && (!existingContainers.has(r.container)||!r.container);});
   pending.forEach(function(r){
     data.all_records.push({
       container:r.container||null,vessel:r.vessel||null,size:r.size||null,qty:r.qty||0,
@@ -649,7 +625,7 @@ function refreshDashboard(){
   var to=document.getElementById('fltTo').value;
   var fromDate=from?parseDateInput(from):null;
   var toDate=to?parseDateInput(to):null;
-  if(fromDate&&toDate){
+  if(fromDate&&toDate&&!isNaN(fromDate.getTime())&&!isNaN(toDate.getTime())){
     var msDay=86400000;
     var rangeDays=Math.round((toDate.getTime()-fromDate.getTime())/msDay);
     var prevTo=new Date(fromDate.getTime()-msDay);
@@ -670,6 +646,30 @@ function refreshDashboard(){
     data.prevPeriod=aggregateFromRecords(prevRecords);
     data.prevPeriodLabel=prevFromStr+' تا '+prevToStr;
     data.curPeriodLabel=from+' تا '+to;
+  }else if(records.length>1){
+    var recDates=records.map(function(r){return r.arrv_date;}).filter(Boolean);
+    if(recDates.length>1){
+      var minRD=new Date(Math.min.apply(null,recDates));
+      var maxRD=new Date(Math.max.apply(null,recDates));
+      var rMsDay=86400000;
+      var rRange=Math.round((maxRD.getTime()-minRD.getTime())/rMsDay);
+      if(rRange>0){
+        var rpTo=new Date(minRD.getTime()-rMsDay);
+        var rpFrom=new Date(rpTo.getTime()-rRange*rMsDay);
+        var rpFs=fmtDate(rpFrom);
+        var rpTs=fmtDate(rpTo);
+        var rpRecs=rawRecords.filter(function(r){
+          if(!r.arrv_date)return false;
+          var d=fmtDate(r.arrv_date);
+          if(rpFs&&d<rpFs)return false;
+          if(rpTs&&d>rpTs)return false;
+          return true;
+        });
+        data.prevPeriod=aggregateFromRecords(rpRecs);
+        data.prevPeriodLabel=rpFs+' تا '+rpTs;
+        data.curPeriodLabel=fmtDate(minRD)+' تا '+fmtDate(maxRD);
+      }
+    }
   }
   renderAll(data,currentMeta);
 }
@@ -680,12 +680,12 @@ function refreshDashboard(){
 function renderAll(v, meta){
   var pp=v.prevPeriod;
   function trendHtml(cur,prev){
-    if(!prev)return'';
+    if(prev==null)return'';
     var diff=cur-prev;
-    var pct=prev?((diff/prev)*100).toFixed(1):'0';
+    var pct=prev!==0?((diff/prev)*100).toFixed(1):'∞';
     var cls=diff>0?'up':diff<0?'dn':'flat';
     var arrow=diff>0?'▲':diff<0?'▼':'—';
-    return'<div class="trend '+cls+'">'+arrow+' '+Math.abs(pct)+'%</div>';
+    return'<div class="trend '+cls+'">'+arrow+' '+pct+'%</div>';
   }
   document.getElementById('kpiGrid').innerHTML=[
     {lbl:'کل کانتینرها (ستون F)',val:fmtInt(v.total_containers),sub:'CONTAINERS',cls:'accent-teal',cur:v.total_containers,prev:pp?pp.total_containers:null},
@@ -712,10 +712,10 @@ function renderAll(v, meta){
     ];
     document.getElementById('autoCmpBox').innerHTML='<div class="cmp-sub">بازه فعلی: '+v.curPeriodLabel+'</div><div class="auto-cmp-row">'+cmpItems.map(function(it){
       var diff=it.cur-it.prev;
-      var pct=it.prev?((diff/it.prev)*100).toFixed(1):'—';
+      var pct=it.prev!==0?((diff/it.prev)*100).toFixed(1):'∞';
       var cls=diff>0?'up':diff<0?'dn':'flat';
       var arrow=diff>0?'▲':diff<0?'▼':'—';
-      return'<div class="auto-cmp-item"><div class="ac-label">'+it.lbl+'</div><div class="ac-cur '+cls+'">'+fmtInt(it.cur)+'</div><div class="ac-prev">دوره قبل: '+fmtInt(it.prev)+'</div><div class="ac-change '+cls+'">'+arrow+' '+Math.abs(parseFloat(pct))+'%</div></div>';
+      return'<div class="auto-cmp-item"><div class="ac-label">'+it.lbl+'</div><div class="ac-cur '+cls+'">'+fmtInt(it.cur)+'</div><div class="ac-prev">دوره قبل: '+fmtInt(it.prev)+'</div><div class="ac-change '+cls+'">'+arrow+' '+pct+'%</div></div>';
     }).join('')+'</div>';
   }else{
     cmpSection.style.display='none';
@@ -760,8 +760,8 @@ function renderAll(v, meta){
     },
     options:{
       responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:9},color:'#93AAC4',usePointStyle:true}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.y);}}}},
-      scales:{x:{stacked:false,grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);}}}}
+      plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:9},color:chartTextColor(),usePointStyle:true}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.y);}}}},
+      scales:{x:{stacked:false,grid:{display:false},ticks:{font:{size:10},color:chartTextColor()}},y:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);},color:chartTextColor()}}}
     }
   });
 
@@ -799,8 +799,8 @@ function renderAll(v, meta){
     },
     options:{
       responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:9},color:'#93AAC4',usePointStyle:true}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.y);}}}},
-      scales:{x:{grid:{display:false},ticks:{maxRotation:60,minRotation:60,font:{size:9}}},y:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);}}}}
+      plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:9},color:chartTextColor(),usePointStyle:true}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.y);}}}},
+      scales:{x:{grid:{display:false},ticks:{maxRotation:60,minRotation:60,font:{size:9},color:chartTextColor()}},y:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);},color:chartTextColor()}}}
     }
   });
 
@@ -809,7 +809,7 @@ function renderAll(v, meta){
     charts[id]=new Chart(document.getElementById(id),{
       type:'bar',
       data:{labels:items.map(function(d){return d.label.length>26?d.label.slice(0,24)+'\u2026':d.label;}),datasets:[{data:items.map(function(d){return d.value;}),backgroundColor:color,borderRadius:4,maxBarThickness:16}]},
-      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.x);}}}},scales:{x:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);}}},y:{grid:{display:false},ticks:{font:{size:10}}}}}
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.x);}}}},scales:{x:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);},color:chartTextColor()}},y:{grid:{display:false},ticks:{font:{size:10},color:chartTextColor()}}}}
     });
   }
   destroyChart('chartLinesPie');
@@ -818,7 +818,7 @@ function renderAll(v, meta){
     charts.chartLinesPie=new Chart(document.getElementById('chartLinesPie'),{
       type:'pie',
       data:{labels:lsData.map(function(d){return d.label;}),datasets:[{data:lsData.map(function(d){return d.value;}),backgroundColor:COLORS.palette,borderColor:'#0F2A45',borderWidth:2}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:'#93AAC4',generateLabels:function(chart){var data=chart.data;var total=data.datasets[0].data.reduce(function(a,b){return a+b;},0);return data.labels.map(function(l,i){var val=data.datasets[0].data[i];var pct=total?(val/total*100).toFixed(1):0;return{text:l+' ('+pct+'%)',fillStyle:data.datasets[0].backgroundColor[i],hidden:false,index:i};});}},tooltip:{callbacks:{label:function(c){var total=c.dataset.data.reduce(function(a,b){return a+b;},0);var pct=total?(c.parsed/total*100).toFixed(1):0;return c.label+': '+fmtInt(c.parsed)+' کانتینر ('+pct+'%)';}}}}}
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:chartTextColor()}},tooltip:{callbacks:{label:function(c){var total=c.dataset.data.reduce(function(a,b){return a+b;},0);var pct=total?(c.parsed/total*100).toFixed(1):0;return c.label+': '+fmtInt(c.parsed)+' ('+pct+'%)';}}}}}
     });
   }
   hbar('chartForwarders',v.top_forwarders,COLORS.gold);
@@ -828,7 +828,7 @@ function renderAll(v, meta){
   charts.chartPOL=new Chart(document.getElementById('chartPOL'),{
     type:'doughnut',
     data:{labels:v.top_pol.map(function(d){return d.label;}),datasets:[{data:v.top_pol.map(function(d){return d.value;}),backgroundColor:COLORS.palette,borderColor:'#0F2A45',borderWidth:2}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:'#93AAC4'}},tooltip:{callbacks:{label:function(c){return c.label+': '+fmtInt(c.parsed)+' کانتینر';}}}}}
+    options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:chartTextColor()}},tooltip:{callbacks:{label:function(c){return c.label+': '+fmtInt(c.parsed)+' کانتینر';}}}}}
   });
 
   destroyChart('chartSize');
@@ -839,74 +839,12 @@ function renderAll(v, meta){
   });
   document.getElementById('sizeLegend').innerHTML=v.size_dist.map(function(d,i){return'<span><i style="background:'+(i===0?COLORS.gold:COLORS.blue)+'"></i> کانتینر '+esc(d.label)+"': "+fmtInt(d.value)+' ('+(v.total_containers?(d.value/v.total_containers*100).toFixed(1):0)+'%)</span>';}).join('');
 
-  // Calendar Heatmap
-  renderHeatmap(v);
-
   // Container list
   renderContainerList(v.all_records);
 
   if(meta){
     document.getElementById('lastLoaded').textContent=meta.time||'\u2014';
   }
-}
-
-/* ============================================================
-   4a) CALENDAR HEATMAP
-   ============================================================ */
-function renderHeatmap(v){
-  var wrap=document.getElementById('heatmapWrap');
-  if(!wrap)return;
-  wrap.innerHTML='';
-  var dayMap=new Map();
-  (v.daily||[]).forEach(function(d){dayMap.set(d.label,d.cont);});
-  if(!dayMap.size){wrap.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-faint);font-size:12px;">داده‌ای برای نمایش وجود ندارد</div>';return;}
-  var keys=Array.from(dayMap.keys()).sort();
-  var lastDate=new Date(keys[keys.length-1]+'T00:00:00');
-  var firstHeatDate=new Date(lastDate);
-  firstHeatDate.setDate(firstHeatDate.getDate()-364);
-  var maxVal=0;
-  var dayData=[];
-  var cur=new Date(firstHeatDate);
-  while(cur<=lastDate){
-    var key=cur.getFullYear()+'-'+String(cur.getMonth()+1).padStart(2,'0')+'-'+String(cur.getDate()).padStart(2,'0');
-    var val=dayMap.get(key)||0;
-    if(val>maxVal)maxVal=val;
-    var dow=cur.getDay();
-    dayData.push({key:key,val:val,dow:dow});
-    cur.setDate(cur.getDate()+1);
-  }
-  var cols={0:[],1:[],2:[],3:[],4:[],5:[],6:[]};
-  dayData.forEach(function(d){cols[d.dow].push(d);});
-  var dowNames=['ش','ی','د','س','چ','پ','ج'];
-  var grid=document.createElement('div');
-  grid.className='heatmap-grid';
-  var heatColors=['#161B22','#0e4429','#006d32','#26a641','#39d353'];
-  var lightHeatColors=['#ebedf0','#9be9a8','#40c463','#30a14e','#216e39'];
-  var isDark=document.documentElement.getAttribute('data-theme')!=='light';
-  var palette=isDark?heatColors:lightHeatColors;
-  for(var dow=6;dow>=0;dow--){
-    var col=document.createElement('div');
-    col.className='heatmap-col';
-    var label=document.createElement('div');
-    label.style.cssText='font-size:8px;color:var(--text-faint);font-family:var(--mono);width:13px;text-align:center;line-height:13px;flex-shrink:0;';
-    label.textContent=dowNames[dow];
-    col.appendChild(label);
-    cols[dow].forEach(function(d){
-      var cell=document.createElement('div');
-      cell.className='heatmap-cell';
-      var ci=maxVal?Math.min(4,Math.floor(d.val/maxVal*4)):0;
-      cell.style.background=palette[ci];
-      cell.setAttribute('data-tip',d.key+': '+fmtInt(d.val)+' کانتینر');
-      col.appendChild(cell);
-    });
-    grid.appendChild(col);
-  }
-  wrap.appendChild(grid);
-  var legend=document.createElement('div');
-  legend.className='heatmap-legend';
-  legend.innerHTML='<span style="color:var(--text-faint)">کم</span>'+palette.map(function(c){return'<span style="background:'+c+'"></span>';}).join('')+'<span style="color:var(--text-faint)">زیاد</span>';
-  wrap.appendChild(legend);
-  document.getElementById('heatmapDesc').textContent=dayData.length+' روز اخیر · حداکثر: '+fmtInt(maxVal)+' کانتینر در روز';
 }
 
 /* ============================================================
@@ -963,12 +901,15 @@ var _prevPols=null;
 function renderMap(v){
   var c=document.getElementById('mapC');
   if(!c)return;
-  if(_mapInstance){_mapInstance.remove();_mapInstance=null;_animId=null;}
-  if(_polResetEl){_polResetEl.remove();_polResetEl=null;}
-  if(!window.L||!v.pol_coords||!v.pol_coords.length)return;
-  // Avoid re-rendering if same POLs (data unchanged)
+  if(!window.L||!v.pol_coords||!v.pol_coords.length){
+    if(_mapInstance){_mapInstance.remove();_mapInstance=null;_animId=null;}
+    if(_polResetEl){_polResetEl.remove();_polResetEl=null;}
+    return;
+  }
   var curPols=v.pol_coords.map(function(p){return p.name+':'+p.count;}).join('|');
   if(_prevPols===curPols&&_mapInstance)return;
+  if(_mapInstance){_mapInstance.remove();_mapInstance=null;_animId=null;}
+  if(_polResetEl){_polResetEl.remove();_polResetEl=null;}
   _prevPols=curPols;
   _mapInstance=L.map('mapC',{zoomControl:false,attributionControl:false}).setView([27.5,64],4);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(_mapInstance);
@@ -1073,10 +1014,10 @@ function renderContainerList(records){
   document.getElementById('contTotalCount').textContent=fmtInt(filtered.length);
   document.getElementById('contShowCount').textContent=fmtInt(show.length);
   var html='';
+  function cel(v){return (v==null||v==='')?'<td class="miss">\u2014</td>':'<td>'+esc(v)+'</td>';}
+  function celSz(v){if(v==null||v==='')return '<td class="miss">\u2014</td>';return '<td class="sz">'+esc(v)+"'"+'</td>';}
   show.forEach(function(r,i){
     var cls=r.status==='Arrived'?'stat-arr':'stat-pen';
-    function cel(v){return (v==null||v==='')?'<td class="miss">\u2014</td>':'<td>'+esc(v)+'</td>';}
-    function celSz(v){if(v==null||v==='')return '<td class="miss">\u2014</td>';return '<td class="sz">'+esc(v)+"'"+'</td>';}
     html+='<tr><td>'+(start+i+1)+'</td>'+cel(r.container)+cel(r.vessel)+celSz(r.size)+'<td>'+parseInt(r.qty||0)+'</td>'+cel(r.pol_forwarder)+cel(r.pol)+cel(r.line)+cel(r.iran_agent)+cel(r.date)+'<td class="'+cls+'">'+(r.status==='Arrived'?'Arrived':'Pending')+'</td></tr>';
   });
   document.getElementById('contBody').innerHTML=html;
@@ -1180,24 +1121,26 @@ function resetFilters(){
   document.getElementById('fltTo').value=todayStr();
   updateFilterOptions();
   updateDateInputs();
+  highlightPreset(null);
   _debouncedRefresh();
 }
 
-function onDateChange(){updateFilterOptions();_debouncedRefresh();}
+function onDateChange(){updateFilterOptions();_debouncedRefresh();highlightPreset(null);}
+function highlightPreset(id){
+  document.querySelectorAll('.date-preset').forEach(function(b){b.classList.remove('active');});
+  if(id){var el=document.getElementById('dp-'+id);if(el)el.classList.add('active');}
+}
 function setDatePreset(preset){
   var now=new Date();
   var from,to=fmtDate(now);
   if(isJalali()){
     var jToday=g2j(now.getFullYear(),now.getMonth()+1,now.getDate());
-    var jy=jToday[0];
+    var jy=jToday[0],jm=jToday[1];
     if(preset==='today'){from=to;}
     else if(preset==='7days'){var d=new Date(now);d.setDate(d.getDate()-7);from=fmtDate(d);}
     else if(preset==='30days'){var d=new Date(now);d.setDate(d.getDate()-30);from=fmtDate(d);}
-    else if(preset==='month'){from=jy+'-'+String(jToday[1]).padStart(2,'0')+'-01';}
-    else if(preset==='quarter'){
-      var qm=Math.floor((jToday[1]-1)/3)*3+1;
-      from=jy+'-'+String(qm).padStart(2,'0')+'-01';
-    }
+    else if(preset==='month'){from=jy+'-'+String(jm).padStart(2,'0')+'-01';}
+    else if(preset==='quarter'){var qm=Math.floor((jm-1)/3)*3+1;from=jy+'-'+String(qm).padStart(2,'0')+'-01';}
     else if(preset==='year'){from=jy+'-01-01';}
   }else{
     if(preset==='today'){from=to;}
@@ -1211,6 +1154,7 @@ function setDatePreset(preset){
   document.getElementById('fltTo').value=to;
   updateFilterOptions();
   updateDateInputs();
+  highlightPreset(preset);
   _debouncedRefresh();
 }
 
@@ -1281,7 +1225,7 @@ function toggleAdvSearch(){
 }
 function advSearchChange(){
   contPage=1;
-  renderContainerList();
+  debouncedContSearch();
 }
 
 /* ============================================================
@@ -1324,13 +1268,6 @@ function findVesselSheetName(workbook){
   if(exact)return exact;
   var partial=names.find(function(n){return n.toLowerCase().indexOf('vessel')!==-1;});
   return partial||names[0];
-}
-
-function toDate(val){
-  if(val instanceof Date&&!isNaN(val)){var y=val.getUTCFullYear();if(y>1900&&y<2100)return val;}
-  if(typeof val==='number'&&val>40000)return new Date((val-25569)*86400000);
-  if(typeof val==='string'&&val.match(/^\d{4}-\d{2}-\d{2}/))return new Date(val.slice(0,10)+'T00:00:00Z');
-  return null;
 }
 
 function parseRows(rows){
@@ -1435,12 +1372,17 @@ document.addEventListener('drop',function(e){e.preventDefault();var file=e.dataT
    ============================================================ */
 
 async function decryptData(buf, password){
-  var data=new Uint8Array(buf);
-  var salt=data.slice(0,16), iv=data.slice(16,28), ct=data.slice(28);
-  var enc=new TextEncoder();
-  var keyMaterial=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveKey']);
-  var key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},keyMaterial,{name:'AES-GCM',length:256},false,['decrypt']);
-  return await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},key,ct);
+  try{
+    var data=new Uint8Array(buf);
+    var salt=data.slice(0,16), iv=data.slice(16,28), ct=data.slice(28);
+    var enc=new TextEncoder();
+    var keyMaterial=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveKey']);
+    var key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},keyMaterial,{name:'AES-GCM',length:256},false,['decrypt']);
+    return await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},key,ct);
+  }catch(e){
+    showToast('❌ رمز عبور اشتباه است یا فایل خراب است',true);
+    return null;
+  }
 }
 function showPasswordModal(){return new Promise(function(rs){
   var m=document.getElementById('pwdModal');m.classList.add('show');
@@ -1451,42 +1393,34 @@ function showPasswordModal(){return new Promise(function(rs){
 });}
 async function fetchGoogleSheet(){
   var token=localStorage.getItem('bms_token');
-  console.log('[BMS] fetchGoogleSheet: token=',token?'present':'MISSING');
   if(!token)return null;
   try{
     var pb=document.getElementById('progFill');
     if(pb)pb.style.width='30%';
     document.getElementById('autoRefLabel').textContent='⏳ دریافت دیتا از سرور...';
-    console.log('[BMS] fetchGoogleSheet: POST to',PROXY_URL);
     var resp=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:token}),signal:AbortSignal.timeout(30000)});
-    console.log('[BMS] fetchGoogleSheet: resp.status=',resp.status);
     if(!resp.ok)return null;
     if(pb)pb.style.width='60%';
     document.getElementById('autoRefLabel').textContent='⏳ پردازش دیتا...';
     var csv=await resp.text();
-    console.log('[BMS] fetchGoogleSheet: csv.length=',csv.length,', starts=',csv.substring(0,100));
     if(csv==='Forbidden'){
-      console.log('[BMS] fetchGoogleSheet: FORBIDDEN - token may have been cleared server-side');
       showBanner('<b>⚠️ اتصال به سرور دیتا ممکن نیست.</b><br>لطفاً از صفحه خارج شده دوباره وارد شوید. (توکن شما هنوز معتبر است)');
       return null;
     }
     var wb=XLSX.read(csv,{type:'string',raw:true});
     var ws=wb.Sheets[wb.SheetNames[0]];
     var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
-    console.log('[BMS] fetchGoogleSheet: rows.length=',rows.length);
     if(rows.length<2)return null;
     if(pb)pb.style.width='90%';
     var records=parseRows(rows);
-    console.log('[BMS] fetchGoogleSheet: records.length=',records.length,' sample=',JSON.stringify(records[0]));
     if(pb)pb.style.width='100%';
     setTimeout(function(){if(pb)pb.style.width='0%';},600);
     return records;
-  }catch(e){console.log('[BMS] fetchGoogleSheet ERROR',e);if(pb)pb.style.width='0%';return null;}
+  }catch(e){if(pb)pb.style.width='0%';return null;}
 }
 async function tryAutoFetch(){
-  if(_fetchInProgress){console.log('[BMS] tryAutoFetch: already in progress, skip');return;}
+  if(_fetchInProgress)return;
   _fetchInProgress=true;
-  console.log('[BMS] tryAutoFetch: start');
   try{
     if(window.electronAPI){
       try{
@@ -1496,23 +1430,19 @@ async function tryAutoFetch(){
           for(var i=0;i<len;i++)bytes[i]=binary.charCodeAt(i);
           processArrayBuffer(bytes.buffer,result.name);return;
         }
-      }catch(e){console.log('Electron error',e);}
+      }catch(e){}
     }
     var isLocal=window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'||window.location.protocol==='file:';
-    console.log('[BMS] tryAutoFetch: isLocal=',isLocal);
     if(!isLocal){
       var gsRecords=await fetchGoogleSheet();
-      console.log('[BMS] tryAutoFetch: gsRecords=',gsRecords?gsRecords.length:'null');
       if(gsRecords&&gsRecords.length){
         rawRecords=gsRecords;
         currentMeta={time:new Date().toLocaleString('fa-IR')};
-        console.log('[BMS] tryAutoFetch: calling initFilters + refreshDashboard');
         initFilters();contPage=1;refreshDashboard();
         showToast('✅ دیتا از Google Sheets بارگذاری شد ('+gsRecords.length.toLocaleString()+' رکورد)',false);
         document.getElementById('autoRefLabel').textContent='\uD83D\uDD04 '+new Date().toLocaleTimeString('fa-IR');
         return;
       }
-      console.log('[BMS] tryAutoFetch: gsRecords empty, trying .enc file');
       try{
         var resp=await fetch('data.enc');
         if(resp.ok){
@@ -1520,13 +1450,11 @@ async function tryAutoFetch(){
           var pw=await showPasswordModal();
           if(pw){
             var dec=await decryptData(buf,pw);
-            processArrayBuffer(dec,'data.xlsx (encrypted)');
-            return;
+            if(dec){processArrayBuffer(dec,'data.xlsx (encrypted)');return;}
           }
         }
       }catch(e){}
     }
-    console.log('[BMS] tryAutoFetch: trying local files');
     var filenames=['data.xlsx','data.xlsm','Copy of Vesel Checking & Pending(M.H).xlsm','Copy of Vesel Checking & Pending(M.H).xlsx','Vessel_Checking.xlsm','Vessel_Checking.xlsx','dashboard.xlsm','dashboard.xlsx'];
     for(var name of filenames){
       try{
@@ -1537,7 +1465,6 @@ async function tryAutoFetch(){
         return;
       }catch(e){}
     }
-    console.log('[BMS] tryAutoFetch: no data source found');
   }finally{
     _fetchInProgress=false;
   }
@@ -1550,13 +1477,12 @@ function showBanner(msg){var b=document.getElementById('libBanner');if(msg)b.que
     document.getElementById('libLoading').classList.add('hide');
     showBanner('<b>⚠️ کتابخانه‌های مورد نیاز از اینترنت بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5).');
   },28000);
-  var chartUrl=await window.__chartReady;
-  var xlsxUrl=await window.__xlsxReady;
-  var leafletUrl=await window.__leafletReady;
+  var results=await Promise.all([window.__chartReady,window.__xlsxReady,window.__leafletReady]);
+  var chartUrl=results[0],xlsxUrl=results[1],leafletUrl=results[2];
   clearTimeout(safeTimer);
   document.getElementById('libLoading').classList.add('hide');
-  if(chartUrl){setupChartDefaults();renderAll(DEFAULT_DATA,{filename:null,time:null});initFilters();}else{showBanner('<b>⚠️ کتابخانه‌های مورد نیاز از اینترنت بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5). ۲) فایل اکسل را بفرستید تا نسخهٔ آفلاین بسازم.');}
-  if(!leafletUrl&&!chartUrl&&!xlsxUrl){showBanner('<b>⚠️ Leaflet.js (نقشه) بارگذاری نشد.</b><br>نقشه در دسترس نیست، بقیه داشبورد کار می‌کند.');}
+  if(chartUrl){setupChartDefaults();renderAll(DEFAULT_DATA,{filename:null,time:null});initFilters();}
+  if(!chartUrl||!xlsxUrl){showBanner('<b>⚠️ کتابخانه‌های مورد نیاز بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5). ۲) فایل اکسل را بفرستید تا نسخهٔ آفلاین بسازم.');}
   if(chartUrl&&xlsxUrl)tryAutoFetch();
   // Auto-refresh every 5 minutes
   _autoRefreshInterval=setInterval(function(){
@@ -1566,7 +1492,7 @@ function showBanner(msg){var b=document.getElementById('libBanner');if(msg)b.que
       tryAutoFetch();
     }
   },300000);
-  _timerInterval=setInterval(function(){
+  _logoutCheckInterval=setInterval(function(){
     var t=localStorage.getItem('bms_logintime');
     if(t&&(Date.now()-parseInt(t))>18e5){logout();}
   },15000);
@@ -1584,7 +1510,9 @@ async function doLogin(){
       body:JSON.stringify({action:'login',user:user,hash:hash}),
       signal:AbortSignal.timeout(15000)
     });
-    var data=await resp.json();
+    var text=await resp.text();
+    var data;
+    try{data=JSON.parse(text);}catch(e){data={ok:false};}
     if(data.ok&&data.token){
       var now=Date.now().toString();
       localStorage.setItem('bms_token',data.token);
@@ -1609,6 +1537,7 @@ async function doLogin(){
   }
 }
 var _timerInterval=null;
+var _logoutCheckInterval=null;
 function updateTimer(){
   var t=localStorage.getItem('bms_logintime');
   if(!t)return;
@@ -1633,6 +1562,7 @@ function logout(){
   document.getElementById('welcomeUser').style.display='none';
   document.getElementById('timerChip').style.display='none';
   if(_timerInterval){clearInterval(_timerInterval);_timerInterval=null;}
+  if(_logoutCheckInterval){clearInterval(_logoutCheckInterval);_logoutCheckInterval=null;}
   if(_autoRefreshInterval){clearInterval(_autoRefreshInterval);_autoRefreshInterval=null;}
 }
 function toggleTheme(){
@@ -1642,6 +1572,18 @@ function toggleTheme(){
   html.setAttribute('data-theme',next);
   localStorage.setItem('bms_theme',next);
   document.getElementById('themeToggle').textContent=next==='light'?'☀️':'🌙';
+  var tc=chartTextColor();
+  Chart.defaults.color=tc;
+  Object.keys(charts).forEach(function(k){if(charts[k]){
+    charts[k].options.plugins.legend.labels.color=tc;
+    if(charts[k].options.scales){
+      Object.keys(charts[k].options.scales).forEach(function(sk){
+        var sc=charts[k].options.scales[sk];
+        if(sc.ticks)sc.ticks.color=tc;
+      });
+    }
+    charts[k].update();
+  }});
 }
 (function initTheme(){
   var saved=localStorage.getItem('bms_theme');
