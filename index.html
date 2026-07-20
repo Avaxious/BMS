@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -8,9 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./leaflet.css" />
 <script>
-  async function loadScript(u,t){t=t||18000;var r=await fetch(u,{signal:AbortSignal.timeout(t)});var c=await r.text();var s=document.createElement('script');s.textContent=c;document.head.appendChild(s);return u;}
-  async function loadFirstAvailable(urls){var last;for(var u of urls){try{return await loadScript(u);}catch(e){last=e;}}throw last;}
-  var _c='https://cdnjs.cloudflare.com/ajax/libs/',_j='https://cdn.jsdelivr.net/npm/',_u='https://unpkg.com/',_g='https://gcore.jsdelivr.net/npm/',_l='https://cdn.statically.io/gh/';
+  async function loadScript(u,t){t=t||18000;let r=await fetch(u,{signal:AbortSignal.timeout(t)});let c=await r.text();let s=document.createElement('script');s.textContent=c;document.head.appendChild(s);return u;}
+  async function loadFirstAvailable(urls){let last;for(let u of urls){try{return await loadScript(u);}catch(e){last=e;}}throw last;}
+  let _c='https://cdnjs.cloudflare.com/ajax/libs/',_j='https://cdn.jsdelivr.net/npm/',_u='https://unpkg.com/',_g='https://gcore.jsdelivr.net/npm/',_l='https://cdn.statically.io/gh/';
   window.__chartReady=loadFirstAvailable(['./chart.umd.min.js',_c+'Chart.js/4.4.4/chart.umd.min.js',_j+'chart.js@4.4.4/dist/chart.umd.min.js',_u+'chart.js@4.4.4/dist/chart.umd.min.js',_g+'chart.js@4.4.4/dist/chart.umd.min.js',_l+'chartjs/Chart.js/v4.4.4/dist/chart.umd.min.js']).catch(e=>null);
   window.__xlsxReady=loadFirstAvailable(['./xlsx.full.min.js',_c+'xlsx/0.18.5/xlsx.full.min.js',_j+'xlsx@0.18.5/dist/xlsx.full.min.js',_u+'xlsx@0.18.5/dist/xlsx.full.min.js',_g+'xlsx@0.18.5/dist/xlsx.full.min.js',_l+'SheetJS/sheetjs/v0.18.5/dist/xlsx.full.min.js']).catch(e=>null);
   window.__leafletReady=loadFirstAvailable(['./leaflet.js',_u+'leaflet@1.9.4/dist/leaflet.js',_c+'leaflet/1.9.4/leaflet.js',_j+'leaflet@1.9.4/dist/leaflet-src.js',_g+'leaflet@1.9.4/dist/leaflet.js']).catch(e=>null);
@@ -142,8 +142,6 @@
   .spinner{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.15);border-top-color:var(--teal);animation:spin 0.8s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
   @media (max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr);}.grid-2{grid-template-columns:1fr;}.grid-3{grid-template-columns:1fr 1fr;}}
-  @media (max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
-  @media (max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.grid-3{grid-template-columns:1fr;}.header-inner{padding:14px 16px;}.wrap{padding:20px 16px 0;}.frow{flex-direction:column;}}
   #splash{position:fixed;inset:0;z-index:999;background:rgba(5,13,22,.92);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s;}
   #splash.show{opacity:1;pointer-events:all;}
   #splash .card{background:linear-gradient(160deg,var(--panel-2),var(--navy));border:1px solid var(--panel-border);border-radius:20px;padding:48px 40px 36px;max-width:440px;width:90%;text-align:center;box-shadow:0 32px 80px rgba(0,0,0,.6);}
@@ -376,20 +374,20 @@
 /* ============================================================
    0) GLOBAL STATE
    ============================================================ */
-var rawRecords = [];
-var activeFilters = {fwd:[], pol:[], line:[], agent:[]};
-var currentMeta = null;
-var contPage = 1, contPerPage = 200;
-var contSort = {key:null, asc:true};
-var PROXY_URL = 'https://script.google.com/macros/s/AKfycbyhpPC78t9utPvZ0blWZ9k1ocKImNGXcGFitdM4zRx5tF2JL_UuJlY54qQ3F_a6u4xu/exec';
-var LOGIN_PROXY_URL = 'https://script.google.com/macros/s/AKfycbygAEpxb_igwQ-_bneek08MGYoi60kCXt_vfPktWkQbcrA_4wI3vnK4YGPxZ0wWW4U3/exec';
+let rawRecords = [];
+let activeFilters = {fwd:[], pol:[], line:[], agent:[]};
+let currentMeta = null;
+let contPage = 1, contPerPage = 200;
+let contSort = {key:null, asc:true};
+const PROXY_URL = 'https://script.google.com/macros/s/AKfycbyhpPC78t9utPvZ0blWZ9k1ocKImNGXcGFitdM4zRx5tF2JL_UuJlY54qQ3F_a6u4xu/exec';
+const LOGIN_PROXY_URL = 'https://script.google.com/macros/s/AKfycbygAEpxb_igwQ-_bneek08MGYoi60kCXt_vfPktWkQbcrA_4wI3vnK4YGPxZ0wWW4U3/exec';
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-async function sha256(str){var enc=new TextEncoder().encode(str);var buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
-function debounce(fn,delay){var t;return function(){clearTimeout(t);t=setTimeout(fn,delay);};}
-var _debouncedRefresh=debounce(function(){refreshDashboard();},200);
-var debouncedContSearch=debounce(function(){renderContainerList();},150);
-var _dateFormat=localStorage.getItem('bms_dateformat')||'miladi';
+async function sha256(str){let enc=new TextEncoder().encode(str);let buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
+function debounce(fn,delay){let t;return function(){clearTimeout(t);t=setTimeout(fn,delay);};}
+let _debouncedRefresh=debounce(function(){refreshDashboard();},200);
+let debouncedContSearch=debounce(function(){renderContainerList();},150);
+let _dateFormat=localStorage.getItem('bms_dateformat')||'miladi';
 function isJalali(){return _dateFormat==='jalali';}
 function toggleDateFormat(){
   _dateFormat=isJalali()?'miladi':'jalali';
@@ -401,38 +399,38 @@ function toggleDateFormat(){
 function _div(a,b){return Math.trunc(a/b);}
 function _mod(a,b){return a-Math.trunc(a/b)*b;}
 function _jalCal(jy){
-  var breaks=[-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178];
-  var bl=breaks.length,gy=jy+621,leapJ=-14,jp=breaks[0],jump=0;
-  for(var i=1;i<bl;i++){var jm=breaks[i];jump=jm-jp;if(jy<jm)break;leapJ+=_div(jump,33)*8+_div(_mod(jump,33),4);jp=jm;}
-  var n=jy-jp;
+  let breaks=[-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178];
+  let bl=breaks.length,gy=jy+621,leapJ=-14,jp=breaks[0],jump=0;
+  for(let i=1;i<bl;i++){let jm=breaks[i];jump=jm-jp;if(jy<jm)break;leapJ+=_div(jump,33)*8+_div(_mod(jump,33),4);jp=jm;}
+  let n=jy-jp;
   leapJ+=_div(n,33)*8+_div(_mod(n,33)+3,4);
   if(_mod(jump,33)===4&&jump-n===4)leapJ+=1;
-  var leapG=_div(gy,4)-_div((_div(gy,100)+1)*3,4)-150;
-  var march=20+leapJ-leapG;
+  let leapG=_div(gy,4)-_div((_div(gy,100)+1)*3,4)-150;
+  let march=20+leapJ-leapG;
   if(jump-n<6)n=n-jump+_div(jump+4,33)*33;
-  var leap=_mod(_mod(n+1,33)-1,4);if(leap===-1)leap=4;
+  let leap=_mod(_mod(n+1,33)-1,4);if(leap===-1)leap=4;
   return{leap:leap,gy:gy,march:march};
 }
 function _g2d(gy,gm,gd){
-  var d=_div((gy+_div(gm-8,6)+100100)*1461,4)+_div(153*_mod(gm+9,12)+2,5)+gd-34840408;
+  let d=_div((gy+_div(gm-8,6)+100100)*1461,4)+_div(153*_mod(gm+9,12)+2,5)+gd-34840408;
   d=d-_div(_div(gy+100100+_div(gm-8,6),100)*3,4)+752;return d;
 }
 function _d2g(jdn){
-  var j=4*jdn+139361631;j=j+_div(_div(4*jdn+183187720,146097)*3,4)*4-3908;
-  var i=_div(_mod(j,1461),4)*5+308;var gd=_div(_mod(i,153),5)+1;var gm=_mod(_div(i,153),12)+1;
-  var gy=_div(j,1461)-100100+_div(8-gm,6);return{gy:gy,gm:gm,gd:gd};
+  let j=4*jdn+139361631;j=j+_div(_div(4*jdn+183187720,146097)*3,4)*4-3908;
+  let i=_div(_mod(j,1461),4)*5+308;let gd=_div(_mod(i,153),5)+1;let gm=_mod(_div(i,153),12)+1;
+  let gy=_div(j,1461)-100100+_div(8-gm,6);return{gy:gy,gm:gm,gd:gd};
 }
-function _j2d(jy,jm,jd){var r=_jalCal(jy);return _g2d(r.gy,3,r.march)+(jm-1)*31-_div(jm,7)*(jm-7)+jd-1;}
+function _j2d(jy,jm,jd){let r=_jalCal(jy);return _g2d(r.gy,3,r.march)+(jm-1)*31-_div(jm,7)*(jm-7)+jd-1;}
 function _d2j(jdn){
-  var gy=_d2g(jdn).gy,jy=gy-621,r=_jalCal(jy),jdn1f=_g2d(gy,3,r.march),jd,jm,k=jdn-jdn1f;
+  let gy=_d2g(jdn).gy,jy=gy-621,r=_jalCal(jy),jdn1f=_g2d(gy,3,r.march),jd,jm,k=jdn-jdn1f;
   if(k>=0){if(k<=185){jm=1+_div(k,31);jd=_mod(k,31)+1;return{jy:jy,jm:jm,jd:jd};}else k-=186;}
   else{jy-=1;k+=179;if(r.leap===1)k+=1;}
   jm=7+_div(k,30);jd=_mod(k,30)+1;return{jy:jy,jm:jm,jd:jd};
 }
-function g2j(gy,gm,gd){var r=_d2j(_g2d(gy,gm,gd));return[r.jy,r.jm,r.jd];}
-function j2g(jy,jm,jd){var r=_d2g(_j2d(jy,jm,jd));return[r.gy,r.gm,r.gd];}
+function g2j(gy,gm,gd){let r=_d2j(_g2d(gy,gm,gd));return[r.jy,r.jm,r.jd];}
+function j2g(jy,jm,jd){let r=_d2g(_j2d(jy,jm,jd));return[r.gy,r.gm,r.gd];}
 function fmtDateJalali(d){
-  if(!d)return'';var j=g2j(d.getFullYear(),d.getMonth()+1,d.getDate());
+  if(!d)return'';let j=g2j(d.getFullYear(),d.getMonth()+1,d.getDate());
   return j[0]+'-'+String(j[1]).padStart(2,'0')+'-'+String(j[2]).padStart(2,'0');
 }
 function fmtDateMiladi(d){
@@ -442,9 +440,9 @@ function fmtDate(d){return isJalali()?fmtDateJalali(d):fmtDateMiladi(d);}
 function parseDateInput(str){
   if(!str)return null;
   if(isJalali()){
-    var p=str.split(/[\-\/]/);if(p.length<3)return null;
-    var jy=parseInt(p[0]),jm=parseInt(p[1]),jd=parseInt(p[2]);
-    var g=j2g(jy,jm,jd);
+    let p=str.split(/[\-\/]/);if(p.length<3)return null;
+    let jy=parseInt(p[0]),jm=parseInt(p[1]),jd=parseInt(p[2]);
+    let g=j2g(jy,jm,jd);
     if(g[0]===0)return null;
     return new Date(g[0],g[1]-1,g[2]);
   }
@@ -452,16 +450,16 @@ function parseDateInput(str){
 }
 function todayStr(){return isJalali()?fmtDateJalali(new Date()):fmtDateMiladi(new Date());}
 function updateDateInputs(){
-  var fromEl=document.getElementById('fltFrom');var toEl=document.getElementById('fltTo');
+  let fromEl=document.getElementById('fltFrom');let toEl=document.getElementById('fltTo');
   if(isJalali()){
     fromEl.type='text';fromEl.placeholder='مثال: 1404-04-29';
     toEl.type='text';toEl.placeholder='مثال: 1404-05-01';
     if(fromEl.value){
-      var d=parseDateInput(fromEl.value)||new Date(fromEl.value+'T00:00:00Z');
+      let d=parseDateInput(fromEl.value)||new Date(fromEl.value+'T00:00:00Z');
       if(d&&!isNaN(d.getTime()))fromEl.value=fmtDateJalali(d);
     }
     if(toEl.value){
-      var d=parseDateInput(toEl.value)||new Date(toEl.value+'T00:00:00Z');
+      let d=parseDateInput(toEl.value)||new Date(toEl.value+'T00:00:00Z');
       if(d&&!isNaN(d.getTime()))toEl.value=fmtDateJalali(d);
     }
   }else{
@@ -469,12 +467,12 @@ function updateDateInputs(){
     toEl.type='date';toEl.placeholder='';
     if(fromEl.value&&fromEl.value.match(/^\d{4}-\d{2}-\d{2}$/)){}
     else if(fromEl.value){
-      var d=parseDateInput(fromEl.value);
+      let d=parseDateInput(fromEl.value);
       if(d&&!isNaN(d.getTime()))fromEl.value=fmtDateMiladi(d);
     }
     if(toEl.value&&toEl.value.match(/^\d{4}-\d{2}-\d{2}$/)){}
     else if(toEl.value){
-      var d=parseDateInput(toEl.value);
+      let d=parseDateInput(toEl.value);
       if(d&&!isNaN(d.getTime()))toEl.value=fmtDateMiladi(d);
     }
   }
@@ -493,23 +491,26 @@ function chartTextColor(){return getComputedStyle(document.documentElement).getP
 const COLORS={teal:'#22C0AE',tealSoft:'rgba(34,192,174,.55)',tealFill:'rgba(34,192,174,.14)',gold:'#E8AE52',goldFill:'rgba(232,174,82,.14)',red:'#E5654A',blue:'#5B9BD5',grid:'rgba(120,170,210,.10)',palette:['#22C0AE','#E8AE52','#5B9BD5','#B08CE0','#E5654A','#6FCF97','#F2C94C','#9BA8C9','#2FA6A0','#D98CC0']};
 function fmtInt(n){return new Intl.NumberFormat('en-US').format(Math.round(n||0));}
 const charts={};
-function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function getOrCreateChart(id,cfg){
+  if(charts[id]){charts[id].data=cfg.data;Object.assign(charts[id].options,cfg.options);charts[id].update();return charts[id];}
+  charts[id]=new Chart(document.getElementById(id),cfg);return charts[id];
+}
 
 /* ============================================================
    3) FILTER + AGGREGATE
    ============================================================ */
 function getFilteredRecords(){
-  var r=rawRecords;
-  var f=activeFilters;
-  var from=document.getElementById('fltFrom').value;
-  var to=document.getElementById('fltTo').value;
-  var fromDate=from?parseDateInput(from):null;
-  var toDate=to?parseDateInput(to):null;
+  let r=rawRecords;
+  let f=activeFilters;
+  let from=document.getElementById('fltFrom').value;
+  let to=document.getElementById('fltTo').value;
+  let fromDate=from?parseDateInput(from):null;
+  let toDate=to?parseDateInput(to):null;
   if(from||to||f.fwd.length||f.pol.length||f.line.length||f.agent.length){
     r=r.filter(function(rec){
       if(from||to){
         if(!rec.arrv_date)return false;
-        var rd=rec.arrv_date.getTime();
+        let rd=rec.arrv_date.getTime();
         if(fromDate && rd<fromDate.getTime())return false;
         if(toDate && rd>toDate.getTime()+86400000)return false;
       }
@@ -524,55 +525,55 @@ function getFilteredRecords(){
 }
 
 function aggregateFromRecords(records){
-  function contCount(arr){var s=new Set();arr.forEach(function(r){if(r.container)s.add(r.container);});return s.size;}
-  function shipCount(arr){var sum=0;arr.forEach(function(r){sum+=r.qty;});return sum;}
-  var total_containers=contCount(records);
-  var total_shipments=shipCount(records);
-  var vesselSet=new Set(records.map(function(r){return r.vessel;}).filter(Boolean));
-  var lineSet=new Set(records.map(function(r){return r.line;}).filter(Boolean));
-  var fwdSet=new Set(records.map(function(r){return r.pol_forwarder;}).filter(Boolean));
-  var agentSet=new Set(records.map(function(r){return r.iran_agent;}).filter(Boolean));
-  var polSet=new Set(records.map(function(r){return r.pol;}).filter(Boolean));
-  var sizeMap=new Map();
-  records.forEach(function(r){if(r.size){var k=r.size;sizeMap.set(k,(sizeMap.get(k)||0)+1);}});
+  function contCount(arr){let s=new Set();arr.forEach(function(r){if(r.container)s.add(r.container);});return s.size;}
+  function shipCount(arr){let sum=0;arr.forEach(function(r){sum+=r.qty;});return sum;}
+  let total_containers=contCount(records);
+  let total_shipments=shipCount(records);
+  let vesselSet=new Set(records.map(function(r){return r.vessel;}).filter(Boolean));
+  let lineSet=new Set(records.map(function(r){return r.line;}).filter(Boolean));
+  let fwdSet=new Set(records.map(function(r){return r.pol_forwarder;}).filter(Boolean));
+  let agentSet=new Set(records.map(function(r){return r.iran_agent;}).filter(Boolean));
+  let polSet=new Set(records.map(function(r){return r.pol;}).filter(Boolean));
+  let sizeMap=new Map();
+  records.forEach(function(r){if(r.size){let k=r.size;sizeMap.set(k,(sizeMap.get(k)||0)+1);}});
   function topNbyCount(key,n){
-    var m=new Map();
-    records.forEach(function(r){var k=r[key];if(k){if(!m.has(k))m.set(k,[]);m.get(k).push(r);}});
-    var arr=Array.from(m.entries()).map(function(e){return{label:e[0],value:contCount(e[1])};});
+    let m=new Map();
+    records.forEach(function(r){let k=r[key];if(k){if(!m.has(k))m.set(k,[]);m.get(k).push(r);}});
+    let arr=Array.from(m.entries()).map(function(e){return{label:e[0],value:contCount(e[1])};});
     arr.sort(function(a,b){return b.value-a.value;});
     return arr.slice(0,n);
   }
-  var pending=records.filter(function(r){return r.status==='Pending';});
-  var arrived=records.filter(function(r){return r.status==='Arrived';});
+  let pending=records.filter(function(r){return r.status==='Pending';});
+  let arrived=records.filter(function(r){return r.status==='Arrived';});
   // Yearly (both)
-  var yearMap=new Map();
-  records.forEach(function(r){if(r.date){var y=r.date.getFullYear();if(!yearMap.has(y))yearMap.set(y,[]);yearMap.get(y).push(r);}});
-  var yearSorted=Array.from(yearMap.entries()).sort(function(a,b){return a[0]-b[0];});
-  var yearly_cont=yearSorted.map(function(e){return{label:String(e[0]),value:contCount(e[1])};});
-  var yearly_ship=yearSorted.map(function(e){return{label:String(e[0]),value:shipCount(e[1])};});
+  let yearMap=new Map();
+  records.forEach(function(r){if(r.date){let y=r.date.getFullYear();if(!yearMap.has(y))yearMap.set(y,[]);yearMap.get(y).push(r);}});
+  let yearSorted=Array.from(yearMap.entries()).sort(function(a,b){return a[0]-b[0];});
+  let yearly_cont=yearSorted.map(function(e){return{label:String(e[0]),value:contCount(e[1])};});
+  let yearly_ship=yearSorted.map(function(e){return{label:String(e[0]),value:shipCount(e[1])};});
   // Monthly (both)
-  var monthMap=new Map();
-  records.forEach(function(r){if(r.date){var y=r.date.getFullYear();var m=String(r.date.getMonth()+1).padStart(2,'0');var key=y+'-'+m;if(!monthMap.has(key))monthMap.set(key,[]);monthMap.get(key).push(r);}});
-  var monthSorted=Array.from(monthMap.entries()).sort(function(a,b){return a[0]<b[0]?-1:1;});
-  var monthly_cont=monthSorted.map(function(e){var lbl=e[0];if(isJalali()){var parts=e[0].split('-');var j=g2j(parseInt(parts[0]),parseInt(parts[1]),1);lbl=j[0]+'/'+String(j[1]).padStart(2,'0');}return{month:lbl,cont:contCount(e[1]),ship:shipCount(e[1])};});
+  let monthMap=new Map();
+  records.forEach(function(r){if(r.date){let y=r.date.getFullYear();let m=String(r.date.getMonth()+1).padStart(2,'0');let key=y+'-'+m;if(!monthMap.has(key))monthMap.set(key,[]);monthMap.get(key).push(r);}});
+  let monthSorted=Array.from(monthMap.entries()).sort(function(a,b){return a[0]<b[0]?-1:1;});
+  let monthly_cont=monthSorted.map(function(e){let lbl=e[0];if(isJalali()){let parts=e[0].split('-');let j=g2j(parseInt(parts[0]),parseInt(parts[1]),1);lbl=j[0]+'/'+String(j[1]).padStart(2,'0');}return{month:lbl,cont:contCount(e[1]),ship:shipCount(e[1])};});
   // Size dist
-  var size_dist=Array.from(sizeMap.entries()).sort(function(a,b){return b[1]-a[1];}).map(function(e){return{label:e[0],value:e[1]};});
+  let size_dist=Array.from(sizeMap.entries()).sort(function(a,b){return b[1]-a[1];}).map(function(e){return{label:e[0],value:e[1]};});
   // Daily data (fill all days) — internal keys always Gregorian for correct sorting/parsing
-  var dayMap=new Map();
-  records.forEach(function(r){if(r.date){var key=r.date.getFullYear()+'-'+String(r.date.getMonth()+1).padStart(2,'0')+'-'+String(r.date.getDate()).padStart(2,'0');if(!dayMap.has(key))dayMap.set(key,[]);dayMap.get(key).push(r);}});
-  var dayKeys=Array.from(dayMap.keys()).sort();
-  var daily=[];
+  let dayMap=new Map();
+  records.forEach(function(r){if(r.date){let key=r.date.getFullYear()+'-'+String(r.date.getMonth()+1).padStart(2,'0')+'-'+String(r.date.getDate()).padStart(2,'0');if(!dayMap.has(key))dayMap.set(key,[]);dayMap.get(key).push(r);}});
+  let dayKeys=Array.from(dayMap.keys()).sort();
+  let daily=[];
   if(dayKeys.length){
-    var minD=new Date(dayKeys[0]+'T00:00:00'),maxD=new Date(dayKeys[dayKeys.length-1]+'T00:00:00');
-    for(var d=new Date(minD);d<=maxD;d.setDate(d.getDate()+1)){
-      var key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-      var arr=dayMap.get(key)||[];
+    let minD=new Date(dayKeys[0]+'T00:00:00'),maxD=new Date(dayKeys[dayKeys.length-1]+'T00:00:00');
+    for(let d=new Date(minD);d<=maxD;d.setDate(d.getDate()+1)){
+      let key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+      let arr=dayMap.get(key)||[];
       daily.push({label:fmtDate(d),cont:arr.length?contCount(arr):0,ship:arr.length?shipCount(arr):0});
     }
   }
-  var rangeDays=daily.length;
+  let rangeDays=daily.length;
   // All records for container list
-  var all_records=records.map(function(r){
+  let all_records=records.map(function(r){
     return{
       container:r.container||null,
       vessel:r.vessel||null,
@@ -587,17 +588,17 @@ function aggregateFromRecords(records){
     };
   });
   // POL coords for map
-  var polCountMap=new Map();
+  let polCountMap=new Map();
   records.forEach(function(r){if(r.pol&&r.date){polCountMap.set(r.pol,(polCountMap.get(r.pol)||0)+1);}});
-  var POL_COORDS={SHANGHAI:[31.23,121.47],NINGBO:[29.87,121.54],NANSHA:[22.76,113.62],QINGDAO:[36.07,120.38],TIANJIN:[38.97,117.72],XINGANG:[38.98,117.75],SHEKOU:[22.48,113.91],SHENZHEN:[22.54,113.96],TAICANG:[31.45,121.12],DUBAI:[25.20,55.27],BANDAR_ABBAS:[27.18,56.27]};
-  var pol_coords=Array.from(polCountMap.entries()).filter(function(e){return POL_COORDS[e[0].toUpperCase()];}).map(function(e){return{name:e[0],lat:POL_COORDS[e[0].toUpperCase()][0],lng:POL_COORDS[e[0].toUpperCase()][1],count:e[1]};});
-  var dates=records.map(function(r){return r.date;}).filter(Boolean);
-  var date_min=dates.length?fmtDate(new Date(Math.min.apply(null,dates))):null;
-  var date_max=dates.length?fmtDate(new Date(Math.max.apply(null,dates))):null;
-  var lineMap=new Map();records.forEach(function(r){if(r.iran_agent){if(!lineMap.has(r.iran_agent))lineMap.set(r.iran_agent,[]);lineMap.get(r.iran_agent).push(r);}});
-  var lineShare=Array.from(lineMap.entries()).map(function(e){return{label:e[0],value:contCount(e[1])};}).sort(function(a,b){return b.value-a.value;});
+  let POL_COORDS={SHANGHAI:[31.23,121.47],NINGBO:[29.87,121.54],NANSHA:[22.76,113.62],QINGDAO:[36.07,120.38],TIANJIN:[38.97,117.72],XINGANG:[38.98,117.75],SHEKOU:[22.48,113.91],SHENZHEN:[22.54,113.96],TAICANG:[31.45,121.12],DUBAI:[25.20,55.27],BANDAR_ABBAS:[27.18,56.27]};
+  let pol_coords=Array.from(polCountMap.entries()).filter(function(e){return POL_COORDS[e[0].toUpperCase()];}).map(function(e){return{name:e[0],lat:POL_COORDS[e[0].toUpperCase()][0],lng:POL_COORDS[e[0].toUpperCase()][1],count:e[1]};});
+  let dates=records.map(function(r){return r.date;}).filter(Boolean);
+  let date_min=dates.length?fmtDate(new Date(Math.min.apply(null,dates))):null;
+  let date_max=dates.length?fmtDate(new Date(Math.max.apply(null,dates))):null;
+  let lineMap=new Map();records.forEach(function(r){if(r.iran_agent){if(!lineMap.has(r.iran_agent))lineMap.set(r.iran_agent,[]);lineMap.get(r.iran_agent).push(r);}});
+  let lineShare=Array.from(lineMap.entries()).map(function(e){return{label:e[0],value:contCount(e[1])};}).sort(function(a,b){return b.value-a.value;});
   return{
-    total_containers:total_containers,total_shipments:total_shipments,total_teu:records.reduce(function(s,r){var sz=r.size;return s+(sz==='40'||sz==="40'"?2:sz==='20'||sz==="20'"?1:0);},0),unique_vessels:vesselSet.size,
+    total_containers:total_containers,total_shipments:total_shipments,total_teu:records.reduce(function(s,r){let sz=r.size;return s+(sz==='40'||sz==="40'"?2:sz==='20'||sz==="20'"?1:0);},0),unique_vessels:vesselSet.size,
     unique_lines:lineSet.size,unique_forwarders:fwdSet.size,unique_agents:agentSet.size,
     date_min:date_min,date_max:date_max,pending_count:contCount(pending),arrived_count:contCount(arrived),
     size_dist:size_dist,top_lines:topNbyCount('line',10),top_forwarders:topNbyCount('pol_forwarder',10),
@@ -609,11 +610,11 @@ function aggregateFromRecords(records){
 
 function refreshDashboard(){
   if(!rawRecords.length){return;}
-  var records=getFilteredRecords();
+  let records=getFilteredRecords();
   document.getElementById('filterInfo').textContent=records.length.toLocaleString()+' رکورد ('+(rawRecords.length?Math.round(records.length/rawRecords.length*100)+'% از کل':'—')+')';
-  var data=aggregateFromRecords(records);
-  var existingContainers=new Set(data.all_records.map(function(r){return r.container;}));
-  var pending=rawRecords.filter(function(r){return !r.arrv_date && (!existingContainers.has(r.container)||!r.container);});
+  let data=aggregateFromRecords(records);
+  let existingContainers=new Set(data.all_records.map(function(r){return r.container;}));
+  let pending=rawRecords.filter(function(r){return !r.arrv_date && (!existingContainers.has(r.container)||!r.container);});
   pending.forEach(function(r){
     data.all_records.push({
       container:r.container||null,vessel:r.vessel||null,size:r.size||null,qty:r.qty||0,
@@ -621,20 +622,20 @@ function refreshDashboard(){
       iran_agent:r.iran_agent||null,date:'',status:r.status||'Pending'
     });
   });
-  var from=document.getElementById('fltFrom').value;
-  var to=document.getElementById('fltTo').value;
-  var fromDate=from?parseDateInput(from):null;
-  var toDate=to?parseDateInput(to):null;
+  let from=document.getElementById('fltFrom').value;
+  let to=document.getElementById('fltTo').value;
+  let fromDate=from?parseDateInput(from):null;
+  let toDate=to?parseDateInput(to):null;
   if(fromDate&&toDate&&!isNaN(fromDate.getTime())&&!isNaN(toDate.getTime())){
-    var msDay=86400000;
-    var rangeDays=Math.round((toDate.getTime()-fromDate.getTime())/msDay);
-    var prevTo=new Date(fromDate.getTime()-msDay);
-    var prevFrom=new Date(prevTo.getTime()-rangeDays*msDay);
-    var prevFromStr=fmtDate(prevFrom);
-    var prevToStr=fmtDate(prevTo);
-    var prevRecords=rawRecords.filter(function(r){
+    let msDay=86400000;
+    let rangeDays=Math.round((toDate.getTime()-fromDate.getTime())/msDay);
+    let prevTo=new Date(fromDate.getTime()-msDay);
+    let prevFrom=new Date(prevTo.getTime()-rangeDays*msDay);
+    let prevFromStr=fmtDate(prevFrom);
+    let prevToStr=fmtDate(prevTo);
+    let prevRecords=rawRecords.filter(function(r){
       if(!r.arrv_date)return false;
-      var d=fmtDate(r.arrv_date);
+      let d=fmtDate(r.arrv_date);
       if(prevFromStr&&d<prevFromStr)return false;
       if(prevToStr&&d>prevToStr)return false;
       if(activeFilters.fwd.length&&activeFilters.fwd.indexOf(r.pol_forwarder)===-1)return false;
@@ -647,20 +648,20 @@ function refreshDashboard(){
     data.prevPeriodLabel=prevFromStr+' تا '+prevToStr;
     data.curPeriodLabel=from+' تا '+to;
   }else if(records.length>1){
-    var recDates=records.map(function(r){return r.arrv_date;}).filter(Boolean);
+    let recDates=records.map(function(r){return r.arrv_date;}).filter(Boolean);
     if(recDates.length>1){
-      var minRD=new Date(Math.min.apply(null,recDates));
-      var maxRD=new Date(Math.max.apply(null,recDates));
-      var rMsDay=86400000;
-      var rRange=Math.round((maxRD.getTime()-minRD.getTime())/rMsDay);
+      let minRD=new Date(Math.min.apply(null,recDates));
+      let maxRD=new Date(Math.max.apply(null,recDates));
+      let rMsDay=86400000;
+      let rRange=Math.round((maxRD.getTime()-minRD.getTime())/rMsDay);
       if(rRange>0){
-        var rpTo=new Date(minRD.getTime()-rMsDay);
-        var rpFrom=new Date(rpTo.getTime()-rRange*rMsDay);
-        var rpFs=fmtDate(rpFrom);
-        var rpTs=fmtDate(rpTo);
-        var rpRecs=rawRecords.filter(function(r){
+        let rpTo=new Date(minRD.getTime()-rMsDay);
+        let rpFrom=new Date(rpTo.getTime()-rRange*rMsDay);
+        let rpFs=fmtDate(rpFrom);
+        let rpTs=fmtDate(rpTo);
+        let rpRecs=rawRecords.filter(function(r){
           if(!r.arrv_date)return false;
-          var d=fmtDate(r.arrv_date);
+          let d=fmtDate(r.arrv_date);
           if(rpFs&&d<rpFs)return false;
           if(rpTs&&d>rpTs)return false;
           return true;
@@ -678,13 +679,13 @@ function refreshDashboard(){
    4) RENDER FUNCTIONS
    ============================================================ */
 function renderAll(v, meta){
-  var pp=v.prevPeriod;
+  let pp=v.prevPeriod;
   function trendHtml(cur,prev){
     if(prev==null)return'';
-    var diff=cur-prev;
-    var pct=prev!==0?((diff/prev)*100).toFixed(1):'∞';
-    var cls=diff>0?'up':diff<0?'dn':'flat';
-    var arrow=diff>0?'▲':diff<0?'▼':'—';
+    let diff=cur-prev;
+    let pct=prev!==0?((diff/prev)*100).toFixed(1):'∞';
+    let cls=diff>0?'up':diff<0?'dn':'flat';
+    let arrow=diff>0?'▲':diff<0?'▼':'—';
     return'<div class="trend '+cls+'">'+arrow+' '+pct+'%</div>';
   }
   document.getElementById('kpiGrid').innerHTML=[
@@ -697,11 +698,11 @@ function renderAll(v, meta){
     {lbl:'نمایندگان ایران',val:fmtInt(v.unique_agents),sub:'IRAN AGENTS',cls:'',cur:v.unique_agents,prev:pp?pp.unique_agents:null}
   ].map(function(k){return'<div class="kpi '+k.cls+'"><div class="lbl">'+k.lbl+'</div><div class="val">'+k.val+'</div>'+trendHtml(k.cur,k.prev)+'<div class="sub">'+k.sub+'</div></div>';}).join('');
 
-  var cmpSection=document.getElementById('autoCmpSection');
+  let cmpSection=document.getElementById('autoCmpSection');
   if(pp){
     cmpSection.style.display='';
     document.getElementById('autoCmpTitle').textContent='مقایسه با دوره قبل: '+v.prevPeriodLabel;
-    var cmpItems=[
+    let cmpItems=[
       {lbl:'کانتینر',cur:v.total_containers,prev:pp.total_containers},
       {lbl:'بارنامه',cur:v.total_shipments,prev:pp.total_shipments},
       {lbl:'TEU',cur:v.total_teu||0,prev:pp.total_teu||0},
@@ -711,10 +712,10 @@ function renderAll(v, meta){
       {lbl:'ایجنت ایران',cur:v.unique_agents,prev:pp.unique_agents}
     ];
     document.getElementById('autoCmpBox').innerHTML='<div class="cmp-sub">بازه فعلی: '+v.curPeriodLabel+'</div><div class="auto-cmp-row">'+cmpItems.map(function(it){
-      var diff=it.cur-it.prev;
-      var pct=it.prev!==0?((diff/it.prev)*100).toFixed(1):'∞';
-      var cls=diff>0?'up':diff<0?'dn':'flat';
-      var arrow=diff>0?'▲':diff<0?'▼':'—';
+      let diff=it.cur-it.prev;
+      let pct=it.prev!==0?((diff/it.prev)*100).toFixed(1):'∞';
+      let cls=diff>0?'up':diff<0?'dn':'flat';
+      let arrow=diff>0?'▲':diff<0?'▼':'—';
       return'<div class="auto-cmp-item"><div class="ac-label">'+it.lbl+'</div><div class="ac-cur '+cls+'">'+fmtInt(it.cur)+'</div><div class="ac-prev">دوره قبل: '+fmtInt(it.prev)+'</div><div class="ac-change '+cls+'">'+arrow+' '+pct+'%</div></div>';
     }).join('')+'</div>';
   }else{
@@ -722,7 +723,7 @@ function renderAll(v, meta){
   }
 
   // Determine granularity
-  var rd=v.rangeDays||0,gran='yearly',granLabel='سالانه',granUnit='سال',granUnitEn='year';
+  let rd=v.rangeDays||0,gran='yearly',granLabel='سالانه',granUnit='سال',granUnitEn='year';
   if(rd<=31){gran='daily';granLabel='روزانه';granUnit='روز';granUnitEn='day';}
   else if(rd<=365){gran='monthly';granLabel='ماهانه';granUnit='ماه';granUnitEn='month';}
   document.getElementById('chart1Title').textContent='روند '+granLabel;
@@ -734,8 +735,7 @@ function renderAll(v, meta){
   document.getElementById('chartMonthly').parentElement.style.height=gran==='daily'?'280px':'';
 
   // Chart 1: grouped bar
-  destroyChart('chartYearly');
-  var c1labels,c1cont,c1ship;
+  let c1labels,c1cont,c1ship;
   if(gran==='daily'){
     c1labels=v.daily.map(function(d){return d.label;});
     c1cont=v.daily.map(function(d){return d.cont;});
@@ -749,7 +749,7 @@ function renderAll(v, meta){
     c1cont=v.yearly_cont.map(function(d){return d.value;});
     c1ship=v.yearly_ship.map(function(d){return d.value;});
   }
-  charts.chartYearly=new Chart(document.getElementById('chartYearly'),{
+  getOrCreateChart('chartYearly',{
     type:'bar',
     data:{
       labels:c1labels,
@@ -769,8 +769,7 @@ function renderAll(v, meta){
   renderMap(v);
 
   // Chart 2: line (daily / monthly / yearly)
-  destroyChart('chartMonthly');
-  var c2labels,c2cont,c2ship,c2desc;
+  let c2labels,c2cont,c2ship,c2desc;
   if(gran==='daily'){
     c2labels=v.daily.map(function(d){return d.label;});
     c2cont=v.daily.map(function(d){return d.cont;});
@@ -788,7 +787,7 @@ function renderAll(v, meta){
     c2desc=v.yearly_cont.length+' سال';
   }
   document.getElementById('monthlyDesc').textContent=c2desc;
-  charts.chartMonthly=new Chart(document.getElementById('chartMonthly'),{
+  getOrCreateChart('chartMonthly',{
     type:'line',
     data:{
       labels:c2labels,
@@ -805,34 +804,30 @@ function renderAll(v, meta){
   });
 
   function hbar(id,items,color){
-    destroyChart(id);
-    charts[id]=new Chart(document.getElementById(id),{
+    getOrCreateChart(id,{
       type:'bar',
       data:{labels:items.map(function(d){return d.label.length>26?d.label.slice(0,24)+'\u2026':d.label;}),datasets:[{data:items.map(function(d){return d.value;}),backgroundColor:color,borderRadius:4,maxBarThickness:16}]},
       options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.x);}}}},scales:{x:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);},color:chartTextColor()}},y:{grid:{display:false},ticks:{font:{size:10},color:chartTextColor()}}}}
     });
   }
-  destroyChart('chartLinesPie');
-  var lsData=(v.line_share||[]).slice(0,12);
+  let lsData=(v.line_share||[]).slice(0,12);
   if(lsData.length){
-    charts.chartLinesPie=new Chart(document.getElementById('chartLinesPie'),{
+    getOrCreateChart('chartLinesPie',{
       type:'pie',
       data:{labels:lsData.map(function(d){return d.label;}),datasets:[{data:lsData.map(function(d){return d.value;}),backgroundColor:COLORS.palette,borderColor:'#0F2A45',borderWidth:2}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:chartTextColor()}},tooltip:{callbacks:{label:function(c){var total=c.dataset.data.reduce(function(a,b){return a+b;},0);var pct=total?(c.parsed/total*100).toFixed(1):0;return c.label+': '+fmtInt(c.parsed)+' ('+pct+'%)';}}}}}
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:chartTextColor()}},tooltip:{callbacks:{label:function(c){let total=c.dataset.data.reduce(function(a,b){return a+b;},0);let pct=total?(c.parsed/total*100).toFixed(1):0;return c.label+': '+fmtInt(c.parsed)+' ('+pct+'%)';}}}}}
     });
   }
   hbar('chartForwarders',v.top_forwarders,COLORS.gold);
   hbar('chartAgents',v.top_agents,COLORS.blue);
 
-  destroyChart('chartPOL');
-  charts.chartPOL=new Chart(document.getElementById('chartPOL'),{
+  getOrCreateChart('chartPOL',{
     type:'doughnut',
     data:{labels:v.top_pol.map(function(d){return d.label;}),datasets:[{data:v.top_pol.map(function(d){return d.value;}),backgroundColor:COLORS.palette,borderColor:'#0F2A45',borderWidth:2}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:chartTextColor()}},tooltip:{callbacks:{label:function(c){return c.label+': '+fmtInt(c.parsed)+' کانتینر';}}}}}
   });
 
-  destroyChart('chartSize');
-  charts.chartSize=new Chart(document.getElementById('chartSize'),{
+  getOrCreateChart('chartSize',{
     type:'doughnut',
     data:{labels:v.size_dist.map(function(d){return d.label+"'";}),datasets:[{data:v.size_dist.map(function(d){return d.value;}),backgroundColor:[COLORS.gold,COLORS.blue],borderColor:'#0F2A45',borderWidth:2}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.label+': '+fmtInt(c.parsed)+' کانتینر';}}}}}
@@ -850,63 +845,63 @@ function renderAll(v, meta){
 /* ============================================================
    4b) MAP RENDER
    ============================================================ */
-var _mapInstance=null;
-var _animId=null;
+let _mapInstance=null;
+let _animId=null;
 function greatCircle(lat1,lng1,lat2,lng2,n){
-  var toRad=Math.PI/180;
-  var lat1r=lat1*toRad,lng1r=lng1*toRad;
-  var lat2r=lat2*toRad,lng2r=lng2*toRad;
-  var d=2*Math.asin(Math.sqrt(Math.pow(Math.sin((lat1r-lat2r)/2),2)+Math.cos(lat1r)*Math.cos(lat2r)*Math.pow(Math.sin((lng1r-lng2r)/2),2)));
+  let toRad=Math.PI/180;
+  let lat1r=lat1*toRad,lng1r=lng1*toRad;
+  let lat2r=lat2*toRad,lng2r=lng2*toRad;
+  let d=2*Math.asin(Math.sqrt(Math.pow(Math.sin((lat1r-lat2r)/2),2)+Math.cos(lat1r)*Math.cos(lat2r)*Math.pow(Math.sin((lng1r-lng2r)/2),2)));
   if(d<.01)return [[lat1,lng1],[lat2,lng2]];
-  var pts=[];
-  for(var i=0;i<=n;i++){
-    var f=i/n;
-    var A=Math.sin((1-f)*d)/Math.sin(d);
-    var B=Math.sin(f*d)/Math.sin(d);
-    var x=A*Math.cos(lat1r)*Math.cos(lng1r)+B*Math.cos(lat2r)*Math.cos(lng2r);
-    var y=A*Math.cos(lat1r)*Math.sin(lng1r)+B*Math.cos(lat2r)*Math.sin(lng2r);
-    var z=A*Math.sin(lat1r)+B*Math.sin(lat2r);
+  let pts=[];
+  for(let i=0;i<=n;i++){
+    let f=i/n;
+    let A=Math.sin((1-f)*d)/Math.sin(d);
+    let B=Math.sin(f*d)/Math.sin(d);
+    let x=A*Math.cos(lat1r)*Math.cos(lng1r)+B*Math.cos(lat2r)*Math.cos(lng2r);
+    let y=A*Math.cos(lat1r)*Math.sin(lng1r)+B*Math.cos(lat2r)*Math.sin(lng2r);
+    let z=A*Math.sin(lat1r)+B*Math.sin(lat2r);
     pts.push([Math.atan2(z,Math.sqrt(x*x+y*y))/toRad,Math.atan2(y,x)/toRad]);
   }
   return pts;
 }
 function filterByPol(polName){
   activeFilters.pol=[polName];
-  var sel=document.getElementById('cb-pol');
+  let sel=document.getElementById('cb-pol');
   if(sel)sel.value=polName;
   refreshDashboard();
   showPolResetBtn(polName);
   setTimeout(function(){
-    var el=document.querySelector('.board')||document.getElementById('contListInfo');
+    let el=document.querySelector('.board')||document.getElementById('contListInfo');
     if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
   },100);
 }
-var _polResetEl=null;
+let _polResetEl=null;
 function showPolResetBtn(polName){
   if(_polResetEl){_polResetEl.remove();_polResetEl=null;}
-  var mapC=document.getElementById('mapC');
+  let mapC=document.getElementById('mapC');
   if(!mapC)return;
   _polResetEl=document.createElement('div');
-  _polResetEl.style.cssText='position:absolute;top:10px;right:10px;z-index:1000;background:var(--panel);border:1px solid var(--teal);color:var(--text);padding:6px 14px;border-radius:100px;cursor:pointer;font-size:11px;font-family:var(--sans);box-shadow:0 4px 16px rgba(0,0,0,.5);white-space:nowrap;';
+  _polResetEl.style.cssText='position:absolute;top:10px;right:10px;z-index:1000;background:let(--panel);border:1px solid let(--teal);color:let(--text);padding:6px 14px;border-radius:100px;cursor:pointer;font-size:11px;font-family:let(--sans);box-shadow:0 4px 16px rgba(0,0,0,.5);white-space:nowrap;';
   _polResetEl.innerHTML='✕ '+esc(polName)+' <span style="opacity:.65;">↺ بازنشانی</span>';
   _polResetEl.onclick=function(){
     activeFilters.pol=[];
-    var sel=document.getElementById('cb-pol');if(sel)sel.value='';
+    let sel=document.getElementById('cb-pol');if(sel)sel.value='';
     refreshDashboard();
     if(_polResetEl){_polResetEl.remove();_polResetEl=null;}
   };
   mapC.appendChild(_polResetEl);
 }
-var _prevPols=null;
+let _prevPols=null;
 function renderMap(v){
-  var c=document.getElementById('mapC');
+  let c=document.getElementById('mapC');
   if(!c)return;
   if(!window.L||!v.pol_coords||!v.pol_coords.length){
     if(_mapInstance){_mapInstance.remove();_mapInstance=null;_animId=null;}
     if(_polResetEl){_polResetEl.remove();_polResetEl=null;}
     return;
   }
-  var curPols=v.pol_coords.map(function(p){return p.name+':'+p.count;}).join('|');
+  let curPols=v.pol_coords.map(function(p){return p.name+':'+p.count;}).join('|');
   if(_prevPols===curPols&&_mapInstance)return;
   if(_mapInstance){_mapInstance.remove();_mapInstance=null;_animId=null;}
   if(_polResetEl){_polResetEl.remove();_polResetEl=null;}
@@ -914,37 +909,37 @@ function renderMap(v){
   _mapInstance=L.map('mapC',{zoomControl:false,attributionControl:false}).setView([27.5,64],4);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(_mapInstance);
   _mapInstance.getContainer().querySelector('.leaflet-tile-pane').style.filter='brightness(.75) contrast(1.2) saturate(.6)';
-  var icanIcon=L.divIcon({html:'<div class="map-marker"><svg width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="#FF4757" opacity=".2"/><circle cx="18" cy="18" r="11" fill="#FF4757" opacity=".55"/><circle cx="18" cy="18" r="6" fill="#FF4757"/></svg></div>',iconSize:[36,36],iconAnchor:[18,18],className:''});
+  let icanIcon=L.divIcon({html:'<div class="map-marker"><svg width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="#FF4757" opacity=".2"/><circle cx="18" cy="18" r="11" fill="#FF4757" opacity=".55"/><circle cx="18" cy="18" r="6" fill="#FF4757"/></svg></div>',iconSize:[36,36],iconAnchor:[18,18],className:''});
   L.marker([27.18,56.27],{icon:icanIcon}).addTo(_mapInstance).bindTooltip('Bandar Abbas<small>مقصد (ایران)</small>',{direction:'top',className:'map-label dest'});
   // Compute status per POL
-  var polStatus={};
+  let polStatus={};
   (v.all_records||[]).forEach(function(r){
-    var pol=r.pol;if(!pol)return;
+    let pol=r.pol;if(!pol)return;
     if(!polStatus[pol])polStatus[pol]={arr:0,pen:0};
     if(r.status==='Arrived')polStatus[pol].arr++;else polStatus[pol].pen++;
   });
-  var maxCount=Math.max.apply(null,v.pol_coords.map(function(p){return p.count;}));
-  var animPaths=[];
+  let maxCount=Math.max.apply(null,v.pol_coords.map(function(p){return p.count;}));
+  let animPaths=[];
   v.pol_coords.forEach(function(p){
-    var s=polStatus[p.name];
-    var lineColor;
+    let s=polStatus[p.name];
+    let lineColor;
     if(!s||(s.arr>0&&s.pen===0))lineColor='#22C0AE';
     else if(s.pen>0&&s.arr===0)lineColor='#E5654A';
     else lineColor='#E8AE52';
-    var pts=greatCircle(p.lat,p.lng,27.18,56.27,48);
+    let pts=greatCircle(p.lat,p.lng,27.18,56.27,48);
     L.polyline(pts,{color:'#fff',weight:4,opacity:.5}).addTo(_mapInstance);
-    var line=L.polyline(pts,{color:lineColor,weight:2.5,opacity:.85}).addTo(_mapInstance);
+    let line=L.polyline(pts,{color:lineColor,weight:2.5,opacity:.85}).addTo(_mapInstance);
     line.on('click',function(){filterByPol(p.name);});
     animPaths.push({pts:pts,color:lineColor});
-    var r=Math.max(8,Math.sqrt(p.count/maxCount)*28);
-    var portIcon=L.divIcon({html:'<div class="map-marker"><svg width="'+(r*2+4)+'" height="'+(r*2+4)+'" viewBox="0 0 '+(r*2+4)+' '+(r*2+4)+'"><circle cx="'+(r+2)+'" cy="'+(r+2)+'" r="'+r+'" fill="'+lineColor+'" opacity=".7"/><circle cx="'+(r+2)+'" cy="'+(r+2)+'" r="'+(r*0.45)+'" fill="'+lineColor+'"/></svg></div>',iconSize:[r*2+4,r*2+4],iconAnchor:[r+2,r+2],className:''});
+    let r=Math.max(8,Math.sqrt(p.count/maxCount)*28);
+    let portIcon=L.divIcon({html:'<div class="map-marker"><svg width="'+(r*2+4)+'" height="'+(r*2+4)+'" viewBox="0 0 '+(r*2+4)+' '+(r*2+4)+'"><circle cx="'+(r+2)+'" cy="'+(r+2)+'" r="'+r+'" fill="'+lineColor+'" opacity=".7"/><circle cx="'+(r+2)+'" cy="'+(r+2)+'" r="'+(r*0.45)+'" fill="'+lineColor+'"/></svg></div>',iconSize:[r*2+4,r*2+4],iconAnchor:[r+2,r+2],className:''});
     L.marker([p.lat,p.lng],{icon:portIcon}).addTo(_mapInstance).bindTooltip(esc(p.name)+'<small>'+fmtInt(p.count)+' کانتینر</small>',{direction:'top',className:'map-label port'});
   });
   // Animated dots
   if(animPaths.length){
-    var dotGroup=L.layerGroup().addTo(_mapInstance);
-    var dots=animPaths.map(function(path,i){
-      var dot=L.circleMarker(path.pts[0],{radius:3.5,color:'#fff',weight:2,fillColor:path.color,fillOpacity:.9});
+    let dotGroup=L.layerGroup().addTo(_mapInstance);
+    let dots=animPaths.map(function(path,i){
+      let dot=L.circleMarker(path.pts[0],{radius:3.5,color:'#fff',weight:2,fillColor:path.color,fillOpacity:.9});
       dotGroup.addLayer(dot);
       return{dot:dot,path:path.pts,idx:i*12,speed:.008+Math.random()*.01};
     });
@@ -964,23 +959,23 @@ function renderMap(v){
 /* ============================================================
    4b) CONTAINER LIST RENDER
    ============================================================ */
-var _allRecordsCache=null;
+let _allRecordsCache=null;
 function renderContainerList(records){
   if(records){_allRecordsCache=records;contPage=1;}
-  var all=_allRecordsCache||[];
-  var q=document.getElementById('contSearch').value.trim().toLowerCase();
+  let all=_allRecordsCache||[];
+  let q=document.getElementById('contSearch').value.trim().toLowerCase();
   // Advanced search values
-  var advVessel=document.getElementById('advVessel').value.trim().toLowerCase();
-  var advFwd=document.getElementById('advFwd').value;
-  var advPol=document.getElementById('advPol').value;
-  var advLine=document.getElementById('advLine').value;
-  var advAgent=document.getElementById('advAgent').value;
-  var advSize=document.getElementById('advSize').value;
-  var advStatus=document.getElementById('advStatus').value;
-  var hasAdv=advVessel||advFwd||advPol||advLine||advAgent||advSize||advStatus;
-  var filtered=all.filter(function(r){
+  let advVessel=document.getElementById('advVessel').value.trim().toLowerCase();
+  let advFwd=document.getElementById('advFwd').value;
+  let advPol=document.getElementById('advPol').value;
+  let advLine=document.getElementById('advLine').value;
+  let advAgent=document.getElementById('advAgent').value;
+  let advSize=document.getElementById('advSize').value;
+  let advStatus=document.getElementById('advStatus').value;
+  let hasAdv=advVessel||advFwd||advPol||advLine||advAgent||advSize||advStatus;
+  let filtered=all.filter(function(r){
     if(q){
-      var searchStr=[r.container,r.vessel,r.line,r.pol_forwarder,r.pol,r.iran_agent,r.size,r.qty,r.date,r.status].join(' ').toLowerCase();
+      let searchStr=[r.container,r.vessel,r.line,r.pol_forwarder,r.pol,r.iran_agent,r.size,r.qty,r.date,r.status].join(' ').toLowerCase();
       if(searchStr.indexOf(q)===-1)return false;
     }
     if(hasAdv){
@@ -995,10 +990,10 @@ function renderContainerList(records){
     return true;
   });
   // Sort
-  var sk=contSort.key;
+  let sk=contSort.key;
   if(sk&&sk!=='idx'){
     filtered.sort(function(a,b){
-      var va=a[sk],vb=b[sk];
+      let va=a[sk],vb=b[sk];
       if(va==null)va='';if(vb==null)vb='';
       if(typeof va==='number')return contSort.asc?va-vb:vb-va;
       return contSort.asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));
@@ -1006,33 +1001,33 @@ function renderContainerList(records){
   }
   // Update sort indicators
   document.querySelectorAll('.sortic').forEach(function(el){el.className='sortic';});
-  if(sk){var sel=document.getElementById('srt-'+sk);if(sel)sel.className='sortic '+(contSort.asc?'asc':'dsc');}
-  var totalPages=Math.max(1,Math.ceil(filtered.length/contPerPage));
+  if(sk){let sel=document.getElementById('srt-'+sk);if(sel)sel.className='sortic '+(contSort.asc?'asc':'dsc');}
+  let totalPages=Math.max(1,Math.ceil(filtered.length/contPerPage));
   if(contPage>totalPages)contPage=totalPages;
-  var start=(contPage-1)*contPerPage;
-  var show=filtered.slice(start,start+contPerPage);
+  let start=(contPage-1)*contPerPage;
+  let show=filtered.slice(start,start+contPerPage);
   document.getElementById('contTotalCount').textContent=fmtInt(filtered.length);
   document.getElementById('contShowCount').textContent=fmtInt(show.length);
-  var html='';
+  let html='';
   function cel(v){return (v==null||v==='')?'<td class="miss">\u2014</td>':'<td>'+esc(v)+'</td>';}
   function celSz(v){if(v==null||v==='')return '<td class="miss">\u2014</td>';return '<td class="sz">'+esc(v)+"'"+'</td>';}
   show.forEach(function(r,i){
-    var cls=r.status==='Arrived'?'stat-arr':'stat-pen';
+    let cls=r.status==='Arrived'?'stat-arr':'stat-pen';
     html+='<tr><td>'+(start+i+1)+'</td>'+cel(r.container)+cel(r.vessel)+celSz(r.size)+'<td>'+parseInt(r.qty||0)+'</td>'+cel(r.pol_forwarder)+cel(r.pol)+cel(r.line)+cel(r.iran_agent)+cel(r.date)+'<td class="'+cls+'">'+(r.status==='Arrived'?'Arrived':'Pending')+'</td></tr>';
   });
   document.getElementById('contBody').innerHTML=html;
-  var info=document.getElementById('contListInfo');
+  let info=document.getElementById('contListInfo');
   if(totalPages>1){
-    var phtml='<div style="display:flex;align-items:center;gap:6px;justify-content:center;padding:6px 0;font-size:10px;color:var(--text-dim);font-family:var(--mono)">';
-    phtml+='<span style="cursor:pointer;color:var(--teal)" onclick="contPage=1;renderContainerList()">\u00ab</span>';
-    phtml+='<span style="cursor:pointer;color:var(--teal)" onclick="if(contPage>1){contPage--;renderContainerList()}">\u2039</span>';
-    var startPage=Math.max(1,contPage-2);
-    var endPage=Math.min(totalPages,contPage+2);
-    for(var p=startPage;p<=endPage;p++){
-      phtml+='<span style="cursor:pointer;'+(p===contPage?'background:var(--teal);color:#04150f;font-weight:700;padding:2px 7px;border-radius:4px':'color:var(--text-dim);padding:2px 7px')+'" onclick="contPage='+p+';renderContainerList()">'+p+'</span>';
+    let phtml='<div style="display:flex;align-items:center;gap:6px;justify-content:center;padding:6px 0;font-size:10px;color:let(--text-dim);font-family:let(--mono)">';
+    phtml+='<span style="cursor:pointer;color:let(--teal)" onclick="contPage=1;renderContainerList()">\u00ab</span>';
+    phtml+='<span style="cursor:pointer;color:let(--teal)" onclick="if(contPage>1){contPage--;renderContainerList()}">\u2039</span>';
+    let startPage=Math.max(1,contPage-2);
+    let endPage=Math.min(totalPages,contPage+2);
+    for(let p=startPage;p<=endPage;p++){
+      phtml+='<span style="cursor:pointer;'+(p===contPage?'background:let(--teal);color:#04150f;font-weight:700;padding:2px 7px;border-radius:4px':'color:let(--text-dim);padding:2px 7px')+'" onclick="contPage='+p+';renderContainerList()">'+p+'</span>';
     }
-    phtml+='<span style="cursor:pointer;color:var(--teal)" onclick="if(contPage<totalPages){contPage++;renderContainerList()}">\u203a</span>';
-    phtml+='<span style="cursor:pointer;color:var(--teal)" onclick="contPage='+totalPages+';renderContainerList()">\u00bb</span>';
+    phtml+='<span style="cursor:pointer;color:let(--teal)" onclick="if(contPage<totalPages){contPage++;renderContainerList()}">\u203a</span>';
+    phtml+='<span style="cursor:pointer;color:let(--teal)" onclick="contPage='+totalPages+';renderContainerList()">\u00bb</span>';
     phtml+='</div>';
     info.innerHTML=phtml;
   }else{info.innerHTML='';}
@@ -1041,18 +1036,18 @@ function renderContainerList(records){
 /* ============================================================
    5) FILTER UI
    ============================================================ */
-var filterIds=['cb-fwd','cb-pol','cb-line','cb-agent'];
-var filterProps=['pol_forwarder','pol','line','iran_agent'];
+let filterIds=['cb-fwd','cb-pol','cb-line','cb-agent'];
+let filterProps=['pol_forwarder','pol','line','iran_agent'];
 
 function buildMsOptions(){
   filterIds.forEach(function(id,i){
-    var sel=document.getElementById(id);
+    let sel=document.getElementById(id);
     if(!sel)return;
-    var prop=filterProps[i];
-    var cur=sel.value;
-    var s=new Set();
+    let prop=filterProps[i];
+    let cur=sel.value;
+    let s=new Set();
     rawRecords.forEach(function(r){if(r[prop])s.add(r[prop]);});
-    var vals=Array.from(s).sort();
+    let vals=Array.from(s).sort();
     sel.innerHTML='<option value="">همه</option>';
     vals.forEach(function(v){
       sel.insertAdjacentHTML('beforeend','<option value="'+esc(v)+'">'+esc(v)+'</option>');
@@ -1069,11 +1064,11 @@ function filterBySelect(){
 }
 
 function initFilters(){
-  var today=todayStr();
+  let today=todayStr();
   if(!rawRecords.length){
-    var n=new Date();
+    let n=new Date();
     if(isJalali()){
-      var j=g2j(n.getFullYear(),n.getMonth()+1,n.getDate());
+      let j=g2j(n.getFullYear(),n.getMonth()+1,n.getDate());
       document.getElementById('fltFrom').value=j[0]+'-'+String(j[1]).padStart(2,'0')+'-01';
     }else{
       document.getElementById('fltFrom').value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-01';
@@ -1082,16 +1077,16 @@ function initFilters(){
     updateDateInputs();
     return;
   }
-  var dates=rawRecords.map(function(r){return r.arrv_date;}).filter(Boolean);
+  let dates=rawRecords.map(function(r){return r.arrv_date;}).filter(Boolean);
   if(dates.length){
-    var minDate=new Date(Math.min.apply(null,dates));
-    var maxDate=new Date(Math.max.apply(null,dates));
+    let minDate=new Date(Math.min.apply(null,dates));
+    let maxDate=new Date(Math.max.apply(null,dates));
     document.getElementById('fltFrom').value=fmtDate(minDate);
     document.getElementById('fltTo').value=fmtDate(maxDate);
   }else{
-    var now=new Date();
+    let now=new Date();
     if(isJalali()){
-      var j=g2j(now.getFullYear(),now.getMonth()+1,now.getDate());
+      let j=g2j(now.getFullYear(),now.getMonth()+1,now.getDate());
       document.getElementById('fltFrom').value=j[0]+'-'+String(j[1]).padStart(2,'0')+'-01';
     }else{
       document.getElementById('fltFrom').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
@@ -1109,11 +1104,11 @@ function initFilters(){
 
 function resetFilters(){
   activeFilters={fwd:[],pol:[],line:[],agent:[]};
-  filterIds.forEach(function(id){var sel=document.getElementById(id);if(sel)sel.value='';});
-  var now=new Date();
+  filterIds.forEach(function(id){let sel=document.getElementById(id);if(sel)sel.value='';});
+  let now=new Date();
   if(isJalali()){
-    var j=g2j(now.getFullYear(),now.getMonth()+1,now.getDate());
-    var jm=j[1];
+    let j=g2j(now.getFullYear(),now.getMonth()+1,now.getDate());
+    let jm=j[1];
     document.getElementById('fltFrom').value=j[0]+'-'+String(jm).padStart(2,'0')+'-01';
   }else{
     document.getElementById('fltFrom').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
@@ -1128,26 +1123,26 @@ function resetFilters(){
 function onDateChange(){updateFilterOptions();_debouncedRefresh();highlightPreset(null);}
 function highlightPreset(id){
   document.querySelectorAll('.date-preset').forEach(function(b){b.classList.remove('active');});
-  if(id){var el=document.getElementById('dp-'+id);if(el)el.classList.add('active');}
+  if(id){let el=document.getElementById('dp-'+id);if(el)el.classList.add('active');}
 }
 function setDatePreset(preset){
-  var now=new Date();
-  var from,to=fmtDate(now);
+  let now=new Date();
+  let from,to=fmtDate(now);
   if(isJalali()){
-    var jToday=g2j(now.getFullYear(),now.getMonth()+1,now.getDate());
-    var jy=jToday[0],jm=jToday[1];
+    let jToday=g2j(now.getFullYear(),now.getMonth()+1,now.getDate());
+    let jy=jToday[0],jm=jToday[1];
     if(preset==='today'){from=to;}
-    else if(preset==='7days'){var d=new Date(now);d.setDate(d.getDate()-7);from=fmtDate(d);}
-    else if(preset==='30days'){var d=new Date(now);d.setDate(d.getDate()-30);from=fmtDate(d);}
+    else if(preset==='7days'){let d=new Date(now);d.setDate(d.getDate()-7);from=fmtDate(d);}
+    else if(preset==='30days'){let d=new Date(now);d.setDate(d.getDate()-30);from=fmtDate(d);}
     else if(preset==='month'){from=jy+'-'+String(jm).padStart(2,'0')+'-01';}
-    else if(preset==='quarter'){var qm=Math.floor((jm-1)/3)*3+1;from=jy+'-'+String(qm).padStart(2,'0')+'-01';}
+    else if(preset==='quarter'){let qm=Math.floor((jm-1)/3)*3+1;from=jy+'-'+String(qm).padStart(2,'0')+'-01';}
     else if(preset==='year'){from=jy+'-01-01';}
   }else{
     if(preset==='today'){from=to;}
-    else if(preset==='7days'){var d=new Date(now);d.setDate(d.getDate()-7);from=fmtDate(d);}
-    else if(preset==='30days'){var d=new Date(now);d.setDate(d.getDate()-30);from=fmtDate(d);}
+    else if(preset==='7days'){let d=new Date(now);d.setDate(d.getDate()-7);from=fmtDate(d);}
+    else if(preset==='30days'){let d=new Date(now);d.setDate(d.getDate()-30);from=fmtDate(d);}
     else if(preset==='month'){from=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';}
-    else if(preset==='quarter'){var q=Math.floor(now.getMonth()/3);from=now.getFullYear()+'-'+String(q*3+1).padStart(2,'0')+'-01';}
+    else if(preset==='quarter'){let q=Math.floor(now.getMonth()/3);from=now.getFullYear()+'-'+String(q*3+1).padStart(2,'0')+'-01';}
     else if(preset==='year'){from=now.getFullYear()+'-01-01';}
   }
   document.getElementById('fltFrom').value=from;
@@ -1159,38 +1154,38 @@ function setDatePreset(preset){
 }
 
 function updateFilterOptions(){
-  var from=document.getElementById('fltFrom').value;
-  var to=document.getElementById('fltTo').value;
-  var dateFiltered=rawRecords;
+  let from=document.getElementById('fltFrom').value;
+  let to=document.getElementById('fltTo').value;
+  let dateFiltered=rawRecords;
   if(from||to){
     dateFiltered=rawRecords.filter(function(r){
       if(!r.arrv_date)return false;
-      var d=fmtDate(r.arrv_date);
+      let d=fmtDate(r.arrv_date);
       if(from && d<from)return false;
       if(to && d>to)return false;
       return true;
     });
   }
   filterIds.forEach(function(id,i){
-    var sel=document.getElementById(id);
+    let sel=document.getElementById(id);
     if(!sel)return;
-    var prop=filterProps[i];
-    var cur=sel.value;
-    var s=new Set();dateFiltered.forEach(function(r){if(r[prop])s.add(r[prop]);});
-    var vals=Array.from(s).sort();
+    let prop=filterProps[i];
+    let cur=sel.value;
+    let s=new Set();dateFiltered.forEach(function(r){if(r[prop])s.add(r[prop]);});
+    let vals=Array.from(s).sort();
     sel.innerHTML='<option value="">همه</option>';
     vals.forEach(function(v){sel.insertAdjacentHTML('beforeend','<option value="'+esc(v)+'">'+esc(v)+'</option>');});
     if(cur&&vals.indexOf(cur)!==-1)sel.value=cur;
   });
-  var advKeys=['pol_forwarder','pol','line','iran_agent','size'];
-  var advIds=['advFwd','advPol','advLine','advAgent','advSize'];
+  let advKeys=['pol_forwarder','pol','line','iran_agent','size'];
+  let advIds=['advFwd','advPol','advLine','advAgent','advSize'];
   advKeys.forEach(function(key,i){
-    var s=new Set();dateFiltered.forEach(function(r){if(r[key])s.add(r[key]);});
-    var vals=Array.from(s).sort();
-    var sel=document.getElementById(advIds[i]);
-    var cur=sel.value;
+    let s=new Set();dateFiltered.forEach(function(r){if(r[key])s.add(r[key]);});
+    let vals=Array.from(s).sort();
+    let sel=document.getElementById(advIds[i]);
+    let cur=sel.value;
     sel.innerHTML='<option value="">همه</option>';
-    vals.forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
+    vals.forEach(function(v){let o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
     if(cur&&vals.indexOf(cur)!==-1)sel.value=cur;
   });
 }
@@ -1199,18 +1194,18 @@ function updateFilterOptions(){
    6) EXPORT CSV
    ============================================================ */
 function exportCSV(){
-  var records=getFilteredRecords();
+  let records=getFilteredRecords();
   if(!records.length){showToast('داده‌ای برای خروجی وجود ندارد',true);return;}
   if(typeof XLSX==='undefined'){showToast('❌ کتابخانهٔ اکسل در دسترس نیست',true);return;}
-  var header=['Month','Line','Iran Agent','POL Forwarder','POL','Container','Size','Vessel','Caravan','Status','Qty'];
-  var rows=[header];
+  let header=['Month','Line','Iran Agent','POL Forwarder','POL','Container','Size','Vessel','Caravan','Status','Qty'];
+  let rows=[header];
   records.forEach(function(r){
-    var dateStr=r.arrv_date?fmtDate(r.arrv_date):'';
+    let dateStr=r.arrv_date?fmtDate(r.arrv_date):'';
     rows.push([dateStr,r.line||'',r.iran_agent||'',r.pol_forwarder||'',r.pol||'',r.container||'',r.size||'',r.vessel||'',r.caravan||'',r.status||'',r.qty||0]);
   });
-  var ws=XLSX.utils.aoa_to_sheet(rows);
+  let ws=XLSX.utils.aoa_to_sheet(rows);
   ws['!cols']=[{wch:12},{wch:28},{wch:22},{wch:24},{wch:14},{wch:18},{wch:8},{wch:22},{wch:12},{wch:14},{wch:8}];
-  var wb=XLSX.utils.book_new();
+  let wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Vessel Checking');
   XLSX.writeFile(wb,'Vessel_Checking_Export_'+fmtDate(new Date())+'.xlsx');
   showToast('✅ فایل Excel با '+records.length.toLocaleString()+' ردیف دانلود شد.',false);
@@ -1220,7 +1215,7 @@ function exportCSV(){
    7b) ADVANCED SEARCH
    ============================================================ */
 function toggleAdvSearch(){
-  var w=document.getElementById('advWrap');
+  let w=document.getElementById('advWrap');
   w.classList.toggle('show');
 }
 function advSearchChange(){
@@ -1233,28 +1228,28 @@ function advSearchChange(){
    ============================================================ */
 function comparePeriods(){
   if(!rawRecords.length)return;
-  var p1s=document.getElementById('c1s').value,p1e=document.getElementById('c1e').value;
-  var p2s=document.getElementById('c2s').value,p2e=document.getElementById('c2e').value;
+  let p1s=document.getElementById('c1s').value,p1e=document.getElementById('c1e').value;
+  let p2s=document.getElementById('c2s').value,p2e=document.getElementById('c2e').value;
   function calc(ss,se){
-    var arr=rawRecords.filter(function(r){
-      if(!r.arrv_date)return false;var ds=fmtDate(r.arrv_date);
+    let arr=rawRecords.filter(function(r){
+      if(!r.arrv_date)return false;let ds=fmtDate(r.arrv_date);
       if(ss&&ds<ss)return false;if(se&&ds>se)return false;
       return true;
     });
-    var contSet=new Set(),shipSum=0;
+    let contSet=new Set(),shipSum=0;
     arr.forEach(function(r){if(r.container)contSet.add(r.container);shipSum+=r.qty;});
     return {cont:contSet.size,ship:shipSum,lines:new Set(arr.map(function(r){return r.line;}).filter(Boolean)).size};
   }
-  var p1=calc(p1s,p1e),p2=calc(p2s,p2e);
-  var items=[
+  let p1=calc(p1s,p1e),p2=calc(p2s,p2e);
+  let items=[
     {lbl:'Container (ستون F)',k:'cont'},
     {lbl:'Shipment (ستون E)',k:'ship'},
     {lbl:'Lines فعال',k:'lines'}
   ];
   document.getElementById('cmpGrid').innerHTML=items.map(function(item){
-    var v1=p1[item.k],v2=p2[item.k];
-    var diff=v2-v1,pct=v1?((v2-v1)/v1*100).toFixed(1):'N/A';
-    var cl=diff>0?'up':diff<0?'dn':'';
+    let v1=p1[item.k],v2=p2[item.k];
+    let diff=v2-v1,pct=v1?((v2-v1)/v1*100).toFixed(1):'N/A';
+    let cl=diff>0?'up':diff<0?'dn':'';
     return '<div class="cmp-item"><div class="cmp-lbl">'+item.lbl+'</div><div class="cmp-v '+(diff>0?'teal':'gold')+'">'+fmtInt(v2)+'</div><div class="cmp-d">دوره ۱: '+fmtInt(v1)+'</div><div class="cmp-ch '+cl+'">'+(diff>0?'+':'')+pct+'%</div></div>';
   }).join('');
 }
@@ -1263,37 +1258,37 @@ function comparePeriods(){
    8) EXCEL PARSING
    ============================================================ */
 function findVesselSheetName(workbook){
-  var names=workbook.SheetNames;
-  var exact=names.find(function(n){return n.trim().toLowerCase()==='vessel checking';});
+  let names=workbook.SheetNames;
+  let exact=names.find(function(n){return n.trim().toLowerCase()==='vessel checking';});
   if(exact)return exact;
-  var partial=names.find(function(n){return n.toLowerCase().indexOf('vessel')!==-1;});
+  let partial=names.find(function(n){return n.toLowerCase().indexOf('vessel')!==-1;});
   return partial||names[0];
 }
 
 function parseRows(rows){
-  var lastCaravan=null,lastVessel=null,records=[];
-  for(var r=1;r<rows.length;r++){
-    var row=rows[r]||[];
-    var caravan=row[1],vsl=row[3];
-    var qtyRaw=row[4];var qty=0;
-    if(qtyRaw!=null){var qs=String(qtyRaw).trim();try{qty=qs.split('+').reduce(function(s,x){return s+parseInt(x)||0;},0);}catch(e){qty=0;}}
-    var container=row[5],size=row[6],forwarder=row[9],pol=row[10],line=row[11],agent=row[12];
-    var dateRaw=row[14];var arrvDate=null;
+  let lastCaravan=null,lastVessel=null,records=[];
+  for(let r=1;r<rows.length;r++){
+    let row=rows[r]||[];
+    let caravan=row[1],vsl=row[3];
+    let qtyRaw=row[4];let qty=0;
+    if(qtyRaw!=null){let qs=String(qtyRaw).trim();try{qty=qs.split('+').reduce(function(s,x){return s+parseInt(x)||0;},0);}catch(e){qty=0;}}
+    let container=row[5],size=row[6],forwarder=row[9],pol=row[10],line=row[11],agent=row[12];
+    let dateRaw=row[14];let arrvDate=null;
     if(dateRaw!=null&&dateRaw!==''){
       if(dateRaw instanceof Date&&!isNaN(dateRaw.getTime()))arrvDate=dateRaw;
       else if(typeof dateRaw==='number'&&dateRaw>40000)arrvDate=new Date((dateRaw-25569)*86400000);
       else if(typeof dateRaw==='string'){
         if(dateRaw.match(/^\d{4}-\d{2}-\d{2}/))arrvDate=new Date(dateRaw.slice(0,10)+'T00:00:00Z');
         else{
-          var numVal=Number(dateRaw);
+          let numVal=Number(dateRaw);
           if(!isNaN(numVal)&&numVal>40000&&numVal<60000)arrvDate=new Date((numVal-25569)*86400000);
         }
         if(!arrvDate&&dateRaw.match(/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/)){
-          var parts=dateRaw.split(/[\/\-]/);
-          var y=parseInt(parts[2]);if(y<100)y+=2000;
+          let parts=dateRaw.split(/[\/\-]/);
+          let y=parseInt(parts[2]);if(y<100)y+=2000;
           arrvDate=new Date(y,parseInt(parts[1])-1,parseInt(parts[0]));
         }
-        if(!arrvDate){var tryD=new Date(dateRaw);if(!isNaN(tryD.getTime()))arrvDate=tryD;}
+        if(!arrvDate){let tryD=new Date(dateRaw);if(!isNaN(tryD.getTime()))arrvDate=tryD;}
       }
       if(arrvDate&&isNaN(arrvDate.getTime()))arrvDate=null;
     }
@@ -1315,9 +1310,9 @@ function parseRows(rows){
 }
 
 function aggregateVesselSheet(workbook){
-  var sheetName=findVesselSheetName(workbook);
-  var ws=workbook.Sheets[sheetName];
-  var rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
+  let sheetName=findVesselSheetName(workbook);
+  let ws=workbook.Sheets[sheetName];
+  let rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
   return parseRows(rows);
 }
 
@@ -1325,7 +1320,7 @@ function aggregateVesselSheet(workbook){
    9) FILE LOADING
    ============================================================ */
 function showToast(msg,isErr){
-  var t=document.getElementById('toast');
+  let t=document.getElementById('toast');
   t.textContent=msg;t.className='show'+(isErr?' err':'');
   clearTimeout(showToast._t);
   showToast._t=setTimeout(function(){t.className='';},3500);
@@ -1337,16 +1332,16 @@ function processArrayBuffer(buf,filename){
     return;
   }
   try{
-    var workbook=XLSX.read(buf,{type:'array',cellDates:false});
+    let workbook=XLSX.read(buf,{type:'array',cellDates:false});
     rawRecords=aggregateVesselSheet(workbook);
-    var now=new Date();
-    var timeStr=now.toLocaleString('fa-IR',{hour:'2-digit',minute:'2-digit',second:'2-digit',year:'numeric',month:'2-digit',day:'2-digit'});
+    let now=new Date();
+    let timeStr=now.toLocaleString('fa-IR',{hour:'2-digit',minute:'2-digit',second:'2-digit',year:'numeric',month:'2-digit',day:'2-digit'});
     currentMeta={filename:filename,time:timeStr};
     initFilters();
     contPage=1;
     refreshDashboard();
     showToast('✅ داشبورد از «'+filename+'» به‌روزرسانی شد ('+rawRecords.length.toLocaleString()+' رکورد)',false);
-    var autoRef=document.getElementById('autoRefLabel');
+    let autoRef=document.getElementById('autoRefLabel');
     if(autoRef)autoRef.textContent='\uD83D\uDD04 '+new Date().toLocaleTimeString('fa-IR');
   }catch(err){
     console.error(err);
@@ -1356,7 +1351,7 @@ function processArrayBuffer(buf,filename){
 
 function loadFile(file){
   if(!file)return;
-  var reader=new FileReader();
+  let reader=new FileReader();
   reader.onload=function(e){processArrayBuffer(e.target.result,file.name);};
   reader.onerror=function(){showToast('❌ خطا در خواندن فایل',true);};
   reader.readAsArrayBuffer(file);
@@ -1365,7 +1360,7 @@ function loadFile(file){
 
 ['dragenter','dragover'].forEach(function(evt){document.addEventListener(evt,function(e){e.preventDefault();document.getElementById('dropOverlay').classList.add('active');});});
 ['dragleave','drop'].forEach(function(evt){document.addEventListener(evt,function(e){e.preventDefault();if(evt==='dragleave'&&e.target.id!=='dropOverlay')return;document.getElementById('dropOverlay').classList.remove('active');});});
-document.addEventListener('drop',function(e){e.preventDefault();var file=e.dataTransfer.files&&e.dataTransfer.files[0];if(file)loadFile(file);});
+document.addEventListener('drop',function(e){e.preventDefault();let file=e.dataTransfer.files&&e.dataTransfer.files[0];if(file)loadFile(file);});
 
 /* ============================================================
    10) AUTO-LOAD FROM SERVER
@@ -1373,11 +1368,11 @@ document.addEventListener('drop',function(e){e.preventDefault();var file=e.dataT
 
 async function decryptData(buf, password){
   try{
-    var data=new Uint8Array(buf);
-    var salt=data.slice(0,16), iv=data.slice(16,28), ct=data.slice(28);
-    var enc=new TextEncoder();
-    var keyMaterial=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveKey']);
-    var key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},keyMaterial,{name:'AES-GCM',length:256},false,['decrypt']);
+    let data=new Uint8Array(buf);
+    let salt=data.slice(0,16), iv=data.slice(16,28), ct=data.slice(28);
+    let enc=new TextEncoder();
+    let keyMaterial=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveKey']);
+    let key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},keyMaterial,{name:'AES-GCM',length:256},false,['decrypt']);
     return await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},key,ct);
   }catch(e){
     showToast('❌ رمز عبور اشتباه است یا فایل خراب است',true);
@@ -1385,34 +1380,34 @@ async function decryptData(buf, password){
   }
 }
 function showPasswordModal(){return new Promise(function(rs){
-  var m=document.getElementById('pwdModal');m.classList.add('show');
-  var inp=m.querySelector('#pwdInput');inp.value='';inp.focus();
+  let m=document.getElementById('pwdModal');m.classList.add('show');
+  let inp=m.querySelector('#pwdInput');inp.value='';inp.focus();
   m.querySelector('.ok').onclick=function(){m.classList.remove('show');rs(inp.value);};
   m.querySelector('.cancel').onclick=function(){m.classList.remove('show');rs(null);};
   inp.onkeydown=function(e){if(e.key==='Enter'){m.classList.remove('show');rs(inp.value);}};
 });}
 async function fetchGoogleSheet(){
-  var token=localStorage.getItem('bms_token');
+  let token=localStorage.getItem('bms_token');
   if(!token)return null;
   try{
-    var pb=document.getElementById('progFill');
+    let pb=document.getElementById('progFill');
     if(pb)pb.style.width='30%';
     document.getElementById('autoRefLabel').textContent='⏳ دریافت دیتا از سرور...';
-    var resp=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:token}),signal:AbortSignal.timeout(30000)});
+    let resp=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:token}),signal:AbortSignal.timeout(30000)});
     if(!resp.ok)return null;
     if(pb)pb.style.width='60%';
     document.getElementById('autoRefLabel').textContent='⏳ پردازش دیتا...';
-    var csv=await resp.text();
+    let csv=await resp.text();
     if(csv==='Forbidden'){
       showBanner('<b>⚠️ اتصال به سرور دیتا ممکن نیست.</b><br>لطفاً از صفحه خارج شده دوباره وارد شوید. (توکن شما هنوز معتبر است)');
       return null;
     }
-    var wb=XLSX.read(csv,{type:'string',raw:true});
-    var ws=wb.Sheets[wb.SheetNames[0]];
-    var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
+    let wb=XLSX.read(csv,{type:'string',raw:true});
+    let ws=wb.Sheets[wb.SheetNames[0]];
+    let rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
     if(rows.length<2)return null;
     if(pb)pb.style.width='90%';
-    var records=parseRows(rows);
+    let records=parseRows(rows);
     if(pb)pb.style.width='100%';
     setTimeout(function(){if(pb)pb.style.width='0%';},600);
     return records;
@@ -1424,17 +1419,17 @@ async function tryAutoFetch(){
   try{
     if(window.electronAPI){
       try{
-        var result=await window.electronAPI.readExcelFile();
+        let result=await window.electronAPI.readExcelFile();
         if(result&&result.success){
-          var binary=atob(result.data),len=binary.length,bytes=new Uint8Array(len);
-          for(var i=0;i<len;i++)bytes[i]=binary.charCodeAt(i);
+          let binary=atob(result.data),len=binary.length,bytes=new Uint8Array(len);
+          for(let i=0;i<len;i++)bytes[i]=binary.charCodeAt(i);
           processArrayBuffer(bytes.buffer,result.name);return;
         }
       }catch(e){}
     }
-    var isLocal=window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'||window.location.protocol==='file:';
+    let isLocal=window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'||window.location.protocol==='file:';
     if(!isLocal){
-      var gsRecords=await fetchGoogleSheet();
+      let gsRecords=await fetchGoogleSheet();
       if(gsRecords&&gsRecords.length){
         rawRecords=gsRecords;
         currentMeta={time:new Date().toLocaleString('fa-IR')};
@@ -1444,23 +1439,23 @@ async function tryAutoFetch(){
         return;
       }
       try{
-        var resp=await fetch('data.enc');
+        let resp=await fetch('data.enc');
         if(resp.ok){
-          var buf=await resp.arrayBuffer();
-          var pw=await showPasswordModal();
+          let buf=await resp.arrayBuffer();
+          let pw=await showPasswordModal();
           if(pw){
-            var dec=await decryptData(buf,pw);
+            let dec=await decryptData(buf,pw);
             if(dec){processArrayBuffer(dec,'data.xlsx (encrypted)');return;}
           }
         }
       }catch(e){}
     }
-    var filenames=['data.xlsx','data.xlsm','Copy of Vesel Checking & Pending(M.H).xlsm','Copy of Vesel Checking & Pending(M.H).xlsx','Vessel_Checking.xlsm','Vessel_Checking.xlsx','dashboard.xlsm','dashboard.xlsx'];
-    for(var name of filenames){
+    let filenames=['data.xlsx','data.xlsm','Copy of Vesel Checking & Pending(M.H).xlsm','Copy of Vesel Checking & Pending(M.H).xlsx','Vessel_Checking.xlsm','Vessel_Checking.xlsx','dashboard.xlsm','dashboard.xlsx'];
+    for(let name of filenames){
       try{
-        var resp=await fetch(encodeURI(name));
+        let resp=await fetch(encodeURI(name));
         if(!resp.ok)continue;
-        var buf=await resp.arrayBuffer();
+        let buf=await resp.arrayBuffer();
         processArrayBuffer(buf,name);
         return;
       }catch(e){}
@@ -1469,16 +1464,16 @@ async function tryAutoFetch(){
     _fetchInProgress=false;
   }
 }
-function showBanner(msg){var b=document.getElementById('libBanner');if(msg)b.querySelector('div').innerHTML=msg;b.classList.add('show');}
+function showBanner(msg){let b=document.getElementById('libBanner');if(msg)b.querySelector('div').innerHTML=msg;b.classList.add('show');}
 
 
 (async function boot(){
-  var safeTimer=setTimeout(function(){
+  let safeTimer=setTimeout(function(){
     document.getElementById('libLoading').classList.add('hide');
     showBanner('<b>⚠️ کتابخانه‌های مورد نیاز از اینترنت بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5).');
   },28000);
-  var results=await Promise.all([window.__chartReady,window.__xlsxReady,window.__leafletReady]);
-  var chartUrl=results[0],xlsxUrl=results[1],leafletUrl=results[2];
+  let results=await Promise.all([window.__chartReady,window.__xlsxReady,window.__leafletReady]);
+  let chartUrl=results[0],xlsxUrl=results[1],leafletUrl=results[2];
   clearTimeout(safeTimer);
   document.getElementById('libLoading').classList.add('hide');
   if(chartUrl){setupChartDefaults();renderAll(DEFAULT_DATA,{filename:null,time:null});initFilters();}
@@ -1486,35 +1481,35 @@ function showBanner(msg){var b=document.getElementById('libBanner');if(msg)b.que
   if(chartUrl&&xlsxUrl)tryAutoFetch();
   // Auto-refresh every 5 minutes
   _autoRefreshInterval=setInterval(function(){
-    var loggedIn=localStorage.getItem('bms_logintime');
+    let loggedIn=localStorage.getItem('bms_logintime');
     if(loggedIn&&(Date.now()-parseInt(loggedIn))<18e5&&chartUrl&&xlsxUrl&&!_fetchInProgress){
       document.getElementById('autoRefLabel').textContent='🔄 بروزرسانی...';
       tryAutoFetch();
     }
   },300000);
   _logoutCheckInterval=setInterval(function(){
-    var t=localStorage.getItem('bms_logintime');
+    let t=localStorage.getItem('bms_logintime');
     if(t&&(Date.now()-parseInt(t))>18e5){logout();}
   },15000);
 })();
 async function doLogin(){
-  var user=document.getElementById('loginUser').value.trim();
-  var pass=document.getElementById('loginPass').value.trim();
+  let user=document.getElementById('loginUser').value.trim();
+  let pass=document.getElementById('loginPass').value.trim();
   if(!user||!pass){document.getElementById('loginErr').textContent='❌ لطفاً نام کاربری و رمز عبور را وارد کنید';document.getElementById('loginErr').style.display='block';return;}
-  var btn=document.getElementById('loginBtn');btn.classList.add('loading');btn.textContent='⏳ در حال بررسی…';
+  let btn=document.getElementById('loginBtn');btn.classList.add('loading');btn.textContent='⏳ در حال بررسی…';
   try{
-    var hash=await sha256(pass);
-    var resp=await fetch(LOGIN_PROXY_URL,{
+    let hash=await sha256(pass);
+    let resp=await fetch(LOGIN_PROXY_URL,{
       method:'POST',
       headers:{'Content-Type':'text/plain;charset=utf-8'},
       body:JSON.stringify({action:'login',user:user,hash:hash}),
       signal:AbortSignal.timeout(15000)
     });
-    var text=await resp.text();
-    var data;
+    let text=await resp.text();
+    let data;
     try{data=JSON.parse(text);}catch(e){data={ok:false};}
     if(data.ok&&data.token){
-      var now=Date.now().toString();
+      let now=Date.now().toString();
       localStorage.setItem('bms_token',data.token);
       localStorage.setItem('bms_logintime',now);
       localStorage.setItem('bms_username',user);
@@ -1536,21 +1531,21 @@ async function doLogin(){
     btn.classList.remove('loading');btn.textContent='ورود به داشبورد ←';
   }
 }
-var _timerInterval=null;
-var _logoutCheckInterval=null;
+let _timerInterval=null;
+let _logoutCheckInterval=null;
 function updateTimer(){
-  var t=localStorage.getItem('bms_logintime');
+  let t=localStorage.getItem('bms_logintime');
   if(!t)return;
-  var el=document.getElementById('timerDisplay');
-  var remaining=Math.max(0,18e5-(Date.now()-parseInt(t)));
-  var m=Math.floor(remaining/60000),s=Math.floor((remaining%60000)/1000);
+  let el=document.getElementById('timerDisplay');
+  let remaining=Math.max(0,18e5-(Date.now()-parseInt(t)));
+  let m=Math.floor(remaining/60000),s=Math.floor((remaining%60000)/1000);
   el.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   if(remaining<=0)logout();
 }
-var _autoRefreshInterval=null;
-var _fetchInProgress=false;
+let _autoRefreshInterval=null;
+let _fetchInProgress=false;
 function logout(){
-  var token=localStorage.getItem('bms_token');
+  let token=localStorage.getItem('bms_token');
   if(token){
     try{fetch(LOGIN_PROXY_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'logout',token:token}),signal:AbortSignal.timeout(5000)});}catch(e){}
   }
@@ -1558,7 +1553,7 @@ function logout(){
   document.getElementById('splash').classList.add('show');
   document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';
   document.getElementById('loginErr').style.display='none';
-  var btn=document.getElementById('loginBtn');btn.classList.remove('loading');btn.textContent='ورود به داشبورد ←';
+  let btn=document.getElementById('loginBtn');btn.classList.remove('loading');btn.textContent='ورود به داشبورد ←';
   document.getElementById('welcomeUser').style.display='none';
   document.getElementById('timerChip').style.display='none';
   if(_timerInterval){clearInterval(_timerInterval);_timerInterval=null;}
@@ -1566,19 +1561,19 @@ function logout(){
   if(_autoRefreshInterval){clearInterval(_autoRefreshInterval);_autoRefreshInterval=null;}
 }
 function toggleTheme(){
-  var html=document.documentElement;
-  var cur=html.getAttribute('data-theme');
-  var next=cur==='light'?'dark':'light';
+  let html=document.documentElement;
+  let cur=html.getAttribute('data-theme');
+  let next=cur==='light'?'dark':'light';
   html.setAttribute('data-theme',next);
   localStorage.setItem('bms_theme',next);
   document.getElementById('themeToggle').textContent=next==='light'?'☀️':'🌙';
-  var tc=chartTextColor();
+  let tc=chartTextColor();
   Chart.defaults.color=tc;
   Object.keys(charts).forEach(function(k){if(charts[k]){
     charts[k].options.plugins.legend.labels.color=tc;
     if(charts[k].options.scales){
       Object.keys(charts[k].options.scales).forEach(function(sk){
-        var sc=charts[k].options.scales[sk];
+        let sc=charts[k].options.scales[sk];
         if(sc.ticks)sc.ticks.color=tc;
       });
     }
@@ -1586,24 +1581,24 @@ function toggleTheme(){
   }});
 }
 (function initTheme(){
-  var saved=localStorage.getItem('bms_theme');
+  let saved=localStorage.getItem('bms_theme');
   if(saved==='light'){
     document.documentElement.setAttribute('data-theme','light');
     document.getElementById('themeToggle').textContent='☀️';
   }
 })();
 (function(){
-  var t=localStorage.getItem('bms_logintime');
+  let t=localStorage.getItem('bms_logintime');
   if(t&&(Date.now()-parseInt(t))<18e5){
-    var u=localStorage.getItem('bms_username');
-    var tok=localStorage.getItem('bms_token');
+    let u=localStorage.getItem('bms_username');
+    let tok=localStorage.getItem('bms_token');
     if(u&&tok){document.getElementById('userDisplay').textContent=u;document.getElementById('welcomeUser').style.display='';document.getElementById('splash').classList.remove('show');}
     document.getElementById('timerChip').style.display='';
     updateTimer();_timerInterval=setInterval(updateTimer,1000);
   }
 })();
 (function(){
-  var df=localStorage.getItem('bms_dateformat');
+  let df=localStorage.getItem('bms_dateformat');
   if(df==='jalali'){_dateFormat='jalali';document.getElementById('dateModeBtn').textContent='📅 شمسی';}
 })();
 </script>
