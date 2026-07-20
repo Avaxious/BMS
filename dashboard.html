@@ -385,8 +385,8 @@ const LOGIN_PROXY_URL = 'https://script.google.com/macros/s/AKfycbygAEpxb_igwQ-_
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 async function sha256(str){let enc=new TextEncoder().encode(str);let buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
 function debounce(fn,delay){let t;return function(){clearTimeout(t);t=setTimeout(fn,delay);};}
-let _debouncedRefresh=debounce(function(){refreshDashboard();},200);
-let debouncedContSearch=debounce(function(){renderContainerList();},150);
+const _debouncedRefresh=debounce(function(){refreshDashboard();},200);
+const debouncedContSearch=debounce(function(){renderContainerList();},150);
 let _dateFormat=localStorage.getItem('bms_dateformat')||'miladi';
 function isJalali(){return _dateFormat==='jalali';}
 function toggleDateFormat(){
@@ -1036,8 +1036,8 @@ function renderContainerList(records){
 /* ============================================================
    5) FILTER UI
    ============================================================ */
-let filterIds=['cb-fwd','cb-pol','cb-line','cb-agent'];
-let filterProps=['pol_forwarder','pol','line','iran_agent'];
+const filterIds=['cb-fwd','cb-pol','cb-line','cb-agent'];
+const filterProps=['pol_forwarder','pol','line','iran_agent'];
 
 function buildMsOptions(){
   filterIds.forEach(function(id,i){
