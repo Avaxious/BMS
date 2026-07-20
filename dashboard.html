@@ -390,6 +390,7 @@ let LOGIN_PROXY_URL = '';
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function sanitizeHtml(s){let d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
+function fmtDateToMs(s){if(!s)return 0;let p=s.split(/[-\/]/);if(p.length<3)return 0;if(isJalali()){let g=j2g(parseInt(p[0]),parseInt(p[1]),parseInt(p[2]));if(!g[0])return 0;return new Date(g[0],g[1]-1,g[2]).getTime();}return new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2])).getTime();}
 async function sha256(str){let enc=new TextEncoder().encode(str);let buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
 function debounce(fn,delay){let t;return function(){clearTimeout(t);t=setTimeout(fn,delay);};}
 const _debouncedRefresh=debounce(function(){refreshDashboard();},200);
@@ -642,9 +643,9 @@ function refreshDashboard(){
     let prevToStr=fmtDate(prevTo);
     let prevRecords=rawRecords.filter(function(r){
       if(!r.arrv_date)return false;
-      let d=fmtDate(r.arrv_date);
-      if(prevFromStr&&d<prevFromStr)return false;
-      if(prevToStr&&d>prevToStr)return false;
+      let d=fmtDate(r.arrv_date),dm=fmtDateToMs(d);
+      if(prevFromStr&&dm<fmtDateToMs(prevFromStr))return false;
+      if(prevToStr&&dm>fmtDateToMs(prevToStr))return false;
       if(activeFilters.fwd.length&&activeFilters.fwd.indexOf(r.pol_forwarder)===-1)return false;
       if(activeFilters.pol.length&&activeFilters.pol.indexOf(r.pol)===-1)return false;
       if(activeFilters.line.length&&activeFilters.line.indexOf(r.line)===-1)return false;
@@ -668,9 +669,9 @@ function refreshDashboard(){
         let rpTs=fmtDate(rpTo);
         let rpRecs=rawRecords.filter(function(r){
           if(!r.arrv_date)return false;
-          let d=fmtDate(r.arrv_date);
-          if(rpFs&&d<rpFs)return false;
-          if(rpTs&&d>rpTs)return false;
+          let d=fmtDate(r.arrv_date),dm=fmtDateToMs(d);
+          if(rpFs&&dm<fmtDateToMs(rpFs))return false;
+          if(rpTs&&dm>fmtDateToMs(rpTs))return false;
           return true;
         });
         data.prevPeriod=aggregateFromRecords(rpRecs);
@@ -1174,9 +1175,9 @@ function updateFilterOptions(){
   if(from||to){
     dateFiltered=rawRecords.filter(function(r){
       if(!r.arrv_date)return false;
-      let d=fmtDate(r.arrv_date);
-      if(from && d<from)return false;
-      if(to && d>to)return false;
+      let d=fmtDate(r.arrv_date),dm=fmtDateToMs(d);
+      if(from && dm<fmtDateToMs(from))return false;
+      if(to && dm>fmtDateToMs(to))return false;
       return true;
     });
   }
@@ -1245,8 +1246,8 @@ function comparePeriods(){
   let p2s=document.getElementById('c2s').value,p2e=document.getElementById('c2e').value;
   function calc(ss,se){
     let arr=rawRecords.filter(function(r){
-      if(!r.arrv_date)return false;let ds=fmtDate(r.arrv_date);
-      if(ss&&ds<ss)return false;if(se&&ds>se)return false;
+      if(!r.arrv_date)return false;let ds=fmtDate(r.arrv_date),dm=fmtDateToMs(ds);
+      if(ss&&dm<fmtDateToMs(ss))return false;if(se&&dm>fmtDateToMs(se))return false;
       return true;
     });
     let contSet=new Set(),shipSum=0;
@@ -1356,7 +1357,7 @@ function processArrayBuffer(buf,filename){
     let autoRef=document.getElementById('autoRefLabel');
     if(autoRef)autoRef.textContent='\uD83D\uDD04 '+new Date().toLocaleTimeString('fa-IR');
   }catch(err){
-    console.error(err);
+    log('ERROR:',err);
     showToast('❌ خطا: '+err.message,true);
   }
 }
@@ -1429,16 +1430,6 @@ async function tryAutoFetch(){
   if(_fetchInProgress)return;
   _fetchInProgress=true;
   try{
-    if(window.electronAPI){
-      try{
-        let result=await window.electronAPI.readExcelFile();
-        if(result&&result.success){
-          let binary=atob(result.data),len=binary.length,bytes=new Uint8Array(len);
-          for(let i=0;i<len;i++)bytes[i]=binary.charCodeAt(i);
-          processArrayBuffer(bytes.buffer,result.name);return;
-        }
-      }catch(e){}
-    }
     let isLocal=window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'||window.location.protocol==='file:';
     if(!isLocal){
       let gsRecords=await fetchGoogleSheet();
