@@ -1,1674 +1,235 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://gcore.jsdelivr.net https://cdn.statically.io https://tile.openstreetmap.org; img-src 'self' data: https:; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com;">
   <title>داشبورد عملیات دریایی | Blue Calm Marine — Vessel Checking (Live)</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./leaflet.css" />
-<script>
-  async function loadScript(u,t){t=t||18000;let r=await fetch(u,{signal:AbortSignal.timeout(t)});let c=await r.text();let s=document.createElement('script');s.textContent=c;document.head.appendChild(s);return u;}
-  async function loadFirstAvailable(urls){let last;for(let u of urls){try{return await loadScript(u);}catch(e){last=e;}}throw last;}
-  let _c='https://cdnjs.cloudflare.com/ajax/libs/',_j='https://cdn.jsdelivr.net/npm/',_u='https://unpkg.com/',_g='https://gcore.jsdelivr.net/npm/',_l='https://cdn.statically.io/gh/';
-  window.__chartReady=loadFirstAvailable(['./chart.umd.min.js',_c+'Chart.js/4.4.4/chart.umd.min.js',_j+'chart.js@4.4.4/dist/chart.umd.min.js',_u+'chart.js@4.4.4/dist/chart.umd.min.js',_g+'chart.js@4.4.4/dist/chart.umd.min.js',_l+'chartjs/Chart.js/v4.4.4/dist/chart.umd.min.js']).catch(e=>null);
-  window.__xlsxReady=loadFirstAvailable(['./xlsx.full.min.js',_c+'xlsx/0.18.5/xlsx.full.min.js',_j+'xlsx@0.18.5/dist/xlsx.full.min.js',_u+'xlsx@0.18.5/dist/xlsx.full.min.js',_g+'xlsx@0.18.5/dist/xlsx.full.min.js',_l+'SheetJS/sheetjs/v0.18.5/dist/xlsx.full.min.js']).catch(e=>null);
-  window.__leafletReady=loadFirstAvailable(['./leaflet.js',_u+'leaflet@1.9.4/dist/leaflet.js',_c+'leaflet/1.9.4/leaflet.js',_j+'leaflet@1.9.4/dist/leaflet-src.js',_g+'leaflet@1.9.4/dist/leaflet.js']).catch(e=>null);
-</script>
-<style>
-  :root{--navy-deep:#071523;--navy:#0B2036;--panel:#0F2A45;--panel-2:#123350;--panel-border:rgba(140,182,219,.14);--grid-line:rgba(120,170,210,.08);--teal:#22C0AE;--teal-dim:rgba(34,192,174,.16);--gold:#E8AE52;--gold-dim:rgba(232,174,82,.16);--red:#E5654A;--red-dim:rgba(229,101,74,.16);--blue:#5B9BD5;--text:#EAF1F8;--text-dim:#A8BDD6;--text-faint:#7A94B2;--chart-text:#A8BDD6;--mono:'IBM Plex Mono',monospace;--sans:'Vazirmatn',sans-serif;}
-  [data-theme="light"]{--navy-deep:#fbfcfc;--navy:#fbfcfc;--panel:#e0e5e9;--panel-2:#d6dde1;--panel-border:#b2c9c5;--grid-line:rgba(178,201,197,.3);--teal:#1bd488;--teal-dim:rgba(27,212,136,.16);--gold:#D4952A;--gold-dim:rgba(212,149,42,.16);--red:#E5654A;--red-dim:rgba(229,101,74,.16);--blue:#3B82B0;--text:#063a40;--text-dim:#1a5e5a;--text-faint:#3d756e;--chart-text:#0d2e30;}
-  *{box-sizing:border-box;margin:0;padding:0;}
-  html,body{background:var(--navy-deep);color:var(--text);font-family:var(--sans);direction:rtl;}
-  body{background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px),radial-gradient(ellipse 900px 500px at 85% -10%,rgba(34,192,174,.10),transparent 60%),radial-gradient(ellipse 700px 500px at 5% 10%,rgba(232,174,82,.06),transparent 60%);background-size:42px 42px,42px 42px,auto,auto;min-height:100vh;padding-bottom:60px;}
-  .ltr{direction:ltr;unicode-bidi:isolate;font-family:var(--mono);}
-  ::selection{background:var(--teal);color:var(--navy-deep);}
-  header{position:sticky;top:0;z-index:50;background:var(--navy-deep);border-bottom:1px solid var(--panel-border);}
-  .header-inner{max-width:1400px;margin:0 auto;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
-  .brand{display:flex;align-items:center;gap:14px;}
-  .brand-mark{width:64px;height:64px;border-radius:12px;background:var(--navy);border:1px solid var(--panel-border);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:5px;}
-  .brand-mark img{width:100%;height:100%;object-fit:contain;border-radius:6px;}
-  .brand-text .t1{font-size:17px;font-weight:800;letter-spacing:.3px;}
-  .brand-text .t2{font-size:11.5px;color:var(--text-dim);font-family:var(--mono);letter-spacing:.5px;margin-top:2px;}
-  .brand-text .accent{color:var(--teal);}
-  .header-status{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-  .btn{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px;background:var(--panel);border:1px solid var(--panel-border);color:var(--text-dim);padding:8px 14px;border-radius:100px;cursor:pointer;transition:.15s;white-space:nowrap;}
-  .btn:hover{border-color:var(--teal);color:var(--text);}
-  .btn.primary{background:linear-gradient(135deg,var(--teal),#0d7e72);color:#04150f;border:none;font-weight:600;}
-  .btn.primary:hover{filter:brightness(1.08);}
-  .btn.date-preset.active{background:var(--teal);color:#04150f;border:1.5px solid var(--teal);box-shadow:0 0 8px rgba(34,192,174,.45);font-weight:600;}
-  .btn.live{border-color:var(--gold-dim);}
-  .btn.live.on{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
-  .status-chip{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px;color:var(--text-dim);background:var(--panel);border:1px solid var(--panel-border);padding:7px 14px;border-radius:100px;}
-  .dot{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal);animation:pulse 2s infinite;}
-  .dot.stale{background:var(--text-faint);box-shadow:none;animation:none;}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
-
-
-  .wrap{max-width:1400px;margin:0 auto;padding:26px 28px 0;}
-  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:2.5px;color:var(--teal);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
-  .eyebrow::before{content:'';width:22px;height:1px;background:var(--teal);}
-  h1.page-title{font-size:26px;font-weight:800;margin-bottom:4px;}
-  .page-sub{color:var(--text-dim);font-size:13.5px;margin-bottom:10px;}
-  .hint{font-size:12px;color:var(--text-faint);background:rgba(255,255,255,.02);border:1px dashed var(--panel-border);border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-  .hint b{color:var(--gold);font-weight:600;}
-  .fbar{background:var(--panel);border:1px solid var(--panel-border);border-radius:14px;padding:14px 16px;margin-bottom:18px;}
-  .frow{display:flex;gap:8px;flex-wrap:wrap;align-items:end;}
-  .fg{flex:1;min-width:120px;}
-  .fg label{font-size:10px;color:var(--text-faint);display:block;margin-bottom:2px;font-family:var(--mono);}
-  .fg input,.fg select{width:100%;padding:6px 8px;background:var(--navy-deep);border:1px solid var(--panel-border);border-radius:6px;color:var(--text);font-size:11px;font-family:var(--mono);outline:none;}
-  .fg input:focus,.fg select:focus{border-color:var(--teal);}
-  .fbar-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
-  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:14px;margin-bottom:20px;}
-  .kpi{background:linear-gradient(160deg,var(--panel),var(--navy));border:1px solid var(--panel-border);border-radius:14px;padding:18px 16px;position:relative;overflow:hidden;}
-  .kpi .lbl{font-size:11px;color:var(--text-dim);margin-bottom:10px;letter-spacing:.2px;min-height:28px;}
-  .kpi .val{font-family:var(--mono);font-size:26px;font-weight:700;letter-spacing:-.5px;direction:ltr;text-align:right;transition:.2s;}
-  .kpi .sub{font-size:10.5px;color:var(--text-faint);margin-top:6px;font-family:var(--mono);direction:ltr;text-align:right;}
-  .kpi.accent-teal .val{color:var(--teal);}.kpi.accent-gold .val{color:var(--gold);}.kpi.accent-red .val{color:var(--red);}.kpi.accent-blue .val{color:var(--blue);}
-  .section-head{display:flex;align-items:baseline;justify-content:space-between;margin:28px 0 14px;flex-wrap:wrap;gap:8px;}
-  .section-head h2{font-size:16px;font-weight:700;}
-  .section-head .tag{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);letter-spacing:1px;}
-  .grid-2{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;}
-  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-  .card{background:var(--panel);border:1px solid var(--panel-border);border-radius:14px;padding:20px 20px 14px;}
-  .card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;}
-  .card-title span{color:var(--text-faint);font-weight:400;font-size:11px;}
-  .card-desc{font-size:11px;color:var(--text-faint);margin-bottom:14px;}
-  .chart-box{position:relative;width:100%;}
-  .chart-box.h-280{height:280px;}.chart-box.h-300{height:300px;}.chart-box.h-230{height:230px;}.chart-box.h-320{height:320px;}
-  .chart-box.h-200{height:200px;}
-  .mini-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
-  .mini-legend span{font-family:var(--mono);font-size:10px;color:var(--text-dim);background:rgba(255,255,255,.03);border:1px solid var(--panel-border);padding:4px 9px;border-radius:6px;display:flex;align-items:center;gap:6px;}
-  .mini-legend i{width:8px;height:8px;border-radius:2px;display:inline-block;}
-  #mapC{width:100%;min-height:320px;border-radius:8px;direction:ltr;}
-  #mapC .leaflet-container{background:var(--navy-deep);}
-  #mapC .leaflet-tile-pane{filter:brightness(.7) contrast(1.1) saturate(.6);}
-  .map-label{font-family:var(--mono);font-size:10px;color:var(--text);background:rgba(15,42,69,.92);border:1px solid var(--panel-border);border-radius:6px;padding:4px 9px;box-shadow:0 4px 16px rgba(0,0,0,.5);white-space:nowrap;direction:ltr;}
-  .map-label.dest{border-color:var(--gold);color:var(--gold);}
-  .map-label.port{border-color:var(--teal);}
-  .map-label small{font-size:8px;color:var(--text-dim);display:block;text-align:center;}
-  .map-label::before{display:none !important;}
-  .map-marker{display:flex;align-items:center;justify-content:center;}
-  .board{background:var(--navy);border:1px solid var(--panel-border);border-radius:14px;padding:6px;overflow:hidden;}
-  .board-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;}
-  .board-head h2{font-family:var(--mono);font-size:14px;color:var(--text);letter-spacing:1px;}
-  .board-head .board-summary{font-family:var(--mono);font-size:10.5px;color:var(--text-dim);display:flex;align-items:center;gap:10px;}
-  .board-head .board-summary .bcount{color:var(--teal);}
-  table.contab{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
-  table.contab thead th{text-align:right;color:var(--text-faint);font-weight:500;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:7px 10px;border-bottom:1px solid var(--panel-border);white-space:nowrap;position:sticky;top:0;background:var(--navy);z-index:2;}
-  table.contab tbody td{padding:6px 10px;color:var(--text);border-bottom:1px solid rgba(255,255,255,.03);white-space:nowrap;font-size:10.5px;}
-  table.contab tbody tr:hover{background:rgba(34,192,174,.04);}
-  table.contab td.dim{color:var(--text-dim);}
-  table.contab td.sz{color:var(--gold);}
-  table.contab td.stat-arr{color:var(--teal);}
-  table.contab td.stat-pen{color:var(--red);}
-  .board-scroll{height:520px;overflow-y:auto;position:relative;contain:layout style;}
-  .board-scroll::-webkit-scrollbar{width:6px;}
-  .board-scroll::-webkit-scrollbar-thumb{background:var(--panel-border);border-radius:10px;}
-  .board-scroll table.contab{width:100%;}
-  .board-scroll thead{position:sticky;top:0;z-index:2;background:var(--navy);}
-  .board-search{margin-bottom:8px;}
-  .board-search input{width:100%;padding:7px 12px;background:var(--navy);border:1px solid var(--panel-border);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:11px;outline:none;}
-  .board-search input:focus{border-color:var(--teal);}
-  #contListInfo{font-size:10px;color:var(--text-faint);padding:5px 10px;}
-  .sortic::after{content:'';margin-left:4px;font-size:9px;}.sortic.asc::after{content:'▲';color:var(--teal);}.sortic.dsc::after{content:'▼';color:var(--teal);}
-  .cmp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;}
-  .cmp-item{padding:10px 12px;border-radius:8px;border:1px solid var(--panel-border);text-align:center;}
-  .cmp-item .cmp-lbl{font-size:9px;color:var(--text-faint);font-family:var(--mono);}
-  .cmp-item .cmp-v{font-size:20px;font-weight:700;font-family:var(--mono);direction:ltr;}
-  .cmp-item .cmp-v.teal{color:var(--teal);}
-  .cmp-item .cmp-v.gold{color:var(--gold);}
-  .cmp-item .cmp-d{font-size:10px;color:var(--text-dim);margin-top:2px;}
-  .cmp-item .cmp-ch{font-size:10px;font-weight:600;}
-  .cmp-item .cmp-ch.up{color:#22C0AE;}
-  .cmp-item .cmp-ch.dn{color:var(--red);}
-  footer{max-width:1400px;margin:50px auto 0;padding:20px 28px;border-top:1px solid var(--panel-border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;color:var(--text-faint);font-size:11px;font-family:var(--mono);}
-  #dropOverlay{position:fixed;inset:0;z-index:200;background:rgba(7,21,35,.92);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;border:3px dashed var(--teal);}
-  #dropOverlay.active{display:flex;}
-  #dropOverlay .box{font-family:var(--mono);font-size:16px;color:var(--teal);text-align:center;}
-  #dropOverlay .box small{display:block;margin-top:8px;color:var(--text-dim);font-family:var(--sans);font-size:13px;}
-  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);z-index:300;background:var(--panel);border:1px solid var(--teal);color:var(--text);font-family:var(--mono);font-size:12px;padding:10px 20px;border-radius:100px;opacity:0;transition:.25s;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.4);}
-  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-  #toast.err{border-color:var(--red);color:var(--red);}
-  #pwdModal{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.25s}
-  #pwdModal.show{opacity:1;pointer-events:all}
-  #pwdModal .modal-bg{position:absolute;inset:0;background:rgba(0,0,0,.55)}
-  #pwdModal .modal-box{position:relative;background:var(--panel-2);border:1px solid var(--panel-border);border-radius:16px;padding:28px;width:320px;max-width:90%;text-align:center}
-  #libBanner{display:none;max-width:1400px;margin:14px auto 0;padding:14px 18px;border-radius:12px;background:rgba(229,101,74,.10);border:1px solid rgba(229,101,74,.35);color:#F3B5A6;font-size:12.5px;line-height:2;align-items:flex-start;gap:10px;}
-  #libBanner.show{display:flex;}
-  #libBanner b{color:var(--red);}
-  #libBanner code{background:rgba(0,0,0,.25);padding:1px 7px;border-radius:5px;font-family:var(--mono);font-size:11px;color:#FFD9CC;}
-  #libBanner .closeBtn{margin-inline-start:auto;cursor:pointer;color:var(--text-faint);font-family:var(--mono);font-size:16px;line-height:1;}
-  #libLoading{display:flex;align-items:center;gap:8px;max-width:1400px;margin:14px auto 0;padding:10px 18px;background:var(--panel);border:1px solid var(--panel-border);border-radius:12px;font-size:12px;color:var(--text-dim);font-family:var(--mono);}
-  #libLoading.hide{display:none;}
-  .spinner{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.15);border-top-color:var(--teal);animation:spin 0.8s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg);}}
-  @media (max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr);}.grid-2{grid-template-columns:1fr;}.grid-3{grid-template-columns:1fr 1fr;}}
-  #splash{position:fixed;inset:0;z-index:999;background:rgba(5,13,22,.92);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s;}
-  #splash.show{opacity:1;pointer-events:all;}
-  #splash .card{background:linear-gradient(160deg,var(--panel-2),var(--navy));border:1px solid var(--panel-border);border-radius:20px;padding:48px 40px 36px;max-width:440px;width:90%;text-align:center;box-shadow:0 32px 80px rgba(0,0,0,.6);}
-  #splash .logo{width:80px;height:80px;border-radius:16px;border:1px solid var(--panel-border);margin:0 auto 18px;display:flex;align-items:center;justify-content:center;padding:8px;}
-  #splash .logo img{width:100%;height:100%;object-fit:contain;border-radius:10px;}
-  #splash h1{font-size:18px;font-weight:800;margin-bottom:4px;color:var(--text);}
-  #splash h1 .accent{color:var(--teal);}
-  #splash .sub{font-size:12px;color:var(--text-dim);font-family:var(--mono);letter-spacing:.5px;margin-bottom:24px;}
-  #splash .desc{font-size:13px;color:var(--text-dim);line-height:2;margin-bottom:20px;}
-  #splash .field{width:100%;padding:10px 14px;background:var(--navy-deep);border:1px solid var(--panel-border);border-radius:8px;color:var(--text);font-family:var(--sans);font-size:13px;outline:none;direction:ltr;text-align:left;box-sizing:border-box;margin-bottom:10px;}
-  #splash .field:focus{border-color:var(--teal);}
-  #splash .err{font-size:11px;color:var(--red);margin-bottom:10px;display:none;}
-  #splash .btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--teal),#0d7e72);color:#04150f;border:none;padding:12px 32px;border-radius:100px;font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;transition:.2s;}
-  #splash .btn:hover{filter:brightness(1.1);transform:scale(1.02);}
-  #splash .btn.loading{opacity:.6;pointer-events:none;}
-  #splash .footer{font-size:10px;color:var(--text-faint);margin-top:20px;font-family:var(--mono);}
-  #timerChip .ico{opacity:.5;}
-  #timerChip .sep{opacity:.3;font-size:9px;}
-  #welcomeUser{font-size:11.5px;color:var(--text-dim);font-family:var(--sans);}
-  #welcomeUser .un{color:var(--teal);font-weight:600;}
-  #logoutBtn{background:none;border:1px solid var(--panel-border);color:var(--text-dim);padding:2px 8px;border-radius:100px;cursor:pointer;font-family:var(--sans);font-size:10.5px;transition:.2s;margin-right:6px;}
-  #logoutBtn:hover{border-color:var(--red);color:var(--red);}
-  td.miss{background:rgba(229,101,74,.08);color:var(--text-faint);font-style:italic;}
-  .advWrap{display:none;margin-top:6px;}
-  .advWrap.show{display:block;}
-  .advGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;margin-top:6px;}
-  .advGrid .fg{min-width:0;}
-  .kpi .trend{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-family:var(--mono);padding:2px 7px;border-radius:100px;margin-top:5px;font-weight:600;}
-  .kpi .trend.up{background:rgba(34,192,174,.12);color:#22C0AE;}
-  .kpi .trend.dn{background:rgba(229,101,74,.12);color:#E5654A;}
-  .kpi .trend.flat{background:rgba(147,170,196,.12);color:var(--text-faint);}
-
-  .auto-cmp{background:var(--panel);border:1px solid var(--panel-border);border-radius:14px;padding:16px 20px;margin-bottom:18px;}
-  .auto-cmp .cmp-title{font-size:13px;font-weight:700;margin-bottom:4px;}
-  .auto-cmp .cmp-sub{font-size:11px;color:var(--text-dim);margin-bottom:12px;}
-  .auto-cmp-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
-  .auto-cmp-item{text-align:center;padding:12px 8px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid var(--panel-border);}
-  .auto-cmp-item .ac-label{font-size:9px;color:var(--text-faint);font-family:var(--mono);margin-bottom:6px;}
-  .auto-cmp-item .ac-cur{font-size:22px;font-weight:700;font-family:var(--mono);direction:ltr;}
-  .auto-cmp-item .ac-prev{font-size:11px;color:var(--text-dim);margin-top:2px;}
-  .auto-cmp-item .ac-change{font-size:11px;font-weight:600;margin-top:4px;}
-  .auto-cmp-item .ac-change.up{color:#22C0AE;}
-  .auto-cmp-item .ac-change.dn{color:var(--red);}
-  .auto-cmp-item .ac-change.flat{color:var(--text-faint);}
-  .progBar{height:3px;background:var(--panel-border);border-radius:2px;overflow:hidden;margin:6px 0;}
-  .progBar .fill{height:100%;width:0%;background:var(--teal);border-radius:2px;transition:width .3s;will-change:width;}
-  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
-  @media (max-width:900px){.grid-3{grid-template-columns:1fr 1fr;}.cmp-grid{grid-template-columns:1fr 1fr;}}
-  @media (max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.grid-2{grid-template-columns:1fr;}.grid-3{grid-template-columns:1fr;}.header-inner{padding:14px 16px;}.wrap{padding:20px 16px 0;}.frow{flex-direction:column;}.fg{min-width:100%;}.cmp-grid{grid-template-columns:1fr;}.board-search input{font-size:13px;}.board-scroll{overflow-x:auto;}.board-scroll table{font-size:9px;}table.contab{font-size:9px;}table.contab thead th,table.contab tbody td{padding:4px 5px;white-space:nowrap;}.header-status{gap:6px;}}
-</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" crossorigin src="/assets/index-BdlZ3W2B.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-Cn1ihtvd.css">
 </head>
 <body>
-<script>
-  const DEBUG = false;
-  function log(...args) { if (DEBUG) console.log(...args); }
-</script>
 
-<div id="splash" role="dialog" aria-modal="true" aria-labelledby="splashTitle">
-  <div class="card">
-    <div class="logo"><img src="BMS.jpg" alt="BMS"></div>
-    <h1 id="splashTitle"><span class="accent">B</span>lue <span class="accent">C</span>alm <span class="accent">M</span>arine</h1>
-    <div class="sub">VESSEL CHECKING INTELLIGENCE · LIVE</div>
-    <div class="desc">برای ورود به داشبورد نام کاربری و رمز عبور را وارد کنید</div>
-    <label for="loginUser" class="sr-only">نام کاربری</label>
-    <input class="field" id="loginUser" type="text" placeholder="نام کاربری" autocomplete="username">
-    <label for="loginPass" class="sr-only">رمز عبور</label>
-    <input class="field" id="loginPass" type="password" placeholder="رمز عبور" autocomplete="current-password">
-    <div class="err" id="loginErr">❌ نام کاربری یا رمز عبور اشتباه است</div>
-    <button class="btn" id="loginBtn" onclick="doLogin()">ورود به داشبورد ←</button>
-    <div class="footer">Blue Calm Marine — Vessel Checking</div>
+  <!-- Splash Screen (Login) -->
+  <div id="splash" role="dialog" aria-modal="true" aria-labelledby="splashTitle">
+    <div class="card">
+      <div class="logo"><img src="BMS.jpg" alt="BMS"></div>
+      <h1 id="splashTitle"><span class="accent">B</span>lue <span class="accent">C</span>alm <span class="accent">M</span>arine</h1>
+      <div class="sub">VESSEL CHECKING INTELLIGENCE · LIVE</div>
+      <div class="desc">برای ورود به داشبورد نام کاربری و رمز عبور را وارد کنید</div>
+      <label for="loginUser" class="sr-only">نام کاربری</label>
+      <input class="field" id="loginUser" type="text" placeholder="نام کاربری" autocomplete="username">
+      <label for="loginPass" class="sr-only">رمز عبور</label>
+      <input class="field" id="loginPass" type="password" placeholder="رمز عبور" autocomplete="current-password">
+      <div class="err" id="loginErr">❌ نام کاربری یا رمز عبور اشتباه است</div>
+      <button class="btn" id="loginBtn">ورود به داشبورد ←</button>
+      <div class="footer">Blue Calm Marine — Vessel Checking</div>
+    </div>
   </div>
-</div>
-<script>(function(){var t=localStorage.getItem('bms_logintime');var tok=localStorage.getItem('bms_token');if(t&&(Date.now()-parseInt(t))<18e5&&tok){document.getElementById('splash').classList.remove('show');}else{localStorage.removeItem('bms_token');localStorage.removeItem('bms_logintime');localStorage.removeItem('bms_username');localStorage.removeItem('bms_migrated');document.getElementById('splash').classList.add('show');}document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});})();</script>
-<div id="dropOverlay"><div class="box">📄 فایل اکسل را همین‌جا رها کنید<small>Vessel Checking sheet به‌طور خودکار خوانده و تحلیل می‌شود</small></div></div>
-<div id="toast"></div>
-<input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls" style="display:none">
 
-<header>
-  <div class="header-inner">
-    <div class="brand">
-      <div class="brand-mark">
-        <img src="BMS.jpg">
+  <!-- Drag & Drop Overlay -->
+  <div id="dropOverlay"><div class="box">📄 فایل اکسل را همین‌جا رها کنید<small>Vessel Checking sheet به‌طور خودکار خوانده و تحلیل می‌شود</small></div></div>
+
+  <!-- Toast Notification -->
+  <div id="toast"></div>
+
+  <!-- Hidden File Input -->
+  <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls" style="display:none">
+
+  <!-- Header -->
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-mark">
+          <img src="BMS.jpg">
+        </div>
+        <div class="brand-text">
+          <div class="t1"><span class="accent">B</span>lue <span class="accent">C</span>alm <span class="accent">M</span>arine · داشبورد عملیات دریایی</div>
+          <div class="t2 ltr">VESSEL CHECKING INTELLIGENCE · LIVE</div>
+        </div>
       </div>
-      <div class="brand-text">
-        <div class="t1"><span class="accent">B</span>lue <span class="accent">C</span>alm <span class="accent">M</span>arine · داشبورد عملیات دریایی</div>
-        <div class="t2 ltr">VESSEL CHECKING INTELLIGENCE · LIVE</div>
-      </div>
-    </div>
-    <div class="header-status">
-      <div class="status-chip">آخرین بارگذاری: <span class="ltr" id="lastLoaded">—</span></div>
-      <div class="status-chip" id="timerChip" style="display:none"><span class="ico">⏱</span> <span id="timerDisplay">30:00</span><span class="sep">·</span><span id="autoRefLabel">—</span></div>
-      <button id="themeToggle" onclick="toggleTheme()" style="background:none;border:1px solid var(--panel-border);color:var(--text-dim);padding:4px 8px;border-radius:100px;cursor:pointer;font-size:13px;transition:.2s;line-height:1;" title="تغییر تم">🌙</button>
-      <span id="welcomeUser" style="display:none">خوش آمدید، <span class="un" id="userDisplay"></span> <button id="logoutBtn" onclick="logout()">خروج</button></span>
-    </div>
-  </div>
-</header>
-
-<div id="libLoading"><span class="spinner"></span> در حال بارگذاری کتابخانه‌ها…</div>
-<div id="libBanner">
-  <div><b>⚠️ کتابخانه‌های مورد نیاز از اینترنت بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5). ۲) فایل اکسل را بفرستید تا نسخهٔ آفلاین بسازم.</div>
-  <span class="closeBtn" onclick="document.getElementById('libBanner').classList.remove('show')">✕</span>
-</div>
-
-<div id="pwdModal" role="dialog" aria-modal="true"><div class="modal-bg"></div><div class="modal-box"><div style="font-size:32px;margin-bottom:6px">🔐</div><div style="font-weight:700;margin-bottom:3px">داده رمزنگاری شده</div><div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">برای باز کردن رمز عبور را وارد کنید</div><label for="pwdInput" class="sr-only">رمز عبور</label><input type="password" id="pwdInput" placeholder="رمز عبور" dir="ltr" style="width:100%;padding:9px;border:1px solid var(--panel-border);border-radius:8px;background:var(--navy);color:var(--text);font-size:14px;box-sizing:border-box;text-align:center"><div style="display:flex;gap:8px;margin-top:12px"><button class="ok" style="flex:1;padding:9px;background:var(--teal);color:#04150f;border:none;border-radius:8px;font-weight:600;cursor:pointer">تأیید</button><button class="cancel" style="flex:1;padding:9px;background:var(--panel);color:var(--text-dim);border:1px solid var(--panel-border);border-radius:8px;cursor:pointer">انصراف</button></div></div></div>
-
-<div class="wrap">
-
-
-  <!-- Filter Bar -->
-  <div class="fbar">
-    <div class="frow" style="margin-bottom:6px">
-      <button class="btn date-preset" id="dp-today" onclick="setDatePreset('today')" style="font-size:10px;padding:4px 10px;">امروز</button>
-      <button class="btn date-preset" id="dp-7days" onclick="setDatePreset('7days')" style="font-size:10px;padding:4px 10px;">۷ روز اخیر</button>
-      <button class="btn date-preset" id="dp-30days" onclick="setDatePreset('30days')" style="font-size:10px;padding:4px 10px;">۳۰ روز اخیر</button>
-      <button class="btn date-preset" id="dp-month" onclick="setDatePreset('month')" style="font-size:10px;padding:4px 10px;">این ماه</button>
-      <button class="btn date-preset" id="dp-quarter" onclick="setDatePreset('quarter')" style="font-size:10px;padding:4px 10px;">این فصل</button>
-      <button class="btn date-preset" id="dp-year" onclick="setDatePreset('year')" style="font-size:10px;padding:4px 10px;">امسال</button>
-      <button class="btn" id="dateModeBtn" onclick="toggleDateFormat()" style="font-size:10px;padding:4px 10px;">📅 میلادی</button>
-    </div>
-    <div class="frow">
-      <div class="fg"><label>از تاریخ (Arrv Date)</label><input type="date" id="fltFrom" onchange="onDateChange()"></div>
-      <div class="fg"><label>تا تاریخ</label><input type="date" id="fltTo" onchange="onDateChange()"></div>
-      <div class="fg"><label>POL FORWARDER</label><select id="cb-fwd" onchange="filterBySelect()"><option value="">همه</option></select></div>
-      <div class="fg"><label>POL</label><select id="cb-pol" onchange="filterBySelect()"><option value="">همه</option></select></div>
-      <div class="fg"><label>LINE</label><select id="cb-line" onchange="filterBySelect()"><option value="">همه</option></select></div>
-      <div class="fg"><label>IRAN AGENT</label><select id="cb-agent" onchange="filterBySelect()"><option value="">همه</option></select></div>
-    </div>
-    <div class="fbar-actions">
-      <button class="btn" onclick="resetFilters()" style="font-size:10px;">↺ بازنشانی فیلترها</button>
-      <button class="btn primary" onclick="exportCSV()" style="font-size:10px;">📥 خروجی Excel</button>
-      <span style="font-size:10px;color:var(--text-faint);margin-right:auto;font-family:var(--mono);" id="filterInfo">بدون فیلتر</span>
-    </div>
-  </div>
-  <div class="progBar" id="progBar"><div class="fill" id="progFill"></div></div>
-
-  <div class="kpi-grid" id="kpiGrid"></div>
-
-  <!-- Yearly Chart + Size Mix -->
-  <div class="section-head"><h2>حجم عملیات</h2><div class="tag">CONTAINER &amp; SHIPMENT VOLUME</div></div>
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title" id="chart1Title">روند سالانه</div>
-      <div class="card-desc" id="yearlyDesc">—</div>
-      <div class="chart-box h-280"><canvas id="chartYearly"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">ترکیب اندازهٔ کانتینر <span>(۲۰' در برابر ۴۰')</span></div>
-      <div class="card-desc" id="sizeDesc">—</div>
-      <div class="chart-box h-280"><canvas id="chartSize"></canvas></div>
-      <div class="mini-legend" id="sizeLegend"></div>
-    </div>
-  </div>
-
-  <!-- Auto Period Comparison (مورد 2 + 6) -->
-  <div id="autoCmpSection" style="display:none">
-    <div class="section-head"><h2 id="autoCmpTitle">مقایسه با دوره قبل</h2><div class="tag">AUTO PERIOD COMPARISON</div></div>
-    <div class="auto-cmp" id="autoCmpBox"></div>
-  </div>
-
-  <!-- Monthly -->
-  <div class="section-head"><h2 id="monthSectionTitle">روند ۲۴ ماه اخیر</h2><div class="tag">ROLLING VOLUME</div></div>
-  <div class="card">
-    <div class="card-title" id="chart2Title">حجم ماهانه</div>
-    <div class="card-desc" id="monthlyDesc">—</div>
-    <div class="chart-box h-230"><canvas id="chartMonthly"></canvas></div>
-  </div>
-
-  <!-- Top Partners -->
-  <div class="section-head"><h2>شرکای عملیاتی برتر</h2><div class="tag">TOP PARTNERS BY VOLUME</div></div>
-  <div class="grid-3">
-    <div class="card"><div class="card-title">سهم نمایندگان ایران <span>(Pie)</span></div><div class="card-desc">Iran Agent Share</div><div class="chart-box h-320"><canvas id="chartLinesPie"></canvas></div></div>
-    <div class="card"><div class="card-title">برترین فورواردرهای POL</div><div class="card-desc">Top 10 POL Forwarders</div><div class="chart-box h-320"><canvas id="chartForwarders"></canvas></div></div>
-    <div class="card"><div class="card-title">برترین نمایندگان ایران</div><div class="card-desc">Top 10 Iran Agents</div><div class="chart-box h-320"><canvas id="chartAgents"></canvas></div></div>
-  </div>
-
-  <!-- Map + POL -->
-  <div class="section-head"><h2>جغرافیای مبادی بارگیری و مسیرها</h2><div class="tag">POL ROUTES &amp; DESTINATION</div></div>
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title">نقشه مبادی بارگیری و مسیرهای دریایی <span>(POL → Iran)</span></div>
-      <div class="card-desc">توزیع جغرافیایی مبادی بارگیری — قطر دایره متناسب با حجم</div>
-      <div id="mapC" style="height:360px"></div>
-    </div>
-    <div class="card"><div class="card-title">توزیع بنادر بارگیری (POL)</div><div class="card-desc">بر حسب تعداد</div><div class="chart-box h-280"><canvas id="chartPOL"></canvas></div></div>
-  </div>
-
-  <!-- Period Comparison -->
-  <div class="section-head"><h2>مقایسه دو بازه زمانی</h2><div class="tag">PERIOD COMPARISON</div></div>
-  <div class="card">
-    <div class="frow" style="margin-bottom:10px">
-      <div class="fg"><label>دوره ۱ - از</label><input type="date" id="c1s" onchange="comparePeriods()"></div>
-      <div class="fg"><label>دوره ۱ - تا</label><input type="date" id="c1e" onchange="comparePeriods()"></div>
-      <div class="fg"><label>دوره ۲ - از</label><input type="date" id="c2s" onchange="comparePeriods()"></div>
-      <div class="fg"><label>دوره ۲ - تا</label><input type="date" id="c2e" onchange="comparePeriods()"></div>
-      <div class="fg" style="display:flex;flex-direction:column;justify-content:end"><button class="btn" onclick="comparePeriods()" style="font-size:10px;">🔍 مقایسه</button></div>
-    </div>
-    <div class="cmp-grid" id="cmpGrid"></div>
-  </div>
-
-  <!-- Container List (ALL records) -->
-  <div class="section-head"><h2>لیست کانتینر</h2><div class="tag">FULL CONTAINER LIST</div></div>
-  <div class="board">
-    <div class="board-head">
-      <h2>ALL RECORDS · CONTAINER REGISTRY</h2>
-      <div class="board-summary">نمایش <span class="bcount" id="contShowCount">0</span> از <span class="bcount" id="contTotalCount">0</span></div>
-    </div>
-    <div class="board-search"><input type="text" id="contSearch" placeholder="🔎 جستجو در کانتینر، کشتی، خط، فورواردر، POL، ایجنت..." oninput="debouncedContSearch()"><button class="btn" onclick="toggleAdvSearch()" style="font-size:10px;margin-right:4px;">⬇ جستجوی پیشرفته</button></div>
-    <div class="advWrap" id="advWrap">
-      <div class="advGrid">
-        <div class="fg"><label>VESSEL</label><input type="text" id="advVessel" oninput="advSearchChange()" placeholder="نام کشتی"></div>
-        <div class="fg"><label>POL FORWARDER</label><select id="advFwd" onchange="advSearchChange()"><option value="">همه</option></select></div>
-        <div class="fg"><label>POL</label><select id="advPol" onchange="advSearchChange()"><option value="">همه</option></select></div>
-        <div class="fg"><label>LINE</label><select id="advLine" onchange="advSearchChange()"><option value="">همه</option></select></div>
-        <div class="fg"><label>IRAN AGENT</label><select id="advAgent" onchange="advSearchChange()"><option value="">همه</option></select></div>
-        <div class="fg"><label>SIZE</label><select id="advSize" onchange="advSearchChange()"><option value="">همه</option></select></div>
-        <div class="fg"><label>STATUS</label><select id="advStatus" onchange="advSearchChange()"><option value="">همه</option><option>Arrived</option><option>Pending</option></select></div>
+      <div class="header-status">
+        <div class="status-chip">آخرین بارگذاری: <span class="ltr" id="lastLoaded">—</span></div>
+        <div class="status-chip" id="timerChip" style="display:none"><span class="ico">⏱</span> <span id="timerDisplay">30:00</span><span class="sep">·</span><span id="autoRefLabel">—</span></div>
+        <button id="themeToggle" style="background:none;border:1px solid var(--panel-border);color:var(--text-dim);padding:4px 8px;border-radius:100px;cursor:pointer;font-size:13px;transition:.2s;line-height:1;" title="تغییر تم">🌙</button>
+        <span id="welcomeUser" style="display:none">خوش آمدید، <span class="un" id="userDisplay"></span> <button id="logoutBtn">خروج</button></span>
       </div>
     </div>
-    <div class="board-scroll" id="contScroll">
-      <table class="contab">
-        <thead id="contHead"><tr><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='idx')k.asc=!k.asc;else{k.key='idx';k.asc=false;}renderContainerList()">#<span class="sortic" id="srt-idx"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='container')k.asc=!k.asc;else{k.key='container';k.asc=true;}renderContainerList()">کانتینر<span class="sortic" id="srt-container"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='vessel')k.asc=!k.asc;else{k.key='vessel';k.asc=true;}renderContainerList()">کشتی / سفر<span class="sortic" id="srt-vessel"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='size')k.asc=!k.asc;else{k.key='size';k.asc=true;}renderContainerList()">سایز<span class="sortic" id="srt-size"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='qty')k.asc=!k.asc;else{k.key='qty';k.asc=true;}renderContainerList()">تعداد<span class="sortic" id="srt-qty"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='pol_forwarder')k.asc=!k.asc;else{k.key='pol_forwarder';k.asc=true;}renderContainerList()">فورواردر POL<span class="sortic" id="srt-pol_forwarder"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='pol')k.asc=!k.asc;else{k.key='pol';k.asc=true;}renderContainerList()">بندر بارگیری<span class="sortic" id="srt-pol"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='line')k.asc=!k.asc;else{k.key='line';k.asc=true;}renderContainerList()">خط کشتیرانی<span class="sortic" id="srt-line"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='iran_agent')k.asc=!k.asc;else{k.key='iran_agent';k.asc=true;}renderContainerList()">نمایندهٔ ایران<span class="sortic" id="srt-iran_agent"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='date')k.asc=!k.asc;else{k.key='date';k.asc=false;}renderContainerList()">تاریخ<span class="sortic" id="srt-date"></span></th><th style="cursor:pointer" onclick="let k=contSort;if(k.key==='status')k.asc=!k.asc;else{k.key='status';k.asc=true;}renderContainerList()">وضعیت<span class="sortic" id="srt-status"></span></th></tr></thead>
-        <tbody id="contBody"></tbody>
-      </table>
-    </div>
-    <div id="contListInfo"></div>
+  </header>
+
+  <!-- Library Loading -->
+  <div id="libLoading"><span class="spinner"></span> در حال بارگذاری کتابخانه‌ها…</div>
+
+  <!-- Library Error Banner -->
+  <div id="libBanner">
+    <div><b>⚠️ کتابخانه‌های مورد نیاز از اینترنت بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5). ۲) فایل اکسل را بفرستید تا نسخهٔ آفلاین بسازم.</div>
+    <span class="closeBtn" id="libBannerClose">✕</span>
   </div>
 
-  <footer>
-    <div class="ltr">© 2026 Mohammad Hassani — Blue Calm Marine Vessel Checking Dashboard. All rights reserved.</div>
-  </footer>
-</div>
+  <!-- Password Modal -->
+  <div id="pwdModal" role="dialog" aria-modal="true">
+    <div class="modal-bg"></div>
+    <div class="modal-box">
+      <div style="font-size:32px;margin-bottom:6px">🔐</div>
+      <div style="font-weight:700;margin-bottom:3px">داده رمزنگاری شده</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">برای باز کردن رمز عبور را وارد کنید</div>
+      <label for="pwdInput" class="sr-only">رمز عبور</label>
+      <input type="password" id="pwdInput" placeholder="رمز عبور" dir="ltr" style="width:100%;padding:9px;border:1px solid var(--panel-border);border-radius:8px;background:var(--navy);color:var(--text);font-size:14px;box-sizing:border-box;text-align:center">
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="ok" style="flex:1;padding:9px;background:var(--teal);color:#04150f;border:none;border-radius:8px;font-weight:600;cursor:pointer">تأیید</button>
+        <button class="cancel" style="flex:1;padding:9px;background:var(--panel);color:var(--text-dim);border:1px solid var(--panel-border);border-radius:8px;cursor:pointer">انصراف</button>
+      </div>
+    </div>
+  </div>
 
-<script>
-/* ============================================================
-   0) GLOBAL STATE
-   ============================================================ */
-let rawRecords = [];
-let activeFilters = {fwd:[], pol:[], line:[], agent:[]};
-let currentMeta = null;
-let contSort = {key:null, asc:true};
-let PROXY_URL = '';
-let LOGIN_PROXY_URL = '';
-let _worker = null;
-let _workerBusy = false;
-let _workerCallback = null;
-let _workerFallback = null;
-let _workerReady = false;
+  <!-- Main Content -->
+  <div class="wrap">
 
-function aggregateAsync(records,filterParams,callback){
-  if(_worker&&_workerReady&&!_workerBusy){
-    _workerBusy=true;_workerCallback=callback;
-    _workerFallback=setTimeout(function(){
-      _workerBusy=false;_workerCallback=null;
-      _workerReady=false;
-      log('Worker timeout, falling back to sync');
-      callback(aggregateFromRecords(records));
-    },5000);
-    try{
-      let safeRecords=records.map(function(r){
-        return{
-          container:r.container,vessel:r.vessel,size:r.size,qty:r.qty,
-          pol_forwarder:r.pol_forwarder,pol:r.pol,line:r.line,
-          iran_agent:r.iran_agent,
-          dateStr:r.date?(r.date.getFullYear()+'-'+String(r.date.getMonth()+1).padStart(2,'0')+'-'+String(r.date.getDate()).padStart(2,'0')):'',
-          arrv_dateStr:r.arrv_date?(r.arrv_date.getFullYear()+'-'+String(r.arrv_date.getMonth()+1).padStart(2,'0')+'-'+String(r.arrv_date.getDate()).padStart(2,'0')):'',
-          status:r.status
-        };
-      });
-      _worker.postMessage({type:'aggregate',records:safeRecords,filters:filterParams});
-    }catch(e){
-      clearTimeout(_workerFallback);_workerFallback=null;
-      _workerBusy=false;_workerCallback=null;_workerReady=false;
-      callback(aggregateFromRecords(records));
-    }
-  }else{
-    callback(aggregateFromRecords(records));
-  }
-}
+    <!-- Filter Bar -->
+    <div class="fbar">
+      <div class="frow" style="margin-bottom:6px">
+        <button class="btn date-preset" id="dp-today" style="font-size:10px;padding:4px 10px;">امروز</button>
+        <button class="btn date-preset" id="dp-7days" style="font-size:10px;padding:4px 10px;">۷ روز اخیر</button>
+        <button class="btn date-preset" id="dp-30days" style="font-size:10px;padding:4px 10px;">۳۰ روز اخیر</button>
+        <button class="btn date-preset" id="dp-month" style="font-size:10px;padding:4px 10px;">این ماه</button>
+        <button class="btn date-preset" id="dp-quarter" style="font-size:10px;padding:4px 10px;">این فصل</button>
+        <button class="btn date-preset" id="dp-year" style="font-size:10px;padding:4px 10px;">امسال</button>
+        <button class="btn" id="dateModeBtn" style="font-size:10px;padding:4px 10px;">📅 میلادی</button>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>از تاریخ (Arrv Date)</label><input type="date" id="fltFrom"></div>
+        <div class="fg"><label>تا تاریخ</label><input type="date" id="fltTo"></div>
+        <div class="fg"><label>POL FORWARDER</label><select id="cb-fwd"><option value="">همه</option></select></div>
+        <div class="fg"><label>POL</label><select id="cb-pol"><option value="">همه</option></select></div>
+        <div class="fg"><label>LINE</label><select id="cb-line"><option value="">همه</option></select></div>
+        <div class="fg"><label>IRAN AGENT</label><select id="cb-agent"><option value="">همه</option></select></div>
+      </div>
+      <div class="fbar-actions">
+        <button class="btn" id="resetFiltersBtn" style="font-size:10px;">↺ بازنشانی فیلترها</button>
+        <button class="btn primary" id="exportCSVBtn" style="font-size:10px;">📥 خروجی Excel</button>
+        <span style="font-size:10px;color:var(--text-faint);margin-right:auto;font-family:var(--mono);" id="filterInfo">بدون فیلتر</span>
+      </div>
+    </div>
+    <div class="progBar" id="progBar"><div class="fill" id="progFill"></div></div>
 
-try{
-  _worker=new Worker('worker.js');
-  _worker.onmessage=function(e){
-    _workerBusy=false;
-    clearTimeout(_workerFallback);_workerFallback=null;
-    if(e.data&&e.data.type==='error'){
-      _workerReady=false;
-      log('Worker returned error:',e.data.error);
-      if(_workerCallback){let cb=_workerCallback;_workerCallback=null;cb(null);}
-      return;
-    }
-    if(_workerCallback){let cb=_workerCallback;_workerCallback=null;cb(e.data.data);}
-  };
-  _worker.onerror=function(e){
-    _workerBusy=false;
-    clearTimeout(_workerFallback);_workerFallback=null;
-    _workerReady=false;
-    log('Worker error:',e);
-    if(_workerCallback){let cb=_workerCallback;_workerCallback=null;cb(null);}
-  };
-  _worker.postMessage({type:'ping'});
-  _workerReady=true;
-}catch(e){_worker=null;}
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-function sanitizeHtml(s){let d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
-function fmtDateToMs(s){if(!s)return 0;let p=s.split(/[-\/]/);if(p.length<3)return 0;if(isJalali()){let g=j2g(parseInt(p[0]),parseInt(p[1]),parseInt(p[2]));if(!g[0])return 0;return new Date(g[0],g[1]-1,g[2]).getTime();}return new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2])).getTime();}
-async function sha256(str){let enc=new TextEncoder().encode(str);let buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
-function debounce(fn,delay){let t;return function(){clearTimeout(t);t=setTimeout(fn,delay);};}
-const _debouncedRefresh=debounce(function(){refreshDashboard();},200);
-const debouncedContSearch=debounce(function(){renderContainerList();},150);
-let _dateFormat=localStorage.getItem('bms_dateformat')||'miladi';
-function isJalali(){return _dateFormat==='jalali';}
-function toggleDateFormat(){
-  _dateFormat=isJalali()?'miladi':'jalali';
-  localStorage.setItem('bms_dateformat',_dateFormat);
-  document.getElementById('dateModeBtn').textContent=isJalali()?'📅 شمسی':'📅 میلادی';
-  if(rawRecords.length){updateDateInputs();initFilters();}
-  refreshDashboard();
-}
-function _div(a,b){return Math.trunc(a/b);}
-function _mod(a,b){return a-Math.trunc(a/b)*b;}
-function _jalCal(jy){
-  let breaks=[-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178];
-  let bl=breaks.length,gy=jy+621,leapJ=-14,jp=breaks[0],jump=0;
-  for(let i=1;i<bl;i++){let jm=breaks[i];jump=jm-jp;if(jy<jm)break;leapJ+=_div(jump,33)*8+_div(_mod(jump,33),4);jp=jm;}
-  let n=jy-jp;
-  leapJ+=_div(n,33)*8+_div(_mod(n,33)+3,4);
-  if(_mod(jump,33)===4&&jump-n===4)leapJ+=1;
-  let leapG=_div(gy,4)-_div((_div(gy,100)+1)*3,4)-150;
-  let march=20+leapJ-leapG;
-  if(jump-n<6)n=n-jump+_div(jump+4,33)*33;
-  let leap=_mod(_mod(n+1,33)-1,4);if(leap===-1)leap=4;
-  return{leap:leap,gy:gy,march:march};
-}
-function _g2d(gy,gm,gd){
-  let d=_div((gy+_div(gm-8,6)+100100)*1461,4)+_div(153*_mod(gm+9,12)+2,5)+gd-34840408;
-  d=d-_div(_div(gy+100100+_div(gm-8,6),100)*3,4)+752;return d;
-}
-function _d2g(jdn){
-  let j=4*jdn+139361631;j=j+_div(_div(4*jdn+183187720,146097)*3,4)*4-3908;
-  let i=_div(_mod(j,1461),4)*5+308;let gd=_div(_mod(i,153),5)+1;let gm=_mod(_div(i,153),12)+1;
-  let gy=_div(j,1461)-100100+_div(8-gm,6);return{gy:gy,gm:gm,gd:gd};
-}
-function _j2d(jy,jm,jd){let r=_jalCal(jy);return _g2d(r.gy,3,r.march)+(jm-1)*31-_div(jm,7)*(jm-7)+jd-1;}
-function _d2j(jdn){
-  let gy=_d2g(jdn).gy,jy=gy-621,r=_jalCal(jy),jdn1f=_g2d(gy,3,r.march),jd,jm,k=jdn-jdn1f;
-  if(k>=0){if(k<=185){jm=1+_div(k,31);jd=_mod(k,31)+1;return{jy:jy,jm:jm,jd:jd};}else k-=186;}
-  else{jy-=1;k+=179;if(r.leap===1)k+=1;}
-  jm=7+_div(k,30);jd=_mod(k,30)+1;return{jy:jy,jm:jm,jd:jd};
-}
-function g2j(gy,gm,gd){let r=_d2j(_g2d(gy,gm,gd));return[r.jy,r.jm,r.jd];}
-function j2g(jy,jm,jd){let r=_d2g(_j2d(jy,jm,jd));return[r.gy,r.gm,r.gd];}
-function fmtDateJalali(d){
-  if(!d)return'';let j=g2j(d.getFullYear(),d.getMonth()+1,d.getDate());
-  return j[0]+'-'+String(j[1]).padStart(2,'0')+'-'+String(j[2]).padStart(2,'0');
-}
-function fmtDateMiladi(d){
-  if(!d)return'';return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-}
-function fmtDate(d){return isJalali()?fmtDateJalali(d):fmtDateMiladi(d);}
-function parseDateInput(str){
-  if(!str)return null;
-  if(isJalali()){
-    let p=str.split(/[\-\/]/);if(p.length<3)return null;
-    let jy=parseInt(p[0]),jm=parseInt(p[1]),jd=parseInt(p[2]);
-    let g=j2g(jy,jm,jd);
-    if(g[0]===0)return null;
-    return new Date(g[0],g[1]-1,g[2]);
-  }
-  return new Date(str+'T00:00:00Z');
-}
-function todayStr(){return isJalali()?fmtDateJalali(new Date()):fmtDateMiladi(new Date());}
-function updateDateInputs(){
-  let fromEl=document.getElementById('fltFrom');let toEl=document.getElementById('fltTo');
-  if(isJalali()){
-    fromEl.type='text';fromEl.placeholder='مثال: 1404-04-29';
-    toEl.type='text';toEl.placeholder='مثال: 1404-05-01';
-    if(fromEl.value){
-      let d=parseDateInput(fromEl.value)||new Date(fromEl.value+'T00:00:00Z');
-      if(d&&!isNaN(d.getTime()))fromEl.value=fmtDateJalali(d);
-    }
-    if(toEl.value){
-      let d=parseDateInput(toEl.value)||new Date(toEl.value+'T00:00:00Z');
-      if(d&&!isNaN(d.getTime()))toEl.value=fmtDateJalali(d);
-    }
-  }else{
-    fromEl.type='date';fromEl.placeholder='';
-    toEl.type='date';toEl.placeholder='';
-    if(fromEl.value&&fromEl.value.match(/^\d{4}-\d{2}-\d{2}$/)){}
-    else if(fromEl.value){
-      let d=parseDateInput(fromEl.value);
-      if(d&&!isNaN(d.getTime()))fromEl.value=fmtDateMiladi(d);
-    }
-    if(toEl.value&&toEl.value.match(/^\d{4}-\d{2}-\d{2}$/)){}
-    else if(toEl.value){
-      let d=parseDateInput(toEl.value);
-      if(d&&!isNaN(d.getTime()))toEl.value=fmtDateMiladi(d);
-    }
-  }
-}
+    <!-- KPI Grid -->
+    <div class="kpi-grid" id="kpiGrid"></div>
 
-/* ============================================================
-   1) DEFAULT SNAPSHOT
-   ============================================================ */
-const DEFAULT_DATA = {"total_containers":7786,"total_shipments":8066,"total_teu":13710,"unique_vessels":2598,"unique_lines":155,"unique_forwarders":66,"unique_agents":73,"date_min":"2012-11-25","date_max":"2026-07-12","pending_count":16,"arrived_count":7769,"size_dist":[{"label":"40","value":5924},{"label":"20","value":1862}],"top_lines":[{"label":"FREIGHT CAPITAL SERVICES","value":2212},{"label":"OOCL","value":760},{"label":"EASY LINE","value":524},{"label":"SEAIR GLOBAL LOGISTICS","value":491},{"label":"ARC LINE","value":401},{"label":"SINORAN LINE","value":373},{"label":"RCL","value":308},{"label":"FORTUNA SHIPPING LIMITED","value":171},{"label":"WAN HAI","value":166},{"label":"ALLIED CONTAINER LINE","value":162}],"top_forwarders":[{"label":"PORTEVER SHANGHAI","value":1296},{"label":"CP WORLD","value":1247},{"label":"FLOWLINK","value":533},{"label":"PORTEVER NINGBO","value":514},{"label":"TOPEVER LOGISTICS (Ningbo)","value":354},{"label":"TOPEVER LOGISTICS (Shanghai)","value":309},{"label":"FAN CHENG","value":279},{"label":"CARGO CARE SHIPPING","value":278},{"label":"MCL SHIPPING","value":257},{"label":"MOLAN(HK)TRADING CO","value":247}],"top_agents":[{"label":"Blue Calm Marine","value":3124},{"label":"CARAVAN","value":760},{"label":"TRANSBAR EAST CO","value":509},{"label":"JONUB DARYA","value":464},{"label":"FANUS TALAEI","value":435},{"label":"SEVEN SEAS","value":319},{"label":"ZORRAGH NESHIN","value":262},{"label":"ARYA LAND SERVICES","value":200},{"label":"BAR O BAHR","value":166},{"label":"HAMAHANG DARYA PARS","value":137}],"top_pol":[{"label":"SHANGHAI","value":2630},{"label":"DUBAI","value":1895},{"label":"NINGBO","value":395},{"label":"NANSHA","value":192},{"label":"QINGDAO","value":191},{"label":"TIANJIN","value":62},{"label":"XINGANG","value":41},{"label":"SHEKOU","value":22},{"label":"SHENZHEN","value":5},{"label":"TAICANG","value":2}],"yearly_cont":[{"label":"2012","value":2},{"label":"2013","value":107},{"label":"2014","value":656},{"label":"2015","value":617},{"label":"2016","value":677},{"label":"2017","value":761},{"label":"2018","value":778},{"label":"2019","value":631},{"label":"2020","value":570},{"label":"2021","value":663},{"label":"2022","value":595},{"label":"2023","value":549},{"label":"2024","value":640},{"label":"2025","value":465},{"label":"2026","value":155}],"yearly_ship":[{"label":"2012","value":2},{"label":"2013","value":115},{"label":"2014","value":684},{"label":"2015","value":634},{"label":"2016","value":697},{"label":"2017","value":793},{"label":"2018","value":793},{"label":"2019","value":647},{"label":"2020","value":581},{"label":"2021","value":690},{"label":"2022","value":612},{"label":"2023","value":568},{"label":"2024","value":663},{"label":"2025","value":480},{"label":"2026","value":160}],"monthly_cont":[{"month":"2024-08","cont":66,"ship":68},{"month":"2024-09","cont":47,"ship":50},{"month":"2024-10","cont":49,"ship":51},{"month":"2024-11","cont":41,"ship":44},{"month":"2024-12","cont":64,"ship":66},{"month":"2025-01","cont":49,"ship":53},{"month":"2025-02","cont":21,"ship":21},{"month":"2025-03","cont":28,"ship":28},{"month":"2025-04","cont":41,"ship":43},{"month":"2025-05","cont":34,"ship":35},{"month":"2025-06","cont":42,"ship":43},{"month":"2025-07","cont":30,"ship":33},{"month":"2025-08","cont":25,"ship":25},{"month":"2025-09","cont":60,"ship":63},{"month":"2025-10","cont":17,"ship":17},{"month":"2025-11","cont":46,"ship":47},{"month":"2025-12","cont":23,"ship":24},{"month":"2026-01","cont":21,"ship":22},{"month":"2026-02","cont":11,"ship":11},{"month":"2026-03","cont":18,"ship":19},{"month":"2026-04","cont":30,"ship":31},{"month":"2026-05","cont":24,"ship":25},{"month":"2026-06","cont":12,"ship":13},{"month":"2026-07","cont":6,"ship":6}],"all_records":[{"container":"OOLU1234567","vessel":"MSC ARIES","size":"40","qty":1,"pol_forwarder":"PORTEVER SHANGHAI","pol":"SHANGHAI","line":"FREIGHT CAPITAL SERVICES","iran_agent":"Blue Calm Marine","date":"2026-07-12","status":"Arrived"},{"container":"OOLU1234568","vessel":"MSC ARIES","size":"40","qty":2,"pol_forwarder":"PORTEVER SHANGHAI","pol":"SHANGHAI","line":"FREIGHT CAPITAL SERVICES","iran_agent":"Blue Calm Marine","date":"2026-07-12","status":"Arrived"}],"pol_coords":[{"name":"SHANGHAI","lat":31.23,"lng":121.47,"count":2630},{"name":"NINGBO","lat":29.87,"lng":121.54,"count":395},{"name":"NANSHA","lat":22.76,"lng":113.62,"count":192},{"name":"QINGDAO","lat":36.07,"lng":120.38,"count":191},{"name":"TIANJIN","lat":38.97,"lng":117.72,"count":62},{"name":"XINGANG","lat":38.98,"lng":117.75,"count":41},{"name":"SHEKOU","lat":22.48,"lng":113.91,"count":22},{"name":"SHENZHEN","lat":22.54,"lng":113.96,"count":5},{"name":"TAICANG","lat":31.45,"lng":121.12,"count":2},{"name":"DUBAI","lat":25.20,"lng":55.27,"count":1895}],"daily":[{"label":"2026-07-12","cont":2,"ship":3}],"rangeDays":1};
+    <!-- Volume Section -->
+    <div class="section-head"><h2>حجم عملیات</h2><div class="tag">CONTAINER &amp; SHIPMENT VOLUME</div></div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" id="chart1Title">روند سالانه</div>
+        <div class="card-desc" id="yearlyDesc">—</div>
+        <div class="chart-box h-280"><canvas id="chartYearly"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">ترکیب اندازهٔ کانتینر <span>(۲۰' در برابر ۴۰')</span></div>
+        <div class="card-desc" id="sizeDesc">—</div>
+        <div class="chart-box h-280"><canvas id="chartSize"></canvas></div>
+        <div class="mini-legend" id="sizeLegend"></div>
+      </div>
+    </div>
 
-/* ============================================================
-   2) CHART.JS THEME + REGISTRY
-   ============================================================ */
-function setupChartDefaults(){Chart.defaults.font.family="'IBM Plex Mono', monospace";Chart.defaults.color=chartTextColor();Chart.defaults.font.size=10.5;}
-function chartTextColor(){return getComputedStyle(document.documentElement).getPropertyValue('--chart-text').trim()||'#A8BDD6';}
-const COLORS={teal:'#22C0AE',tealSoft:'rgba(34,192,174,.55)',tealFill:'rgba(34,192,174,.14)',gold:'#E8AE52',goldFill:'rgba(232,174,82,.14)',red:'#E5654A',blue:'#5B9BD5',grid:'rgba(120,170,210,.10)',palette:['#22C0AE','#E8AE52','#5B9BD5','#B08CE0','#E5654A','#6FCF97','#F2C94C','#9BA8C9','#2FA6A0','#D98CC0']};
-function fmtInt(n){return new Intl.NumberFormat('en-US').format(Math.round(n||0));}
-const charts={};
-function getOrCreateChart(id,cfg){
-  if(charts[id]){charts[id].data=cfg.data;Object.assign(charts[id].options,cfg.options);charts[id].update();return charts[id];}
-  charts[id]=new Chart(document.getElementById(id),cfg);return charts[id];
-}
+    <!-- Auto Period Comparison -->
+    <div id="autoCmpSection" style="display:none">
+      <div class="section-head"><h2 id="autoCmpTitle">مقایسه با دوره قبل</h2><div class="tag">AUTO PERIOD COMPARISON</div></div>
+      <div class="auto-cmp" id="autoCmpBox"></div>
+    </div>
 
-/* ============================================================
-   3) FILTER + AGGREGATE
-   ============================================================ */
-function getFilteredRecords(){
-  let r=rawRecords;
-  let f=activeFilters;
-  let from=document.getElementById('fltFrom').value;
-  let to=document.getElementById('fltTo').value;
-  let fromDate=from?parseDateInput(from):null;
-  let toDate=to?parseDateInput(to):null;
-  if(from||to||f.fwd.length||f.pol.length||f.line.length||f.agent.length){
-    r=r.filter(function(rec){
-      if(from||to){
-        if(!rec.arrv_date)return false;
-        let rd=rec.arrv_date.getTime();
-        if(fromDate && rd<fromDate.getTime())return false;
-        if(toDate && rd>toDate.getTime()+86400000)return false;
-      }
-      if(f.fwd.length && (!rec.pol_forwarder || f.fwd.indexOf(rec.pol_forwarder)===-1))return false;
-      if(f.pol.length && (!rec.pol || f.pol.indexOf(rec.pol)===-1))return false;
-      if(f.line.length && (!rec.line || f.line.indexOf(rec.line)===-1))return false;
-      if(f.agent.length && (!rec.iran_agent || f.agent.indexOf(rec.iran_agent)===-1))return false;
-      return true;
-    });
-  }
-  return r;
-}
+    <!-- Monthly -->
+    <div class="section-head"><h2 id="monthSectionTitle">روند ۲۴ ماه اخیر</h2><div class="tag">ROLLING VOLUME</div></div>
+    <div class="card">
+      <div class="card-title" id="chart2Title">حجم ماهانه</div>
+      <div class="card-desc" id="monthlyDesc">—</div>
+      <div class="chart-box h-230"><canvas id="chartMonthly"></canvas></div>
+    </div>
 
-function aggregateFromRecords(records){
-  function contCount(arr){let s=new Set();arr.forEach(function(r){if(r.container)s.add(r.container);});return s.size;}
-  function shipCount(arr){let sum=0;arr.forEach(function(r){sum+=r.qty;});return sum;}
-  let total_containers=contCount(records);
-  let total_shipments=shipCount(records);
-  let vesselSet=new Set(records.map(function(r){return r.vessel;}).filter(Boolean));
-  let lineSet=new Set(records.map(function(r){return r.line;}).filter(Boolean));
-  let fwdSet=new Set(records.map(function(r){return r.pol_forwarder;}).filter(Boolean));
-  let agentSet=new Set(records.map(function(r){return r.iran_agent;}).filter(Boolean));
-  let polSet=new Set(records.map(function(r){return r.pol;}).filter(Boolean));
-  let sizeMap=new Map();
-  records.forEach(function(r){if(r.size){let k=r.size;sizeMap.set(k,(sizeMap.get(k)||0)+1);}});
-  function topNbyCount(key,n){
-    let m=new Map();
-    records.forEach(function(r){let k=r[key];if(k){if(!m.has(k))m.set(k,[]);m.get(k).push(r);}});
-    let arr=Array.from(m.entries()).map(function(e){return{label:e[0],value:contCount(e[1])};});
-    arr.sort(function(a,b){return b.value-a.value;});
-    return arr.slice(0,n);
-  }
-  let pending=records.filter(function(r){return r.status==='Pending';});
-  let arrived=records.filter(function(r){return r.status==='Arrived';});
-  // Yearly (both)
-  let yearMap=new Map();
-  records.forEach(function(r){if(r.date){let y=r.date.getFullYear();if(!yearMap.has(y))yearMap.set(y,[]);yearMap.get(y).push(r);}});
-  let yearSorted=Array.from(yearMap.entries()).sort(function(a,b){return a[0]-b[0];});
-  let yearly_cont=yearSorted.map(function(e){return{label:String(e[0]),value:contCount(e[1])};});
-  let yearly_ship=yearSorted.map(function(e){return{label:String(e[0]),value:shipCount(e[1])};});
-  // Monthly (both)
-  let monthMap=new Map();
-  records.forEach(function(r){if(r.date){let y=r.date.getFullYear();let m=String(r.date.getMonth()+1).padStart(2,'0');let key=y+'-'+m;if(!monthMap.has(key))monthMap.set(key,[]);monthMap.get(key).push(r);}});
-  let monthSorted=Array.from(monthMap.entries()).sort(function(a,b){return a[0]<b[0]?-1:1;});
-  let monthly_cont=monthSorted.map(function(e){let lbl=e[0];if(isJalali()){let parts=e[0].split('-');let j=g2j(parseInt(parts[0]),parseInt(parts[1]),1);lbl=j[0]+'/'+String(j[1]).padStart(2,'0');}return{month:lbl,cont:contCount(e[1]),ship:shipCount(e[1])};});
-  // Size dist
-  let size_dist=Array.from(sizeMap.entries()).sort(function(a,b){return b[1]-a[1];}).map(function(e){return{label:e[0],value:e[1]};});
-  // Daily data (fill all days) — internal keys always Gregorian for correct sorting/parsing
-  let dayMap=new Map();
-  records.forEach(function(r){if(r.date){let key=r.date.getFullYear()+'-'+String(r.date.getMonth()+1).padStart(2,'0')+'-'+String(r.date.getDate()).padStart(2,'0');if(!dayMap.has(key))dayMap.set(key,[]);dayMap.get(key).push(r);}});
-  let dayKeys=Array.from(dayMap.keys()).sort();
-  let daily=[];
-  if(dayKeys.length){
-    let minD=new Date(dayKeys[0]+'T00:00:00'),maxD=new Date(dayKeys[dayKeys.length-1]+'T00:00:00');
-    for(let d=new Date(minD);d<=maxD;d.setDate(d.getDate()+1)){
-      let key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-      let arr=dayMap.get(key)||[];
-      daily.push({label:fmtDate(d),cont:arr.length?contCount(arr):0,ship:arr.length?shipCount(arr):0});
-    }
-  }
-  let rangeDays=daily.length;
-  // All records for container list
-  let all_records=records.map(function(r){
-    return{
-      container:r.container||null,
-      vessel:r.vessel||null,
-      size:r.size||null,
-      qty:r.qty||0,
-      pol_forwarder:r.pol_forwarder||null,
-      pol:r.pol||null,
-      line:r.line||null,
-      iran_agent:r.iran_agent||null,
-      date:r.date?fmtDate(r.date):'',
-      status:r.status||''
-    };
-  });
-  // POL coords for map
-  let polCountMap=new Map();
-  records.forEach(function(r){if(r.pol&&r.date){polCountMap.set(r.pol,(polCountMap.get(r.pol)||0)+1);}});
-  let POL_COORDS={SHANGHAI:[31.23,121.47],NINGBO:[29.87,121.54],NANSHA:[22.76,113.62],QINGDAO:[36.07,120.38],TIANJIN:[38.97,117.72],XINGANG:[38.98,117.75],SHEKOU:[22.48,113.91],SHENZHEN:[22.54,113.96],TAICANG:[31.45,121.12],DUBAI:[25.20,55.27],BANDAR_ABBAS:[27.18,56.27]};
-  let pol_coords=Array.from(polCountMap.entries()).filter(function(e){return POL_COORDS[e[0].toUpperCase()];}).map(function(e){return{name:e[0],lat:POL_COORDS[e[0].toUpperCase()][0],lng:POL_COORDS[e[0].toUpperCase()][1],count:e[1]};});
-  let dates=records.map(function(r){return r.date;}).filter(Boolean);
-  let date_min=dates.length?fmtDate(new Date(Math.min.apply(null,dates))):null;
-  let date_max=dates.length?fmtDate(new Date(Math.max.apply(null,dates))):null;
-  let lineMap=new Map();records.forEach(function(r){if(r.iran_agent){if(!lineMap.has(r.iran_agent))lineMap.set(r.iran_agent,[]);lineMap.get(r.iran_agent).push(r);}});
-  let lineShare=Array.from(lineMap.entries()).map(function(e){return{label:e[0],value:contCount(e[1])};}).sort(function(a,b){return b.value-a.value;});
-  return{
-    total_containers:total_containers,total_shipments:total_shipments,total_teu:records.reduce(function(s,r){let sz=r.size;return s+(sz==='40'||sz==="40'"?2:sz==='20'||sz==="20'"?1:0);},0),unique_vessels:vesselSet.size,
-    unique_lines:lineSet.size,unique_forwarders:fwdSet.size,unique_agents:agentSet.size,
-    date_min:date_min,date_max:date_max,pending_count:contCount(pending),arrived_count:contCount(arrived),
-    size_dist:size_dist,top_lines:topNbyCount('line',10),top_forwarders:topNbyCount('pol_forwarder',10),
-    top_agents:topNbyCount('iran_agent',10),top_pol:topNbyCount('pol',10),
-    yearly_cont:yearly_cont,yearly_ship:yearly_ship,monthly_cont:monthly_cont,daily:daily,rangeDays:rangeDays,all_records:all_records,
-    pol_coords:pol_coords,line_share:lineShare
-  };
-}
+    <!-- Top Partners -->
+    <div class="section-head"><h2>شرکای عملیاتی برتر</h2><div class="tag">TOP PARTNERS BY VOLUME</div></div>
+    <div class="grid-3">
+      <div class="card"><div class="card-title">سهم نمایندگان ایران <span>(Pie)</span></div><div class="card-desc">Iran Agent Share</div><div class="chart-box h-320"><canvas id="chartLinesPie"></canvas></div></div>
+      <div class="card"><div class="card-title">برترین فورواردرهای POL</div><div class="card-desc">Top 10 POL Forwarders</div><div class="chart-box h-320"><canvas id="chartForwarders"></canvas></div></div>
+      <div class="card"><div class="card-title">برترین نمایندگان ایران</div><div class="card-desc">Top 10 Iran Agents</div><div class="chart-box h-320"><canvas id="chartAgents"></canvas></div></div>
+    </div>
 
-function refreshDashboard(){
-  if(!rawRecords.length){return;}
-  let records=getFilteredRecords();
-  document.getElementById('filterInfo').textContent=records.length.toLocaleString()+' رکورد ('+(rawRecords.length?Math.round(records.length/rawRecords.length*100)+'% از کل':'—')+')';
-  let from=document.getElementById('fltFrom').value;
-  let to=document.getElementById('fltTo').value;
-  let fromDate=from?parseDateInput(from):null;
-  let toDate=to?parseDateInput(to):null;
-  let prevRecords=null,prevFromStr=null,prevToStr=null,curPeriodLabel=null,prevPeriodLabel=null;
-  if(fromDate&&toDate&&!isNaN(fromDate.getTime())&&!isNaN(toDate.getTime())){
-    let prevFrom=new Date(fromDate.getFullYear()-1,fromDate.getMonth(),fromDate.getDate());
-    let prevTo=new Date(toDate.getFullYear()-1,toDate.getMonth(),toDate.getDate());
-    prevFromStr=fmtDate(prevFrom);prevToStr=fmtDate(prevTo);
-    prevRecords=rawRecords.filter(function(r){
-      if(!r.arrv_date)return false;
-      let dm=fmtDateToMs(fmtDate(r.arrv_date));
-      if(dm<fmtDateToMs(prevFromStr))return false;
-      if(dm>fmtDateToMs(prevToStr))return false;
-      if(activeFilters.fwd.length&&activeFilters.fwd.indexOf(r.pol_forwarder)===-1)return false;
-      if(activeFilters.pol.length&&activeFilters.pol.indexOf(r.pol)===-1)return false;
-      if(activeFilters.line.length&&activeFilters.line.indexOf(r.line)===-1)return false;
-      if(activeFilters.agent.length&&activeFilters.agent.indexOf(r.iran_agent)===-1)return false;
-      return true;
-    });
-    curPeriodLabel=from+' تا '+to;prevPeriodLabel=prevFromStr+' تا '+prevToStr;
-  }else if(records.length>1){
-    let recDates=records.map(function(r){return r.arrv_date;}).filter(Boolean);
-    if(recDates.length>1){
-      let minRD=new Date(Math.min.apply(null,recDates)),maxRD=new Date(Math.max.apply(null,recDates));
-      if(Math.round((maxRD.getTime()-minRD.getTime())/86400000)>0){
-        let rpFrom=new Date(minRD.getFullYear()-1,minRD.getMonth(),minRD.getDate());
-        let rpTo=new Date(maxRD.getFullYear()-1,maxRD.getMonth(),maxRD.getDate());
-        prevFromStr=fmtDate(rpFrom);prevToStr=fmtDate(rpTo);
-        prevRecords=rawRecords.filter(function(r){
-          if(!r.arrv_date)return false;
-          let dm=fmtDateToMs(fmtDate(r.arrv_date));
-          if(dm<fmtDateToMs(prevFromStr))return false;
-          if(dm>fmtDateToMs(prevToStr))return false;
-          return true;
-        });
-        curPeriodLabel=fmtDate(minRD)+' تا '+fmtDate(maxRD);prevPeriodLabel=prevFromStr+' تا '+prevToStr;
-      }
-    }
-  }
-  let filterParams={dateFormat:localStorage.getItem('bms_dateformat')||'miladi'};
-  function onMainResult(mainData){
-    if(!mainData){mainData=aggregateFromRecords(records);}
-    let existingContainers=new Set(mainData.all_records.map(function(r){return r.container;}));
-    let pending=rawRecords.filter(function(r){return !r.arrv_date && (!existingContainers.has(r.container)||!r.container);});
-    pending.forEach(function(r){
-      mainData.all_records.push({container:r.container||null,vessel:r.vessel||null,size:r.size||null,qty:r.qty||0,pol_forwarder:r.pol_forwarder||null,pol:r.pol||null,line:r.line||null,iran_agent:r.iran_agent||null,date:'',status:r.status||'Pending'});
-    });
-    if(prevRecords){
-      function onPrevResult(prevData){
-        if(!prevData){prevData=aggregateFromRecords(prevRecords);}
-        mainData.prevPeriod=prevData;mainData.prevPeriodLabel=prevPeriodLabel;mainData.curPeriodLabel=curPeriodLabel;
-        renderAll(mainData,currentMeta);
-      }
-      aggregateAsync(prevRecords,filterParams,onPrevResult);
-    }else{
-      renderAll(mainData,currentMeta);
-    }
-  }
-  aggregateAsync(records,filterParams,onMainResult);
-}
+    <!-- Map + POL -->
+    <div class="section-head"><h2>جغرافیای مبادی بارگیری و مسیرها</h2><div class="tag">POL ROUTES &amp; DESTINATION</div></div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">نقشه مبادی بارگیری و مسیرهای دریایی <span>(POL → Iran)</span></div>
+        <div class="card-desc">توزیع جغرافیایی مبادی بارگیری — قطر دایره متناسب با حجم</div>
+        <div id="mapC" style="height:360px"></div>
+      </div>
+      <div class="card"><div class="card-title">توزیع بنادر بارگیری (POL)</div><div class="card-desc">بر حسب تعداد</div><div class="chart-box h-280"><canvas id="chartPOL"></canvas></div></div>
+    </div>
 
-/* ============================================================
-   4) RENDER FUNCTIONS
-   ============================================================ */
-function renderAll(v, meta){
-  let pp=v.prevPeriod;
-  function trendHtml(cur,prev){
-    if(prev==null)return'';
-    let diff=cur-prev;
-    let pct=prev!==0?((diff/prev)*100).toFixed(1):'∞';
-    let cls=diff>0?'up':diff<0?'dn':'flat';
-    let arrow=diff>0?'▲':diff<0?'▼':'—';
-    return'<div class="trend '+cls+'">'+arrow+' '+pct+'%</div>';
-  }
-  document.getElementById('kpiGrid').innerHTML=[
-    {lbl:'کل کانتینرها (ستون F)',val:fmtInt(v.total_containers),sub:'CONTAINERS',cls:'accent-teal',cur:v.total_containers,prev:pp?pp.total_containers:null},
-    {lbl:'کل بارنامه (ستون E)',val:fmtInt(v.total_shipments),sub:'SHIPMENTS',cls:'accent-gold',cur:v.total_shipments,prev:pp?pp.total_shipments:null},
-    {lbl:'TEU',val:fmtInt(v.total_teu||0),sub:'TWENTY-FOOT EQUIVALENT',cls:'accent-red',cur:v.total_teu||0,prev:pp?pp.total_teu||0:null},
-    {lbl:'سفرهای دریایی',val:fmtInt(v.unique_vessels),sub:'VESSEL / VOYAGE',cls:'',cur:v.unique_vessels,prev:pp?pp.unique_vessels:null},
-    {lbl:'خطوط کشتیرانی',val:fmtInt(v.unique_lines),sub:'SHIPPING LINES',cls:'',cur:v.unique_lines,prev:pp?pp.unique_lines:null},
-    {lbl:'فورواردرهای POL',val:fmtInt(v.unique_forwarders),sub:'POL FORWARDERS',cls:'',cur:v.unique_forwarders,prev:pp?pp.unique_forwarders:null},
-    {lbl:'نمایندگان ایران',val:fmtInt(v.unique_agents),sub:'IRAN AGENTS',cls:'',cur:v.unique_agents,prev:pp?pp.unique_agents:null}
-  ].map(function(k){return'<div class="kpi '+k.cls+'"><div class="lbl">'+k.lbl+'</div><div class="val">'+k.val+'</div>'+trendHtml(k.cur,k.prev)+'<div class="sub">'+k.sub+'</div></div>';}).join('');
+    <!-- Period Comparison -->
+    <div class="section-head"><h2>مقایسه دو بازه زمانی</h2><div class="tag">PERIOD COMPARISON</div></div>
+    <div class="card">
+      <div class="frow" style="margin-bottom:10px">
+        <div class="fg"><label>دوره ۱ - از</label><input type="date" id="c1s"></div>
+        <div class="fg"><label>دوره ۱ - تا</label><input type="date" id="c1e"></div>
+        <div class="fg"><label>دوره ۲ - از</label><input type="date" id="c2s"></div>
+        <div class="fg"><label>دوره ۲ - تا</label><input type="date" id="c2e"></div>
+        <div class="fg" style="display:flex;flex-direction:column;justify-content:end"><button class="btn" id="compareBtn" style="font-size:10px;">🔍 مقایسه</button></div>
+      </div>
+      <div class="cmp-grid" id="cmpGrid"></div>
+    </div>
 
-  let cmpSection=document.getElementById('autoCmpSection');
-  if(pp){
-    cmpSection.style.display='';
-    document.getElementById('autoCmpTitle').textContent='مقایسه با دوره قبل: '+v.prevPeriodLabel;
-    let cmpItems=[
-      {lbl:'کانتینر',cur:v.total_containers,prev:pp.total_containers},
-      {lbl:'بارنامه',cur:v.total_shipments,prev:pp.total_shipments},
-      {lbl:'TEU',cur:v.total_teu||0,prev:pp.total_teu||0},
-      {lbl:'کشتی',cur:v.unique_vessels,prev:pp.unique_vessels},
-      {lbl:'خط کشتیرانی',cur:v.unique_lines,prev:pp.unique_lines},
-      {lbl:'فورواردر',cur:v.unique_forwarders,prev:pp.unique_forwarders},
-      {lbl:'ایجنت ایران',cur:v.unique_agents,prev:pp.unique_agents}
-    ];
-    document.getElementById('autoCmpBox').innerHTML='<div class="cmp-sub">بازه فعلی: '+v.curPeriodLabel+'</div><div class="auto-cmp-row">'+cmpItems.map(function(it){
-      let diff=it.cur-it.prev;
-      let pct=it.prev!==0?((diff/it.prev)*100).toFixed(1):'∞';
-      let cls=diff>0?'up':diff<0?'dn':'flat';
-      let arrow=diff>0?'▲':diff<0?'▼':'—';
-      return'<div class="auto-cmp-item"><div class="ac-label">'+it.lbl+'</div><div class="ac-cur '+cls+'">'+fmtInt(it.cur)+'</div><div class="ac-prev">دوره قبل: '+fmtInt(it.prev)+'</div><div class="ac-change '+cls+'">'+arrow+' '+pct+'%</div></div>';
-    }).join('')+'</div>';
-  }else{
-    cmpSection.style.display='none';
-  }
+    <!-- Container List -->
+    <div class="section-head"><h2>لیست کانتینر</h2><div class="tag">FULL CONTAINER LIST</div></div>
+    <div class="board">
+      <div class="board-head">
+        <h2>ALL RECORDS · CONTAINER REGISTRY</h2>
+        <div class="board-summary">نمایش <span class="bcount" id="contShowCount">0</span> از <span class="bcount" id="contTotalCount">0</span></div>
+      </div>
+      <div class="board-search">
+        <input type="text" id="contSearch" placeholder="🔎 جستجو در کانتینر، کشتی، خط، فورواردر، POL، ایجنت...">
+        <button class="btn" id="toggleAdvBtn" style="font-size:10px;margin-right:4px;">⬇ جستجوی پیشرفته</button>
+      </div>
+      <div class="advWrap" id="advWrap">
+        <div class="advGrid">
+          <div class="fg"><label>VESSEL</label><input type="text" id="advVessel" placeholder="نام کشتی"></div>
+          <div class="fg"><label>POL FORWARDER</label><select id="advFwd"><option value="">همه</option></select></div>
+          <div class="fg"><label>POL</label><select id="advPol"><option value="">همه</option></select></div>
+          <div class="fg"><label>LINE</label><select id="advLine"><option value="">همه</option></select></div>
+          <div class="fg"><label>IRAN AGENT</label><select id="advAgent"><option value="">همه</option></select></div>
+          <div class="fg"><label>SIZE</label><select id="advSize"><option value="">همه</option></select></div>
+          <div class="fg"><label>STATUS</label><select id="advStatus"><option value="">همه</option><option>Arrived</option><option>Pending</option></select></div>
+        </div>
+      </div>
+      <div class="board-scroll" id="contScroll">
+        <table class="contab">
+          <thead id="contHead">
+            <tr>
+              <th>#</th>
+              <th>کانتینر</th>
+              <th>کشتی / سفر</th>
+              <th>سایز</th>
+              <th>تعداد</th>
+              <th>فورواردر POL</th>
+              <th>بندر بارگیری</th>
+              <th>خط کشتیرانی</th>
+              <th>نمایندهٔ ایران</th>
+              <th>تاریخ</th>
+              <th>وضعیت</th>
+            </tr>
+          </thead>
+          <tbody id="contBody"></tbody>
+        </table>
+      </div>
+      <div id="contListInfo"></div>
+    </div>
 
-  // Determine granularity
-  let rd=v.rangeDays||0,gran='yearly',granLabel='سالانه',granUnit='سال',granUnitEn='year';
-  if(rd<=31){gran='daily';granLabel='روزانه';granUnit='روز';granUnitEn='day';}
-  else if(rd<=365){gran='monthly';granLabel='ماهانه';granUnit='ماه';granUnitEn='month';}
-  document.getElementById('chart1Title').textContent='روند '+granLabel;
-  document.getElementById('monthSectionTitle').textContent='روند حجم عملیات ('+granLabel+')';
-  document.getElementById('chart2Title').textContent='حجم '+granLabel;
-  document.getElementById('yearlyDesc').textContent='بازه: '+(v.date_min||'—')+' تا '+(v.date_max||'—')+' · نمایش '+granLabel;
-  // Adjust chart heights for daily mode
-  document.getElementById('chartYearly').parentElement.style.height=gran==='daily'?'340px':'';
-  document.getElementById('chartMonthly').parentElement.style.height=gran==='daily'?'280px':'';
+    <footer>
+      <div class="ltr">© 2026 Mohammad Hassani — Blue Calm Marine Vessel Checking Dashboard. All rights reserved.</div>
+    </footer>
+  </div>
 
-  // Chart 1: grouped bar
-  let c1labels,c1cont,c1ship;
-  if(gran==='daily'){
-    c1labels=v.daily.map(function(d){return d.label;});
-    c1cont=v.daily.map(function(d){return d.cont;});
-    c1ship=v.daily.map(function(d){return d.ship;});
-  }else if(gran==='monthly'){
-    c1labels=v.monthly_cont.map(function(d){return d.month;});
-    c1cont=v.monthly_cont.map(function(d){return d.cont;});
-    c1ship=v.monthly_cont.map(function(d){return d.ship;});
-  }else{
-    c1labels=v.yearly_cont.map(function(d){return String(d.label);});
-    c1cont=v.yearly_cont.map(function(d){return d.value;});
-    c1ship=v.yearly_ship.map(function(d){return d.value;});
-  }
-  getOrCreateChart('chartYearly',{
-    type:'bar',
-    data:{
-      labels:c1labels,
-      datasets:[
-        {label:'کانتینر',data:c1cont,backgroundColor:COLORS.teal,borderRadius:4},
-        {label:'بارنامه',data:c1ship,backgroundColor:COLORS.gold,borderRadius:4}
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:9},color:chartTextColor(),usePointStyle:true}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.y);}}}},
-      scales:{x:{stacked:false,grid:{display:false},ticks:{font:{size:10},color:chartTextColor()}},y:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);},color:chartTextColor()}}}
-    }
-  });
-
-  // Map
-  renderMap(v);
-
-  // Chart 2: line (daily / monthly / yearly)
-  let c2labels,c2cont,c2ship,c2desc;
-  if(gran==='daily'){
-    c2labels=v.daily.map(function(d){return d.label;});
-    c2cont=v.daily.map(function(d){return d.cont;});
-    c2ship=v.daily.map(function(d){return d.ship;});
-    c2desc=v.daily.length+' روز';
-  }else if(gran==='monthly'){
-    c2labels=v.monthly_cont.map(function(d){return d.month;});
-    c2cont=v.monthly_cont.map(function(d){return d.cont;});
-    c2ship=v.monthly_cont.map(function(d){return d.ship;});
-    c2desc=v.monthly_cont.length+' ماه';
-  }else{
-    c2labels=v.yearly_cont.map(function(d){return String(d.label);});
-    c2cont=v.yearly_cont.map(function(d){return d.value;});
-    c2ship=v.yearly_ship.map(function(d){return d.value;});
-    c2desc=v.yearly_cont.length+' سال';
-  }
-  document.getElementById('monthlyDesc').textContent=c2desc;
-  getOrCreateChart('chartMonthly',{
-    type:'line',
-    data:{
-      labels:c2labels,
-      datasets:[
-        {label:'کانتینر',data:c2cont,borderColor:COLORS.teal,backgroundColor:COLORS.tealFill,fill:false,tension:.35,pointRadius:3,pointBackgroundColor:COLORS.teal,pointBorderColor:'#04150f',borderWidth:2},
-        {label:'بارنامه',data:c2ship,borderColor:COLORS.gold,backgroundColor:COLORS.goldFill,fill:false,tension:.35,pointRadius:3,pointBackgroundColor:COLORS.gold,pointBorderColor:'#04150f',borderWidth:2}
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:9},color:chartTextColor(),usePointStyle:true}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.y);}}}},
-      scales:{x:{grid:{display:false},ticks:{maxRotation:60,minRotation:60,font:{size:9},color:chartTextColor()}},y:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);},color:chartTextColor()}}}
-    }
-  });
-
-  function hbar(id,items,color){
-    getOrCreateChart(id,{
-      type:'bar',
-      data:{labels:items.map(function(d){return d.label.length>26?d.label.slice(0,24)+'\u2026':d.label;}),datasets:[{data:items.map(function(d){return d.value;}),backgroundColor:color,borderRadius:4,maxBarThickness:16}]},
-      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.x);}}}},scales:{x:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);},color:chartTextColor()}},y:{grid:{display:false},ticks:{font:{size:10},color:chartTextColor()}}}}
-    });
-  }
-  let lsData=(v.line_share||[]).slice(0,12);
-  if(lsData.length){
-    getOrCreateChart('chartLinesPie',{
-      type:'pie',
-      data:{labels:lsData.map(function(d){return d.label;}),datasets:[{data:lsData.map(function(d){return d.value;}),backgroundColor:COLORS.palette,borderColor:'#0F2A45',borderWidth:2}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:chartTextColor()}},tooltip:{callbacks:{label:function(c){let total=c.dataset.data.reduce(function(a,b){return a+b;},0);let pct=total?(c.parsed/total*100).toFixed(1):0;return c.label+': '+fmtInt(c.parsed)+' ('+pct+'%)';}}}}}
-    });
-  }
-  hbar('chartForwarders',v.top_forwarders,COLORS.gold);
-  hbar('chartAgents',v.top_agents,COLORS.blue);
-
-  getOrCreateChart('chartPOL',{
-    type:'doughnut',
-    data:{labels:v.top_pol.map(function(d){return d.label;}),datasets:[{data:v.top_pol.map(function(d){return d.value;}),backgroundColor:COLORS.palette,borderColor:'#0F2A45',borderWidth:2}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:chartTextColor()}},tooltip:{callbacks:{label:function(c){return c.label+': '+fmtInt(c.parsed)+' کانتینر';}}}}}
-  });
-
-  getOrCreateChart('chartSize',{
-    type:'doughnut',
-    data:{labels:v.size_dist.map(function(d){return d.label+"'";}),datasets:[{data:v.size_dist.map(function(d){return d.value;}),backgroundColor:[COLORS.gold,COLORS.blue],borderColor:'#0F2A45',borderWidth:2}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.label+': '+fmtInt(c.parsed)+' کانتینر';}}}}}
-  });
-  document.getElementById('sizeLegend').innerHTML=v.size_dist.map(function(d,i){return'<span><i style="background:'+(i===0?COLORS.gold:COLORS.blue)+'"></i> کانتینر '+esc(d.label)+"': "+fmtInt(d.value)+' ('+(v.total_containers?(d.value/v.total_containers*100).toFixed(1):0)+'%)</span>';}).join('');
-
-  // Container list
-  renderContainerList(v.all_records);
-
-  if(meta){
-    document.getElementById('lastLoaded').textContent=meta.time||'\u2014';
-  }
-}
-
-/* ============================================================
-   4b) MAP RENDER
-   ============================================================ */
-let _mapInstance=null;
-let _animId=null;
-function greatCircle(lat1,lng1,lat2,lng2,n){
-  let toRad=Math.PI/180;
-  let lat1r=lat1*toRad,lng1r=lng1*toRad;
-  let lat2r=lat2*toRad,lng2r=lng2*toRad;
-  let d=2*Math.asin(Math.sqrt(Math.pow(Math.sin((lat1r-lat2r)/2),2)+Math.cos(lat1r)*Math.cos(lat2r)*Math.pow(Math.sin((lng1r-lng2r)/2),2)));
-  if(d<.01)return [[lat1,lng1],[lat2,lng2]];
-  let pts=[];
-  for(let i=0;i<=n;i++){
-    let f=i/n;
-    let A=Math.sin((1-f)*d)/Math.sin(d);
-    let B=Math.sin(f*d)/Math.sin(d);
-    let x=A*Math.cos(lat1r)*Math.cos(lng1r)+B*Math.cos(lat2r)*Math.cos(lng2r);
-    let y=A*Math.cos(lat1r)*Math.sin(lng1r)+B*Math.cos(lat2r)*Math.sin(lng2r);
-    let z=A*Math.sin(lat1r)+B*Math.sin(lat2r);
-    pts.push([Math.atan2(z,Math.sqrt(x*x+y*y))/toRad,Math.atan2(y,x)/toRad]);
-  }
-  return pts;
-}
-function filterByPol(polName){
-  activeFilters.pol=[polName];
-  let sel=document.getElementById('cb-pol');
-  if(sel)sel.value=polName;
-  refreshDashboard();
-  showPolResetBtn(polName);
-  setTimeout(function(){
-    let el=document.querySelector('.board')||document.getElementById('contListInfo');
-    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
-  },100);
-}
-let _polResetEl=null;
-function showPolResetBtn(polName){
-  if(_polResetEl){_polResetEl.remove();_polResetEl=null;}
-  let mapC=document.getElementById('mapC');
-  if(!mapC)return;
-  _polResetEl=document.createElement('div');
-  _polResetEl.style.cssText='position:absolute;top:10px;right:10px;z-index:1000;background:var(--panel);border:1px solid var(--teal);color:var(--text);padding:6px 14px;border-radius:100px;cursor:pointer;font-size:11px;font-family:var(--sans);box-shadow:0 4px 16px rgba(0,0,0,.5);white-space:nowrap;';
-  _polResetEl.innerHTML='✕ '+esc(polName)+' <span style="opacity:.65;">↺ بازنشانی</span>';
-  _polResetEl.onclick=function(){
-    activeFilters.pol=[];
-    let sel=document.getElementById('cb-pol');if(sel)sel.value='';
-    refreshDashboard();
-    if(_polResetEl){_polResetEl.remove();_polResetEl=null;}
-  };
-  mapC.appendChild(_polResetEl);
-}
-let _prevPols=null;
-function renderMap(v){
-  let c=document.getElementById('mapC');
-  if(!c)return;
-  if(!window.L||!v.pol_coords||!v.pol_coords.length){
-    if(_mapInstance){_mapInstance.remove();_mapInstance=null;_animId=null;}
-    if(_polResetEl){_polResetEl.remove();_polResetEl=null;}
-    return;
-  }
-  let curPols=v.pol_coords.map(function(p){return p.name+':'+p.count;}).join('|');
-  if(_prevPols===curPols&&_mapInstance)return;
-  if(_mapInstance){_mapInstance.remove();_mapInstance=null;_animId=null;}
-  if(_polResetEl){_polResetEl.remove();_polResetEl=null;}
-  _prevPols=curPols;
-  _mapInstance=L.map('mapC',{zoomControl:false,attributionControl:false}).setView([27.5,64],4);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(_mapInstance);
-  _mapInstance.getContainer().querySelector('.leaflet-tile-pane').style.filter='brightness(.75) contrast(1.2) saturate(.6)';
-  let icanIcon=L.divIcon({html:'<div class="map-marker"><svg width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="#FF4757" opacity=".2"/><circle cx="18" cy="18" r="11" fill="#FF4757" opacity=".55"/><circle cx="18" cy="18" r="6" fill="#FF4757"/></svg></div>',iconSize:[36,36],iconAnchor:[18,18],className:''});
-  L.marker([27.18,56.27],{icon:icanIcon}).addTo(_mapInstance).bindTooltip('Bandar Abbas<small>مقصد (ایران)</small>',{direction:'top',className:'map-label dest'});
-  // Compute status per POL
-  let polStatus={};
-  (v.all_records||[]).forEach(function(r){
-    let pol=r.pol;if(!pol)return;
-    if(!polStatus[pol])polStatus[pol]={arr:0,pen:0};
-    if(r.status==='Arrived')polStatus[pol].arr++;else polStatus[pol].pen++;
-  });
-  let maxCount=Math.max.apply(null,v.pol_coords.map(function(p){return p.count;}));
-  let animPaths=[];
-  v.pol_coords.forEach(function(p){
-    let s=polStatus[p.name];
-    let lineColor;
-    if(!s||(s.arr>0&&s.pen===0))lineColor='#22C0AE';
-    else if(s.pen>0&&s.arr===0)lineColor='#E5654A';
-    else lineColor='#E8AE52';
-    let pts=greatCircle(p.lat,p.lng,27.18,56.27,48);
-    L.polyline(pts,{color:'#fff',weight:4,opacity:.5}).addTo(_mapInstance);
-    let line=L.polyline(pts,{color:lineColor,weight:2.5,opacity:.85}).addTo(_mapInstance);
-    line.on('click',function(){filterByPol(p.name);});
-    animPaths.push({pts:pts,color:lineColor});
-    let r=Math.max(8,Math.sqrt(p.count/maxCount)*28);
-    let portIcon=L.divIcon({html:'<div class="map-marker"><svg width="'+(r*2+4)+'" height="'+(r*2+4)+'" viewBox="0 0 '+(r*2+4)+' '+(r*2+4)+'"><circle cx="'+(r+2)+'" cy="'+(r+2)+'" r="'+r+'" fill="'+lineColor+'" opacity=".7"/><circle cx="'+(r+2)+'" cy="'+(r+2)+'" r="'+(r*0.45)+'" fill="'+lineColor+'"/></svg></div>',iconSize:[r*2+4,r*2+4],iconAnchor:[r+2,r+2],className:''});
-    L.marker([p.lat,p.lng],{icon:portIcon}).addTo(_mapInstance).bindTooltip(esc(p.name)+'<small>'+fmtInt(p.count)+' کانتینر</small>',{direction:'top',className:'map-label port'});
-  });
-  // Animated dots
-  if(animPaths.length){
-    let dotGroup=L.layerGroup().addTo(_mapInstance);
-    let dots=animPaths.map(function(path,i){
-      let dot=L.circleMarker(path.pts[0],{radius:3.5,color:'#fff',weight:2,fillColor:path.color,fillOpacity:.9});
-      dotGroup.addLayer(dot);
-      return{dot:dot,path:path.pts,idx:i*12,speed:.008+Math.random()*.01};
-    });
-    function animLoop(){
-      if(!_mapInstance||!_mapInstance._map){_animId=null;return;}
-      if(!document.hidden){
-        dots.forEach(function(d){
-          d.idx+=d.speed;if(d.idx>=d.path.length)d.idx=0;
-          d.dot.setLatLng(d.path[Math.floor(d.idx)]);
-        });
-      }
-      _animId=requestAnimationFrame(animLoop);
-    }
-    _animId=requestAnimationFrame(animLoop);
-  }
-  setTimeout(function(){if(_mapInstance)_mapInstance.invalidateSize();},150);
-}
-
-/* ============================================================
-   4b) CONTAINER LIST RENDER
-   ============================================================ */
-let _allRecordsCache=null;
-let _vsRowH=28;
-let _vsFiltered=[];
-let _vsScrollEl=null;
-let _vsBodyEl=null;
-
-function _cel(v){return (v==null||v==='')?'<td class="miss">\u2014</td>':'<td>'+esc(v)+'</td>';}
-function _celSz(v){if(v==null||v==='')return '<td class="miss">\u2014</td>';return '<td class="sz">'+esc(v)+"'"+'</td>';}
-
-function _vsRenderRows(){
-  if(!_vsScrollEl||!_vsBodyEl)return;
-  let scrollTop=_vsScrollEl.scrollTop;
-  let viewH=_vsScrollEl.clientHeight;
-  let total=_vsFiltered.length;
-  let headH=36;
-  let startIdx=Math.max(0,Math.floor((scrollTop-headH)/_vsRowH)-3);
-  let endIdx=Math.min(total,Math.ceil((scrollTop-headH+viewH)/_vsRowH)+3);
-  let topPad=startIdx*_vsRowH;
-  let bottomPad=Math.max(0,(total-endIdx)*_vsRowH);
-  let html='';
-  if(topPad>0)html+='<tr style="height:'+topPad+'px"><td colspan="11"></td></tr>';
-  for(let i=startIdx;i<endIdx;i++){
-    let r=_vsFiltered[i];
-    let cls=r.status==='Arrived'?'stat-arr':'stat-pen';
-    html+='<tr><td>'+(i+1)+'</td>'+_cel(r.container)+_cel(r.vessel)+_celSz(r.size)+'<td>'+parseInt(r.qty||0)+'</td>'+_cel(r.pol_forwarder)+_cel(r.pol)+_cel(r.line)+_cel(r.iran_agent)+_cel(r.date)+'<td class="'+cls+'">'+(r.status==='Arrived'?'Arrived':'Pending')+'</td></tr>';
-  }
-  if(bottomPad>0)html+='<tr style="height:'+bottomPad+'px"><td colspan="11"></td></tr>';
-  _vsBodyEl.innerHTML=html;
-}
-
-function renderContainerList(records){
-  if(records){_allRecordsCache=records;}
-  let all=_allRecordsCache||[];
-  let q=document.getElementById('contSearch').value.trim().toLowerCase();
-  let advVessel=document.getElementById('advVessel').value.trim().toLowerCase();
-  let advFwd=document.getElementById('advFwd').value;
-  let advPol=document.getElementById('advPol').value;
-  let advLine=document.getElementById('advLine').value;
-  let advAgent=document.getElementById('advAgent').value;
-  let advSize=document.getElementById('advSize').value;
-  let advStatus=document.getElementById('advStatus').value;
-  let hasAdv=advVessel||advFwd||advPol||advLine||advAgent||advSize||advStatus;
-  _vsFiltered=all.filter(function(r){
-    if(q){
-      if(!r._search)r._search=[r.container,r.vessel,r.line,r.pol_forwarder,r.pol,r.iran_agent,r.size,r.qty,r.date,r.status].join(' ').toLowerCase();
-      if(r._search.indexOf(q)===-1)return false;
-    }
-    if(hasAdv){
-      if(advVessel&&(r.vessel||'').toLowerCase().indexOf(advVessel)===-1)return false;
-      if(advFwd&&(r.pol_forwarder||'')!==advFwd)return false;
-      if(advPol&&(r.pol||'')!==advPol)return false;
-      if(advLine&&(r.line||'')!==advLine)return false;
-      if(advAgent&&(r.iran_agent||'')!==advAgent)return false;
-      if(advSize&&(r.size||'')!==advSize)return false;
-      if(advStatus&&(r.status||'')!==advStatus)return false;
-    }
-    return true;
-  });
-  let sk=contSort.key;
-  if(sk&&sk!=='idx'){
-    _vsFiltered.sort(function(a,b){
-      let va=a[sk],vb=b[sk];
-      if(va==null)va='';if(vb==null)vb='';
-      if(typeof va==='number')return contSort.asc?va-vb:vb-va;
-      return contSort.asc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));
-    });
-  }
-  document.querySelectorAll('.sortic').forEach(function(el){el.className='sortic';});
-  if(sk){let sel=document.getElementById('srt-'+sk);if(sel)sel.className='sortic '+(contSort.asc?'asc':'dsc');}
-  document.getElementById('contTotalCount').textContent=fmtInt(_vsFiltered.length);
-  document.getElementById('contShowCount').textContent=fmtInt(_vsFiltered.length);
-  if(!_vsScrollEl){
-    _vsScrollEl=document.getElementById('contScroll');
-    _vsBodyEl=document.getElementById('contBody');
-    _vsScrollEl.addEventListener('scroll',_vsRenderRows);
-  }
-  _vsScrollEl.scrollTop=0;
-  _vsRenderRows();
-  document.getElementById('contListInfo').innerHTML='';
-}
-
-/* ============================================================
-   5) FILTER UI
-   ============================================================ */
-const filterIds=['cb-fwd','cb-pol','cb-line','cb-agent'];
-const filterProps=['pol_forwarder','pol','line','iran_agent'];
-
-function buildMsOptions(){
-  filterIds.forEach(function(id,i){
-    let sel=document.getElementById(id);
-    if(!sel)return;
-    let prop=filterProps[i];
-    let cur=sel.value;
-    let s=new Set();
-    rawRecords.forEach(function(r){if(r[prop])s.add(r[prop]);});
-    let vals=Array.from(s).sort();
-    sel.innerHTML='<option value="">همه</option>';
-    vals.forEach(function(v){
-      sel.insertAdjacentHTML('beforeend','<option value="'+esc(v)+'">'+esc(v)+'</option>');
-    });
-    sel.value=cur;
-  });
-}
-function filterBySelect(){
-  activeFilters.fwd=document.getElementById('cb-fwd').value?[document.getElementById('cb-fwd').value]:[];
-  activeFilters.pol=document.getElementById('cb-pol').value?[document.getElementById('cb-pol').value]:[];
-  activeFilters.line=document.getElementById('cb-line').value?[document.getElementById('cb-line').value]:[];
-  activeFilters.agent=document.getElementById('cb-agent').value?[document.getElementById('cb-agent').value]:[];
-  _debouncedRefresh();
-}
-
-function initFilters(){
-  let today=todayStr();
-  if(!rawRecords.length){
-    let n=new Date();
-    if(isJalali()){
-      let j=g2j(n.getFullYear(),n.getMonth()+1,n.getDate());
-      document.getElementById('fltFrom').value=j[0]+'-'+String(j[1]).padStart(2,'0')+'-01';
-    }else{
-      document.getElementById('fltFrom').value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-01';
-    }
-    document.getElementById('fltTo').value=today;
-    updateDateInputs();
-    return;
-  }
-  let dates=rawRecords.map(function(r){return r.arrv_date;}).filter(Boolean);
-  if(dates.length){
-    let minDate=new Date(Math.min.apply(null,dates));
-    let maxDate=new Date(Math.max.apply(null,dates));
-    document.getElementById('fltFrom').value=fmtDate(minDate);
-    document.getElementById('fltTo').value=fmtDate(maxDate);
-  }else{
-    let now=new Date();
-    if(isJalali()){
-      let j=g2j(now.getFullYear(),now.getMonth()+1,now.getDate());
-      document.getElementById('fltFrom').value=j[0]+'-'+String(j[1]).padStart(2,'0')+'-01';
-    }else{
-      document.getElementById('fltFrom').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
-    }
-    document.getElementById('fltTo').value=today;
-  }
-  buildMsOptions();
-  updateFilterOptions();
-  document.getElementById('c1s').value=fmtDate(new Date());
-  document.getElementById('c1e').value=today;
-  document.getElementById('c2s').value=today;
-  document.getElementById('c2e').value=today;
-  updateDateInputs();
-}
-
-function resetFilters(){
-  activeFilters={fwd:[],pol:[],line:[],agent:[]};
-  filterIds.forEach(function(id){let sel=document.getElementById(id);if(sel)sel.value='';});
-  let now=new Date();
-  if(isJalali()){
-    let j=g2j(now.getFullYear(),now.getMonth()+1,now.getDate());
-    let jm=j[1];
-    document.getElementById('fltFrom').value=j[0]+'-'+String(jm).padStart(2,'0')+'-01';
-  }else{
-    document.getElementById('fltFrom').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
-  }
-  document.getElementById('fltTo').value=todayStr();
-  updateFilterOptions();
-  updateDateInputs();
-  highlightPreset(null);
-  _debouncedRefresh();
-}
-
-function onDateChange(){updateFilterOptions();_debouncedRefresh();highlightPreset(null);}
-function highlightPreset(id){
-  document.querySelectorAll('.date-preset').forEach(function(b){b.classList.remove('active');});
-  if(id){let el=document.getElementById('dp-'+id);if(el)el.classList.add('active');}
-}
-function setDatePreset(preset){
-  let now=new Date();
-  let from,to=fmtDate(now);
-  if(isJalali()){
-    let jToday=g2j(now.getFullYear(),now.getMonth()+1,now.getDate());
-    let jy=jToday[0],jm=jToday[1];
-    if(preset==='today'){from=to;}
-    else if(preset==='7days'){let d=new Date(now);d.setDate(d.getDate()-7);from=fmtDate(d);}
-    else if(preset==='30days'){let d=new Date(now);d.setDate(d.getDate()-30);from=fmtDate(d);}
-    else if(preset==='month'){from=jy+'-'+String(jm).padStart(2,'0')+'-01';}
-    else if(preset==='quarter'){let qm=Math.floor((jm-1)/3)*3+1;from=jy+'-'+String(qm).padStart(2,'0')+'-01';}
-    else if(preset==='year'){from=jy+'-01-01';}
-  }else{
-    if(preset==='today'){from=to;}
-    else if(preset==='7days'){let d=new Date(now);d.setDate(d.getDate()-7);from=fmtDate(d);}
-    else if(preset==='30days'){let d=new Date(now);d.setDate(d.getDate()-30);from=fmtDate(d);}
-    else if(preset==='month'){from=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';}
-    else if(preset==='quarter'){let q=Math.floor(now.getMonth()/3);from=now.getFullYear()+'-'+String(q*3+1).padStart(2,'0')+'-01';}
-    else if(preset==='year'){from=now.getFullYear()+'-01-01';}
-  }
-  document.getElementById('fltFrom').value=from;
-  document.getElementById('fltTo').value=to;
-  updateFilterOptions();
-  updateDateInputs();
-  highlightPreset(preset);
-  _debouncedRefresh();
-}
-
-function updateFilterOptions(){
-  let from=document.getElementById('fltFrom').value;
-  let to=document.getElementById('fltTo').value;
-  let dateFiltered=rawRecords;
-  if(from||to){
-    dateFiltered=rawRecords.filter(function(r){
-      if(!r.arrv_date)return false;
-      let d=fmtDate(r.arrv_date),dm=fmtDateToMs(d);
-      if(from && dm<fmtDateToMs(from))return false;
-      if(to && dm>fmtDateToMs(to))return false;
-      return true;
-    });
-  }
-  filterIds.forEach(function(id,i){
-    let sel=document.getElementById(id);
-    if(!sel)return;
-    let prop=filterProps[i];
-    let cur=sel.value;
-    let s=new Set();dateFiltered.forEach(function(r){if(r[prop])s.add(r[prop]);});
-    let vals=Array.from(s).sort();
-    sel.innerHTML='<option value="">همه</option>';
-    vals.forEach(function(v){sel.insertAdjacentHTML('beforeend','<option value="'+esc(v)+'">'+esc(v)+'</option>');});
-    if(cur&&vals.indexOf(cur)!==-1)sel.value=cur;
-  });
-  let advKeys=['pol_forwarder','pol','line','iran_agent','size'];
-  let advIds=['advFwd','advPol','advLine','advAgent','advSize'];
-  advKeys.forEach(function(key,i){
-    let s=new Set();dateFiltered.forEach(function(r){if(r[key])s.add(r[key]);});
-    let vals=Array.from(s).sort();
-    let sel=document.getElementById(advIds[i]);
-    let cur=sel.value;
-    sel.innerHTML='<option value="">همه</option>';
-    vals.forEach(function(v){let o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
-    if(cur&&vals.indexOf(cur)!==-1)sel.value=cur;
-  });
-}
-
-/* ============================================================
-   6) EXPORT CSV
-   ============================================================ */
-function exportCSV(){
-  let records=getFilteredRecords();
-  if(!records.length){showToast('داده‌ای برای خروجی وجود ندارد',true);return;}
-  if(typeof XLSX==='undefined'){showToast('❌ کتابخانهٔ اکسل در دسترس نیست',true);return;}
-  let header=['Month','Line','Iran Agent','POL Forwarder','POL','Container','Size','Vessel','Caravan','Status','Qty'];
-  let rows=[header];
-  records.forEach(function(r){
-    let dateStr=r.arrv_date?fmtDate(r.arrv_date):'';
-    rows.push([dateStr,r.line||'',r.iran_agent||'',r.pol_forwarder||'',r.pol||'',r.container||'',r.size||'',r.vessel||'',r.caravan||'',r.status||'',r.qty||0]);
-  });
-  let ws=XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols']=[{wch:12},{wch:28},{wch:22},{wch:24},{wch:14},{wch:18},{wch:8},{wch:22},{wch:12},{wch:14},{wch:8}];
-  let wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,'Vessel Checking');
-  XLSX.writeFile(wb,'Vessel_Checking_Export_'+fmtDate(new Date())+'.xlsx');
-  showToast('✅ فایل Excel با '+records.length.toLocaleString()+' ردیف دانلود شد.',false);
-}
-
-/* ============================================================
-   7b) ADVANCED SEARCH
-   ============================================================ */
-function toggleAdvSearch(){
-  let w=document.getElementById('advWrap');
-  w.classList.toggle('show');
-}
-function advSearchChange(){
-  debouncedContSearch();
-}
-
-/* ============================================================
-   7) PERIOD COMPARISON
-   ============================================================ */
-function comparePeriods(){
-  if(!rawRecords.length)return;
-  let p1s=document.getElementById('c1s').value,p1e=document.getElementById('c1e').value;
-  let p2s=document.getElementById('c2s').value,p2e=document.getElementById('c2e').value;
-  function calc(ss,se){
-    let arr=rawRecords.filter(function(r){
-      if(!r.arrv_date)return false;let ds=fmtDate(r.arrv_date),dm=fmtDateToMs(ds);
-      if(ss&&dm<fmtDateToMs(ss))return false;if(se&&dm>fmtDateToMs(se))return false;
-      return true;
-    });
-    let contSet=new Set(),shipSum=0;
-    arr.forEach(function(r){if(r.container)contSet.add(r.container);shipSum+=r.qty;});
-    return {cont:contSet.size,ship:shipSum,lines:new Set(arr.map(function(r){return r.line;}).filter(Boolean)).size};
-  }
-  let p1=calc(p1s,p1e),p2=calc(p2s,p2e);
-  let items=[
-    {lbl:'Container (ستون F)',k:'cont'},
-    {lbl:'Shipment (ستون E)',k:'ship'},
-    {lbl:'Lines فعال',k:'lines'}
-  ];
-  document.getElementById('cmpGrid').innerHTML=items.map(function(item){
-    let v1=p1[item.k],v2=p2[item.k];
-    let diff=v2-v1,pct=v1?((v2-v1)/v1*100).toFixed(1):'N/A';
-    let cl=diff>0?'up':diff<0?'dn':'';
-    return '<div class="cmp-item"><div class="cmp-lbl">'+item.lbl+'</div><div class="cmp-v '+(diff>0?'teal':'gold')+'">'+fmtInt(v2)+'</div><div class="cmp-d">دوره ۱: '+fmtInt(v1)+'</div><div class="cmp-ch '+cl+'">'+(diff>0?'+':'')+pct+'%</div></div>';
-  }).join('');
-}
-
-/* ============================================================
-   8) EXCEL PARSING
-   ============================================================ */
-function findVesselSheetName(workbook){
-  let names=workbook.SheetNames;
-  let exact=names.find(function(n){return n.trim().toLowerCase()==='vessel checking';});
-  if(exact)return exact;
-  let partial=names.find(function(n){return n.toLowerCase().indexOf('vessel')!==-1;});
-  return partial||names[0];
-}
-
-function parseRows(rows){
-  let lastCaravan=null,lastVessel=null,records=[];
-  for(let r=1;r<rows.length;r++){
-    let row=rows[r]||[];
-    let caravan=row[1],vsl=row[3];
-    let qtyRaw=row[4];let qty=0;
-    if(qtyRaw!=null){let qs=String(qtyRaw).trim();try{qty=qs.split('+').reduce(function(s,x){return s+parseInt(x)||0;},0);}catch(e){qty=0;}}
-    let container=row[5],size=row[6],forwarder=row[9],pol=row[10],line=row[11],agent=row[12];
-    let dateRaw=row[14];let arrvDate=null;
-    if(dateRaw!=null&&dateRaw!==''){
-      if(dateRaw instanceof Date&&!isNaN(dateRaw.getTime()))arrvDate=dateRaw;
-      else if(typeof dateRaw==='number'&&dateRaw>40000)arrvDate=new Date((dateRaw-25569)*86400000);
-      else if(typeof dateRaw==='string'){
-        if(dateRaw.match(/^\d{4}-\d{2}-\d{2}/))arrvDate=new Date(dateRaw.slice(0,10)+'T00:00:00Z');
-        else{
-          let numVal=Number(dateRaw);
-          if(!isNaN(numVal)&&numVal>40000&&numVal<60000)arrvDate=new Date((numVal-25569)*86400000);
-        }
-        if(!arrvDate&&dateRaw.match(/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/)){
-          let parts=dateRaw.split(/[\/\-]/);
-          let y=parseInt(parts[2]);if(y<100)y+=2000;
-          arrvDate=new Date(y,parseInt(parts[1])-1,parseInt(parts[0]));
-        }
-        if(!arrvDate){let tryD=new Date(dateRaw);if(!isNaN(tryD.getTime()))arrvDate=tryD;}
-      }
-      if(arrvDate&&isNaN(arrvDate.getTime()))arrvDate=null;
-    }
-    if(caravan!=null&&caravan!=='')lastCaravan=caravan;
-    if(vsl!=null&&vsl!=='')lastVessel=String(vsl).trim();
-    if((container==null||container==='')&&(row[7]==null||row[7]===''))continue;
-    records.push({
-      caravan:lastCaravan,vessel:lastVessel,
-      container:container!=null?String(container).trim():null,
-      size:size!=null?String(size).trim():null,qty:qty,
-      pol_forwarder:forwarder!=null&&String(forwarder).trim()!==''?String(forwarder).trim():null,
-      pol:pol!=null&&String(pol).trim()!==''?String(pol).trim():null,
-      line:line!=null&&String(line).trim()!==''?String(line).trim():null,
-      iran_agent:agent!=null&&String(agent).trim()!==''?String(agent).trim():null,
-      arrv_date:arrvDate,date:arrvDate,status:arrvDate?'Arrived':'Pending'
-    });
-  }
-  return records;
-}
-
-function aggregateVesselSheet(workbook){
-  let sheetName=findVesselSheetName(workbook);
-  let ws=workbook.Sheets[sheetName];
-  let rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
-  return parseRows(rows);
-}
-
-/* ============================================================
-   9) FILE LOADING
-   ============================================================ */
-function showToast(msg,isErr){
-  let t=document.getElementById('toast');
-  t.textContent=msg;t.className='show'+(isErr?' err':'');
-  clearTimeout(showToast._t);
-  showToast._t=setTimeout(function(){t.className='';},3500);
-}
-
-function processArrayBuffer(buf,filename){
-  if(typeof XLSX==='undefined'){
-    showToast('❌ کتابخانهٔ اکسل بارگذاری نشد — VPN روشن کنید و رفرش کنید',true);
-    return;
-  }
-  try{
-    let workbook=XLSX.read(buf,{type:'array',cellDates:false});
-    rawRecords=aggregateVesselSheet(workbook);
-    let now=new Date();
-    let timeStr=now.toLocaleString('fa-IR',{hour:'2-digit',minute:'2-digit',second:'2-digit',year:'numeric',month:'2-digit',day:'2-digit'});
-    currentMeta={filename:filename,time:timeStr};
-    initFilters();
-    refreshDashboard();
-    showToast('✅ داشبورد از «'+filename+'» به‌روزرسانی شد ('+rawRecords.length.toLocaleString()+' رکورد)',false);
-    let autoRef=document.getElementById('autoRefLabel');
-    if(autoRef)autoRef.textContent='\uD83D\uDD04 '+new Date().toLocaleTimeString('fa-IR');
-  }catch(err){
-    log('ERROR:',err);
-    showToast('❌ خطا: '+err.message,true);
-  }
-}
-
-function loadFile(file){
-  if(!file)return;
-  let reader=new FileReader();
-  reader.onload=function(e){processArrayBuffer(e.target.result,file.name);};
-  reader.onerror=function(){showToast('❌ خطا در خواندن فایل',true);};
-  reader.readAsArrayBuffer(file);
-}
-
-
-['dragenter','dragover'].forEach(function(evt){document.addEventListener(evt,function(e){e.preventDefault();document.getElementById('dropOverlay').classList.add('active');});});
-['dragleave','drop'].forEach(function(evt){document.addEventListener(evt,function(e){e.preventDefault();if(evt==='dragleave'&&e.target.id!=='dropOverlay')return;document.getElementById('dropOverlay').classList.remove('active');});});
-document.addEventListener('drop',function(e){e.preventDefault();let file=e.dataTransfer.files&&e.dataTransfer.files[0];if(file)loadFile(file);});
-
-/* ============================================================
-   10) AUTO-LOAD FROM SERVER
-   ============================================================ */
-
-async function decryptData(buf, password){
-  try{
-    let data=new Uint8Array(buf);
-    let salt=data.slice(0,16), iv=data.slice(16,28), ct=data.slice(28);
-    let enc=new TextEncoder();
-    let keyMaterial=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveKey']);
-    let key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},keyMaterial,{name:'AES-GCM',length:256},false,['decrypt']);
-    return await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},key,ct);
-  }catch(e){
-    showToast('❌ رمز عبور اشتباه است یا فایل خراب است',true);
-    return null;
-  }
-}
-function showPasswordModal(){return new Promise(function(rs){
-  let m=document.getElementById('pwdModal');m.classList.add('show');
-  let inp=m.querySelector('#pwdInput');inp.value='';inp.focus();
-  m.querySelector('.ok').onclick=function(){m.classList.remove('show');rs(inp.value);};
-  m.querySelector('.cancel').onclick=function(){m.classList.remove('show');rs(null);};
-  inp.onkeydown=function(e){if(e.key==='Enter'){m.classList.remove('show');rs(inp.value);}};
-});}
-async function fetchGoogleSheet(){
-  let token=localStorage.getItem('bms_token');
-  if(!token)return null;
-  try{
-    let pb=document.getElementById('progFill');
-    if(pb)pb.style.width='30%';
-    document.getElementById('autoRefLabel').textContent='⏳ دریافت دیتا از سرور...';
-    let resp=await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:token}),signal:AbortSignal.timeout(30000)});
-    if(!resp.ok)return null;
-    if(pb)pb.style.width='60%';
-    document.getElementById('autoRefLabel').textContent='⏳ پردازش دیتا...';
-    let csv=await resp.text();
-    if(csv==='Forbidden'){
-      showBanner('<b>⚠️ اتصال به سرور دیتا ممکن نیست.</b><br>لطفاً از صفحه خارج شده دوباره وارد شوید. (توکن شما هنوز معتبر است)');
-      return null;
-    }
-    let wb=XLSX.read(csv,{type:'string',raw:true});
-    let ws=wb.Sheets[wb.SheetNames[0]];
-    let rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
-    if(rows.length<2)return null;
-    if(pb)pb.style.width='90%';
-    let records=parseRows(rows);
-    if(pb)pb.style.width='100%';
-    setTimeout(function(){if(pb)pb.style.width='0%';},600);
-    return records;
-  }catch(e){if(pb)pb.style.width='0%';return null;}
-}
-async function tryAutoFetch(){
-  if(_fetchInProgress)return;
-  _fetchInProgress=true;
-  try{
-    let isLocal=window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'||window.location.protocol==='file:';
-    if(!isLocal){
-      let gsRecords=await fetchGoogleSheet();
-      if(gsRecords&&gsRecords.length){
-        rawRecords=gsRecords;
-        currentMeta={time:new Date().toLocaleString('fa-IR')};
-        initFilters();refreshDashboard();
-        showToast('✅ دیتا از Google Sheets بارگذاری شد ('+gsRecords.length.toLocaleString()+' رکورد)',false);
-        document.getElementById('autoRefLabel').textContent='\uD83D\uDD04 '+new Date().toLocaleTimeString('fa-IR');
-        return;
-      }
-      try{
-        let resp=await fetch('data.enc');
-        if(resp.ok){
-          let buf=await resp.arrayBuffer();
-          let pw=await showPasswordModal();
-          if(pw){
-            let dec=await decryptData(buf,pw);
-            if(dec){processArrayBuffer(dec,'data.xlsx (encrypted)');return;}
-          }
-        }
-      }catch(e){}
-    }
-    let filenames=['data.xlsx','data.xlsm','Copy of Vesel Checking & Pending(M.H).xlsm','Copy of Vesel Checking & Pending(M.H).xlsx','Vessel_Checking.xlsm','Vessel_Checking.xlsx','dashboard.xlsm','dashboard.xlsx'];
-    for(let name of filenames){
-      try{
-        let resp=await fetch(encodeURI(name));
-        if(!resp.ok)continue;
-        let buf=await resp.arrayBuffer();
-        processArrayBuffer(buf,name);
-        return;
-      }catch(e){}
-    }
-  }finally{
-    _fetchInProgress=false;
-  }
-}
-function showBanner(msg){let b=document.getElementById('libBanner');if(msg){b.querySelector('div').innerHTML=sanitizeHtml(msg);}b.classList.add('show');}
-
-
-(async function boot(){
-  // Load external config (API URLs)
-  try{
-    let cfgResp=await fetch('config.json');
-    if(cfgResp.ok){let cfg=await cfgResp.json();if(cfg.PROXY_URL)PROXY_URL=cfg.PROXY_URL;if(cfg.LOGIN_PROXY_URL)LOGIN_PROXY_URL=cfg.LOGIN_PROXY_URL;}
-  }catch(e){}
-  let safeTimer=setTimeout(function(){
-    document.getElementById('libLoading').classList.add('hide');
-    showBanner('<b>⚠️ کتابخانه‌های مورد نیاز از اینترنت بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5).');
-  },28000);
-  let results=await Promise.all([window.__chartReady,window.__xlsxReady,window.__leafletReady]);
-  let chartUrl=results[0],xlsxUrl=results[1],leafletUrl=results[2];
-  clearTimeout(safeTimer);
-  document.getElementById('libLoading').classList.add('hide');
-  if(chartUrl){setupChartDefaults();renderAll(DEFAULT_DATA,{filename:null,time:null});initFilters();}
-  if(!chartUrl||!xlsxUrl){showBanner('<b>⚠️ کتابخانه‌های مورد نیاز بارگذاری نشدند.</b><br>آدرس‌های <code>cdnjs.cloudflare.com</code>، <code>jsdelivr.net</code> و <code>unpkg.com</code> از این شبکه در دسترس نیستند.<br><br><b>راه‌حل‌ها:</b> ۱) VPN روشن کنید و رفرش (F5). ۲) فایل اکسل را بفرستید تا نسخهٔ آفلاین بسازم.');}
-  if(chartUrl&&xlsxUrl)tryAutoFetch();
-  // Auto-refresh every 5 minutes
-  _autoRefreshInterval=setInterval(function(){
-    let loggedIn=localStorage.getItem('bms_logintime');
-    if(loggedIn&&(Date.now()-parseInt(loggedIn))<18e5&&chartUrl&&xlsxUrl&&!_fetchInProgress){
-      document.getElementById('autoRefLabel').textContent='🔄 بروزرسانی...';
-      tryAutoFetch();
-    }
-  },300000);
-  _logoutCheckInterval=setInterval(function(){
-    let t=localStorage.getItem('bms_logintime');
-    if(t&&(Date.now()-parseInt(t))>18e5){logout();}
-  },15000);
-})();
-async function doLogin(){
-  let user=document.getElementById('loginUser').value.trim();
-  let pass=document.getElementById('loginPass').value.trim();
-  if(!user||!pass){document.getElementById('loginErr').textContent='❌ لطفاً نام کاربری و رمز عبور را وارد کنید';document.getElementById('loginErr').style.display='block';return;}
-  let btn=document.getElementById('loginBtn');btn.classList.add('loading');btn.textContent='⏳ در حال بررسی…';
-  try{
-    let hash=await sha256(pass);
-    let resp=await fetch(LOGIN_PROXY_URL,{
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({action:'login',user:user,hash:hash}),
-      signal:AbortSignal.timeout(15000)
-    });
-    let text=await resp.text();
-    let data;
-    try{data=JSON.parse(text);}catch(e){data={ok:false};}
-    if(data.ok&&data.token){
-      let now=Date.now().toString();
-      localStorage.setItem('bms_token',data.token);
-      localStorage.setItem('bms_logintime',now);
-      localStorage.setItem('bms_username',user);
-      localStorage.setItem('bms_migrated','1');
-      document.getElementById('userDisplay').textContent=user;
-      document.getElementById('welcomeUser').style.display='';
-      document.getElementById('timerChip').style.display='';
-      updateTimer();
-      document.getElementById('splash').classList.remove('show');
-      if(window.__xlsxReady)tryAutoFetch();
-    }else{
-      document.getElementById('loginErr').textContent='❌ نام کاربری یا رمز عبور اشتباه است';
-      document.getElementById('loginErr').style.display='block';
-      btn.classList.remove('loading');btn.textContent='ورود به داشبورد ←';
-    }
-  }catch(e){
-    document.getElementById('loginErr').textContent='❌ خطا در ارتباط با سرور ورود';
-    document.getElementById('loginErr').style.display='block';
-    btn.classList.remove('loading');btn.textContent='ورود به داشبورد ←';
-  }
-}
-let _timerInterval=null;
-let _logoutCheckInterval=null;
-function updateTimer(){
-  let t=localStorage.getItem('bms_logintime');
-  if(!t)return;
-  let el=document.getElementById('timerDisplay');
-  let remaining=Math.max(0,18e5-(Date.now()-parseInt(t)));
-  let m=Math.floor(remaining/60000),s=Math.floor((remaining%60000)/1000);
-  el.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-  if(remaining<=0)logout();
-}
-let _autoRefreshInterval=null;
-let _fetchInProgress=false;
-function logout(){
-  let token=localStorage.getItem('bms_token');
-  if(token){
-    try{fetch(LOGIN_PROXY_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'logout',token:token}),signal:AbortSignal.timeout(5000)});}catch(e){}
-  }
-  localStorage.removeItem('bms_token');localStorage.removeItem('bms_username');localStorage.removeItem('bms_logintime');
-  document.getElementById('splash').classList.add('show');
-  document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';
-  document.getElementById('loginErr').style.display='none';
-  let btn=document.getElementById('loginBtn');btn.classList.remove('loading');btn.textContent='ورود به داشبورد ←';
-  document.getElementById('welcomeUser').style.display='none';
-  document.getElementById('timerChip').style.display='none';
-  if(_timerInterval){clearInterval(_timerInterval);_timerInterval=null;}
-  if(_logoutCheckInterval){clearInterval(_logoutCheckInterval);_logoutCheckInterval=null;}
-  if(_autoRefreshInterval){clearInterval(_autoRefreshInterval);_autoRefreshInterval=null;}
-}
-function toggleTheme(){
-  let html=document.documentElement;
-  let cur=html.getAttribute('data-theme');
-  let next=cur==='light'?'dark':'light';
-  html.setAttribute('data-theme',next);
-  localStorage.setItem('bms_theme',next);
-  document.getElementById('themeToggle').textContent=next==='light'?'☀️':'🌙';
-  let tc=chartTextColor();
-  Chart.defaults.color=tc;
-  Object.keys(charts).forEach(function(k){if(charts[k]){
-    charts[k].options.plugins.legend.labels.color=tc;
-    if(charts[k].options.scales){
-      Object.keys(charts[k].options.scales).forEach(function(sk){
-        let sc=charts[k].options.scales[sk];
-        if(sc.ticks)sc.ticks.color=tc;
-      });
-    }
-    charts[k].update();
-  }});
-}
-(function initTheme(){
-  let saved=localStorage.getItem('bms_theme');
-  if(saved==='light'){
-    document.documentElement.setAttribute('data-theme','light');
-    document.getElementById('themeToggle').textContent='☀️';
-  }
-})();
-(function(){
-  let t=localStorage.getItem('bms_logintime');
-  if(t&&(Date.now()-parseInt(t))<18e5){
-    let u=localStorage.getItem('bms_username');
-    let tok=localStorage.getItem('bms_token');
-    if(u&&tok){document.getElementById('userDisplay').textContent=u;document.getElementById('welcomeUser').style.display='';document.getElementById('splash').classList.remove('show');}
-    document.getElementById('timerChip').style.display='';
-    updateTimer();_timerInterval=setInterval(updateTimer,1000);
-  }
-})();
-(function(){
-  let df=localStorage.getItem('bms_dateformat');
-  if(df==='jalali'){_dateFormat='jalali';document.getElementById('dateModeBtn').textContent='📅 شمسی';}
-})();
-</script>
 </body>
 </html>
