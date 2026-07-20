@@ -16,8 +16,8 @@
   window.__leafletReady=loadFirstAvailable(['./leaflet.js',_u+'leaflet@1.9.4/dist/leaflet.js',_c+'leaflet/1.9.4/leaflet.js',_j+'leaflet@1.9.4/dist/leaflet-src.js',_g+'leaflet@1.9.4/dist/leaflet.js']).catch(e=>null);
 </script>
 <style>
-  :root{--navy-deep:#071523;--navy:#0B2036;--panel:#0F2A45;--panel-2:#123350;--panel-border:rgba(140,182,219,.14);--grid-line:rgba(120,170,210,.08);--teal:#22C0AE;--teal-dim:rgba(34,192,174,.16);--gold:#E8AE52;--gold-dim:rgba(232,174,82,.16);--red:#E5654A;--red-dim:rgba(229,101,74,.16);--blue:#5B9BD5;--text:#EAF1F8;--text-dim:#93AAC4;--text-faint:#5D7893;--mono:'IBM Plex Mono',monospace;--sans:'Vazirmatn',sans-serif;}
-  [data-theme="light"]{--navy-deep:#fbfcfc;--navy:#fbfcfc;--panel:#e0e5e9;--panel-2:#d6dde1;--panel-border:#b2c9c5;--grid-line:rgba(178,201,197,.3);--teal:#1bd488;--teal-dim:rgba(27,212,136,.16);--gold:#D4952A;--gold-dim:rgba(212,149,42,.16);--red:#E5654A;--red-dim:rgba(229,101,74,.16);--blue:#3B82B0;--text:#055b65;--text-dim:#45828b;--text-faint:#7ba8a5;}
+  :root{--navy-deep:#071523;--navy:#0B2036;--panel:#0F2A45;--panel-2:#123350;--panel-border:rgba(140,182,219,.14);--grid-line:rgba(120,170,210,.08);--teal:#22C0AE;--teal-dim:rgba(34,192,174,.16);--gold:#E8AE52;--gold-dim:rgba(232,174,82,.16);--red:#E5654A;--red-dim:rgba(229,101,74,.16);--blue:#5B9BD5;--text:#EAF1F8;--text-dim:#A8BDD6;--text-faint:#7A94B2;--mono:'IBM Plex Mono',monospace;--sans:'Vazirmatn',sans-serif;}
+  [data-theme="light"]{--navy-deep:#fbfcfc;--navy:#fbfcfc;--panel:#e0e5e9;--panel-2:#d6dde1;--panel-border:#b2c9c5;--grid-line:rgba(178,201,197,.3);--teal:#1bd488;--teal-dim:rgba(27,212,136,.16);--gold:#D4952A;--gold-dim:rgba(212,149,42,.16);--red:#E5654A;--red-dim:rgba(229,101,74,.16);--blue:#3B82B0;--text:#063a40;--text-dim:#1a5e5a;--text-faint:#3d756e;}
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{background:var(--navy-deep);color:var(--text);font-family:var(--sans);direction:rtl;}
   body{background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px),radial-gradient(ellipse 900px 500px at 85% -10%,rgba(34,192,174,.10),transparent 60%),radial-gradient(ellipse 700px 500px at 5% 10%,rgba(232,174,82,.06),transparent 60%);background-size:42px 42px,42px 42px,auto,auto;min-height:100vh;padding-bottom:60px;}
@@ -174,7 +174,7 @@
   .kpi .trend{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-family:var(--mono);padding:2px 7px;border-radius:100px;margin-top:5px;font-weight:600;}
   .kpi .trend.up{background:rgba(34,192,174,.12);color:#22C0AE;}
   .kpi .trend.dn{background:rgba(229,101,74,.12);color:#E5654A;}
-  .kpi .trend.flat{background:rgba(147,170,196,.12);color:#93AAC4;}
+  .kpi .trend.flat{background:rgba(147,170,196,.12);color:var(--text-faint);}
 
   .auto-cmp{background:var(--panel);border:1px solid var(--panel-border);border-radius:14px;padding:16px 20px;margin-bottom:18px;}
   .auto-cmp .cmp-title{font-size:13px;font-weight:700;margin-bottom:4px;}
@@ -494,7 +494,8 @@ const DEFAULT_DATA = {"total_containers":7786,"total_shipments":8066,"total_teu"
 /* ============================================================
    2) CHART.JS THEME + REGISTRY
    ============================================================ */
-function setupChartDefaults(){Chart.defaults.font.family="'IBM Plex Mono', monospace";Chart.defaults.color='#93AAC4';Chart.defaults.font.size=10.5;}
+function setupChartDefaults(){Chart.defaults.font.family="'IBM Plex Mono', monospace";Chart.defaults.color=getComputedStyle(document.documentElement).getPropertyValue('--text-dim').trim()||'#A8BDD6';Chart.defaults.font.size=10.5;}
+function chartTextColor(){return getComputedStyle(document.documentElement).getPropertyValue('--text-dim').trim()||'#A8BDD6';}
 const COLORS={teal:'#22C0AE',tealSoft:'rgba(34,192,174,.55)',tealFill:'rgba(34,192,174,.14)',gold:'#E8AE52',goldFill:'rgba(232,174,82,.14)',red:'#E5654A',blue:'#5B9BD5',grid:'rgba(120,170,210,.10)',palette:['#22C0AE','#E8AE52','#5B9BD5','#B08CE0','#E5654A','#6FCF97','#F2C94C','#9BA8C9','#2FA6A0','#D98CC0']};
 function fmtInt(n){return new Intl.NumberFormat('en-US').format(Math.round(n||0));}
 const charts={};
@@ -764,7 +765,7 @@ function renderAll(v, meta){
     },
     options:{
       responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:9},color:'#93AAC4',usePointStyle:true}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.y);}}}},
+      plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:9},color:chartTextColor(),usePointStyle:true}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.y);}}}},
       scales:{x:{stacked:false,grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);}}}}
     }
   });
@@ -803,7 +804,7 @@ function renderAll(v, meta){
     },
     options:{
       responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:9},color:'#93AAC4',usePointStyle:true}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.y);}}}},
+      plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:9},color:chartTextColor(),usePointStyle:true}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtInt(c.parsed.y);}}}},
       scales:{x:{grid:{display:false},ticks:{maxRotation:60,minRotation:60,font:{size:9}}},y:{grid:{color:COLORS.grid},ticks:{callback:function(v){return fmtInt(v);}}}}
     }
   });
@@ -822,7 +823,7 @@ function renderAll(v, meta){
     charts.chartLinesPie=new Chart(document.getElementById('chartLinesPie'),{
       type:'pie',
       data:{labels:lsData.map(function(d){return d.label;}),datasets:[{data:lsData.map(function(d){return d.value;}),backgroundColor:COLORS.palette,borderColor:'#0F2A45',borderWidth:2}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:'#93AAC4'}},tooltip:{callbacks:{label:function(c){var total=c.dataset.data.reduce(function(a,b){return a+b;},0);var pct=total?(c.parsed/total*100).toFixed(1):0;return c.label+': '+fmtInt(c.parsed)+' ('+pct+'%)';}}}}}
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:chartTextColor()}},tooltip:{callbacks:{label:function(c){var total=c.dataset.data.reduce(function(a,b){return a+b;},0);var pct=total?(c.parsed/total*100).toFixed(1):0;return c.label+': '+fmtInt(c.parsed)+' ('+pct+'%)';}}}}}
     });
   }
   hbar('chartForwarders',v.top_forwarders,COLORS.gold);
@@ -832,7 +833,7 @@ function renderAll(v, meta){
   charts.chartPOL=new Chart(document.getElementById('chartPOL'),{
     type:'doughnut',
     data:{labels:v.top_pol.map(function(d){return d.label;}),datasets:[{data:v.top_pol.map(function(d){return d.value;}),backgroundColor:COLORS.palette,borderColor:'#0F2A45',borderWidth:2}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:'#93AAC4'}},tooltip:{callbacks:{label:function(c){return c.label+': '+fmtInt(c.parsed)+' کانتینر';}}}}}
+    options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},color:chartTextColor()}},tooltip:{callbacks:{label:function(c){return c.label+': '+fmtInt(c.parsed)+' کانتینر';}}}}}
   });
 
   destroyChart('chartSize');
